@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMORIA — Pitch CCI Nice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FFF8F0;
+            --warm-brown: #8B6F47;
+            --warm-brown-dark: #6B5235;
+            --warm-brown-light: #A8956F;
+            --soft-orange: #E8A87C;
+            --dusty-rose: #D4A5A5;
+            --forest-green: #7FB069;
+            --text-dark: #3D2C1E;
+            --text-muted: #7A6555;
+            --white: #FFFFFF;
+            --shadow: 0 8px 32px rgba(139,111,71,0.12);
+            --shadow-lg: 0 16px 48px rgba(139,111,71,0.18);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Subtle background pattern for depth */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(232,168,124,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139,111,71,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(212,165,165,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Slide container */
+        .deck { position: relative; width: 100vw; height: 100vh; z-index: 1; }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-60px);
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--warm-brown);
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--warm-brown);
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--warm-brown-dark);
+            margin-bottom: 12px;
+        }
+
+        p, li {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: var(--text-dark);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .big-number {
+            font-family: 'Merriweather', serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--warm-brown);
+            line-height: 1;
+        }
+
+        .big-label {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .accent { color: var(--soft-orange); }
+        .green { color: var(--forest-green); }
+        .rose { color: var(--dusty-rose); }
+        .brown { color: var(--warm-brown); }
+
+        /* Layout helpers */
+        .row {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: flex-start;
+        }
+
+        .col { flex: 1; }
+
+        .center { text-align: center; }
+
+        .content {
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .card-sm {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .card-accent {
+            background: linear-gradient(135deg, var(--warm-brown), var(--warm-brown-dark));
+            color: var(--white);
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-accent h3, .card-accent p, .card-accent li { color: var(--white); }
+        .card-accent h3 { color: var(--soft-orange); }
+
+        /* Stat grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(139,111,71,0.12), 0 2px 8px rgba(139,111,71,0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(139,111,71,0.18), 0 4px 12px rgba(139,111,71,0.10);
+        }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .icon-orange { background: #FDE8D0; }
+        .icon-green { background: #D9F0CE; }
+        .icon-rose { background: #F5E0E0; }
+        .icon-brown { background: #E8DDD0; }
+        .icon-blue { background: #D0E4F5; }
+        .icon-purple { background: #E4D8F0; }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            gap: 0;
+            width: 100%;
+            max-width: 1100px;
+            position: relative;
+        }
+
+        /* Continuous connecting line behind all dots */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 6%;
+            right: 6%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--forest-green) 0%, var(--forest-green) 50%, var(--soft-orange) 55%, var(--warm-brown-light) 70%, var(--warm-brown-light) 100%);
+            z-index: 0;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 0 12px;
+        }
+
+        .timeline-dot {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--warm-brown);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .timeline-dot.done { background: var(--forest-green); }
+        .timeline-dot.current { background: var(--soft-orange); box-shadow: 0 0 0 6px rgba(232,168,124,0.3); }
+
+        .timeline-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--warm-brown);
+            margin-bottom: 4px;
+        }
+
+        .timeline-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Quote */
+        .quote {
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--warm-brown);
+            line-height: 1.6;
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+            padding: 0 40px;
+        }
+
+        .quote::before {
+            content: '\201C';
+            font-size: 6rem;
+            color: var(--soft-orange);
+            position: absolute;
+            top: -40px;
+            left: -10px;
+            opacity: 0.5;
+        }
+
+        /* Bullet list */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bullet-list li {
+            padding: 10px 0;
+            padding-left: 32px;
+            position: relative;
+            font-size: 1.15rem;
+        }
+
+        .bullet-list li::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--soft-orange);
+            position: absolute;
+            left: 0;
+            top: 18px;
+        }
+
+        /* Memoria button mockup */
+        .memoria-button {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5B8FC9, #4A7AB5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Merriweather', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(74,122,181,0.4), 0 0 0 8px rgba(74,122,181,0.15);
+            animation: pulse-btn 3s ease-in-out infinite;
+            cursor: default;
+            line-height: 1.3;
+            padding: 20px;
+        }
+
+        @keyframes pulse-btn {
+            0%, 100% { box-shadow: 0 8px 32px rgba(74,122,181,0.4), 0 0 0 8px rgba(74,122,181,0.15); }
+            50% { box-shadow: 0 8px 32px rgba(74,122,181,0.4), 0 0 0 16px rgba(74,122,181,0.08); }
+        }
+
+        /* Wave animation mockup */
+        .wave-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+            margin-top: 24px;
+        }
+
+        .wave-bar {
+            width: 6px;
+            border-radius: 3px;
+            background: var(--soft-orange);
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { height: 12px; }
+            50% { height: 48px; }
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.5s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.6s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.7s; }
+        .wave-bar:nth-child(9) { animation-delay: 0.8s; }
+        .wave-bar:nth-child(10) { animation-delay: 0.9s; }
+        .wave-bar:nth-child(11) { animation-delay: 1.0s; }
+        .wave-bar:nth-child(12) { animation-delay: 1.1s; }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--soft-orange), var(--warm-brown));
+            transition: width 0.4s ease;
+            z-index: 100;
+        }
+
+        /* Slide counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 24px;
+            right: 32px;
+            font-size: 0.9rem;
+            color: var(--warm-brown-light);
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        /* Navigation dots */
+        .nav-dots {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--warm-brown-light);
+            opacity: 0.3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover {
+            opacity: 0.7;
+            transform: scale(1.4);
+            background: var(--soft-orange);
+        }
+
+        .nav-dot.active {
+            opacity: 1;
+            background: var(--warm-brown);
+            transform: scale(1.3);
+        }
+
+        /* Logo */
+        .logo-text {
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 5rem;
+            color: var(--warm-brown);
+            letter-spacing: -2px;
+        }
+
+        /* Watermark logo */
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            left: 28px;
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 0.85rem;
+            color: var(--warm-brown-light);
+            opacity: 0.35;
+            letter-spacing: 0.5px;
+            z-index: 99;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .watermark.hidden {
+            opacity: 0;
+        }
+
+        /* Divider */
+        .divider {
+            width: 80px;
+            height: 4px;
+            background: var(--soft-orange);
+            border-radius: 2px;
+            margin: 20px 0;
+        }
+
+        .divider-center {
+            width: 80px;
+            height: 4px;
+            background: var(--soft-orange);
+            border-radius: 2px;
+            margin: 20px auto;
+        }
+
+        /* Pricing */
+        .price-tag {
+            font-family: 'Merriweather', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--forest-green);
+        }
+
+        .price-period {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* CTA slide */
+        .cta-bg {
+            background: linear-gradient(135deg, var(--warm-brown) 0%, var(--warm-brown-dark) 100%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+        }
+
+        .cta-bg h1, .cta-bg h2, .cta-bg p { color: var(--cream); }
+        .cta-bg h1 { color: var(--white); font-size: 3.5rem; }
+
+        /* Tag */
+        .tag {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .tag-orange { background: #FDE8D0; color: #A0622A; }
+        .tag-green { background: #D9F0CE; color: #4A7A35; }
+        .tag-brown { background: #E8DDD0; color: var(--warm-brown-dark); }
+
+        /* Architecture diagram */
+        .arch-box {
+            background: var(--white);
+            border: 2px solid var(--soft-orange);
+            border-radius: 12px;
+            padding: 16px 24px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--warm-brown-dark);
+        }
+
+        .arch-arrow {
+            color: var(--soft-orange);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Footer branding bar */
+        .slide-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--soft-orange), var(--warm-brown), var(--dusty-rose));
+            opacity: 0.25;
+        }
+
+        /* Responsive safety */
+        @media (max-width: 900px) {
+            .slide { padding: 30px 24px; }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.8rem; }
+            .feature-grid, .stat-grid { grid-template-columns: 1fr 1fr; }
+            .row { flex-direction: column; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="watermark" id="watermark">Memoria</div>
+
+<div class="deck" id="deck">
+
+    <!-- ==================== SLIDE 1 : COUVERTURE ==================== -->
+    <div class="slide" data-bg="cream" data-no-watermark="true">
+        <div class="center">
+            <div style="margin-bottom: 8px;">
+                <span class="tag tag-brown">Candidature AMI — CCI Nice C&ocirc;te d'Azur</span>
+            </div>
+            <div class="logo-text">Memoria</div>
+            <div class="divider-center"></div>
+            <p class="subtitle" style="max-width: 700px; margin: 0 auto 40px;">
+                L'IA qui recueille les souvenirs de nos a&icirc;n&eacute;s<br>
+                et veille sur leur sant&eacute; cognitive
+            </p>
+            <div style="display: flex; justify-content: center; gap: 24px; margin-top: 20px;">
+                <div class="tag tag-orange">Intelligence Artificielle</div>
+                <div class="tag tag-green">Silver &Eacute;conomie</div>
+                <div class="tag tag-brown">Sant&eacute; Pr&eacute;ventive</div>
+            </div>
+            <p style="margin-top: 48px; color: var(--text-muted); font-size: 1rem;">
+                Studio Cavalli — Nice, 2026
+            </p>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 2 : LE CONSTAT ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-orange">Le constat</span>
+            <h1>Chaque jour, des histoires<br>disparaissent <span class="accent">&agrave; jamais</span></h1>
+            <div class="divider"></div>
+            <div class="stat-grid" style="margin-top: 32px;">
+                <div class="stat-card">
+                    <div class="big-number">2,2M</div>
+                    <div class="big-label">Seniors 80+ isol&eacute;s en France</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number" style="color: var(--dusty-rose);">1,2M</div>
+                    <div class="big-label">Personnes atteintes de troubles cognitifs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number" style="color: var(--forest-green);">300K</div>
+                    <div class="big-label">Nouveaux cas diagnostiqu&eacute;s chaque ann&eacute;e</div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 28px; background: #FDF6EF;">
+                <p style="font-size: 1.15rem; text-align: center;">
+                    <strong>Le paradoxe :</strong> nos grands-parents sont les derniers t&eacute;moins d'une &eacute;poque,
+                    mais personne ne prend le temps de recueillir leurs histoires.
+                    Quand ils disparaissent, c'est une biblioth&egrave;que qui br&ucirc;le.
+                </p>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 3 : LA SOLUTION ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-green">La solution</span>
+            <h1>Memoria, le biographe IA<br>qui prend soin de nos a&icirc;n&eacute;s</h1>
+            <div class="divider"></div>
+            <div class="row" style="margin-top: 32px;">
+                <div class="col" style="flex: 1.2;">
+                    <ul class="bullet-list">
+                        <li><strong>Un compagnon vocal bienveillant</strong> qui converse avec le senior pour recueillir ses souvenirs de vie</li>
+                        <li><strong>Un journal de vie automatique</strong> qui organise, enrichit et transmet les r&eacute;cits aux proches</li>
+                        <li><strong>Une sentinelle cognitive</strong> qui d&eacute;tecte les premiers signes de d&eacute;clin et alerte la famille</li>
+                    </ul>
+                    <div class="card" style="margin-top: 24px; padding: 20px 28px; background: #F0F7EC;">
+                        <p style="font-size: 1rem; margin: 0;">
+                            <span class="green" style="font-weight: 800;">2 missions en 1 :</span>
+                            Pr&eacute;server la m&eacute;moire familiale <strong>ET</strong> pr&eacute;venir les troubles cognitifs
+                        </p>
+                    </div>
+                </div>
+                <div class="col" style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="memoria-button">
+                        Parler &agrave;<br>Memoria
+                    </div>
+                    <div class="wave-container">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 12px;">Interface r&eacute;elle de la tablette</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 4 : COMMENT CA MARCHE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-brown">Comment &ccedil;a marche</span>
+            <h1>3 &eacute;tapes, <span class="accent">z&eacute;ro friction</span></h1>
+            <div class="divider"></div>
+            <div class="feature-grid" style="margin-top: 32px;">
+                <div class="card-sm">
+                    <div class="feature-icon icon-orange" style="margin: 0 auto 16px;">
+                        <span>1</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem;">Le senior parle</h3>
+                    <p style="font-size: 1rem;">Un seul bouton. Memoria pose des questions ouvertes et bienveillantes. Le senior raconte, &agrave; son rythme.</p>
+                </div>
+                <div class="card-sm">
+                    <div class="feature-icon icon-green" style="margin: 0 auto 16px;">
+                        <span>2</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem;">L'IA pr&eacute;serve</h3>
+                    <p style="font-size: 1rem;">Chaque r&eacute;cit est transcrit, r&eacute;sum&eacute; et class&eacute; par th&egrave;me. Les souvenirs deviennent un patrimoine structur&eacute;.</p>
+                </div>
+                <div class="card-sm">
+                    <div class="feature-icon icon-rose" style="margin: 0 auto 16px;">
+                        <span>3</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem;">La famille re&ccedil;oit</h3>
+                    <p style="font-size: 1rem;">Chaque semaine, une <strong>Gazette</strong> PDF avec les souvenirs. Plus un dashboard avec alertes de sant&eacute; cognitive.</p>
+                </div>
+            </div>
+            <div class="card-accent" style="margin-top: 32px; text-align: center;">
+                <p style="font-size: 1.2rem; margin: 0;">
+                    Latence de r&eacute;ponse <strong>&lt; 1,5 seconde</strong> — Pour un senior, une IA lente est une IA cass&eacute;e.
+                    Memoria r&eacute;pond aussi vite qu'un humain.
+                </p>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 5 : MODULE SENTINELLE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-orange">Innovation sant&eacute;</span>
+            <h1>Le Module Sentinelle :<br>d&eacute;tecter avant qu'il ne soit <span class="rose">trop tard</span></h1>
+            <div class="divider"></div>
+            <div class="row" style="margin-top: 32px;">
+                <div class="col">
+                    <div class="card" style="margin-bottom: 16px;">
+                        <h3>Richesse s&eacute;mantique</h3>
+                        <p style="font-size: 1rem;">L'IA mesure le nombre de mots uniques, la complexit&eacute; des phrases et la diversit&eacute; du vocabulaire &agrave; chaque session.</p>
+                    </div>
+                    <div class="card" style="margin-bottom: 16px;">
+                        <h3>Temps de r&eacute;ponse</h3>
+                        <p style="font-size: 1rem;">La latence entre la question et la r&eacute;ponse du senior est trac&eacute;e. Une augmentation peut signaler un trouble.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Alertes intelligentes</h3>
+                        <p style="font-size: 1rem;">Si une chute brutale est d&eacute;tect&eacute;e sur 7 jours, les proches re&ccedil;oivent une <strong>alerte Vigilance</strong> par notification et email.</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card" style="background: #FDF6EF; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <div style="margin-bottom: 24px;">
+                            <svg width="200" height="120" viewBox="0 0 200 120">
+                                <polyline points="10,100 40,85 70,80 100,70 130,65 160,50 190,30" fill="none" stroke="#7FB069" stroke-width="3"/>
+                                <polyline points="10,60 40,65 70,70 100,80 130,85 160,90 190,95" fill="none" stroke="#D4A5A5" stroke-width="3" stroke-dasharray="6,4"/>
+                                <text x="10" y="15" font-size="11" fill="#7FB069" font-weight="700">Vocabulaire</text>
+                                <text x="130" y="15" font-size="11" fill="#D4A5A5" font-weight="700">Latence</text>
+                            </svg>
+                        </div>
+                        <div class="big-number" style="font-size: 3rem;">87</div>
+                        <div class="big-label">Score de vitalit&eacute; cognitive</div>
+                        <p style="font-size: 0.95rem; margin-top: 16px; color: var(--forest-green); font-weight: 700;">
+                            Tendance stable sur 30 jours
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 6 : TECHNOLOGIE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-brown">Technologie</span>
+            <h1>Une architecture pens&eacute;e pour la <span class="accent">fiabilit&eacute;</span></h1>
+            <div class="divider"></div>
+            <div class="row" style="margin-top: 28px; align-items: stretch;">
+                <div class="col">
+                    <div class="feature-grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="feature-card">
+                            <div class="feature-icon icon-orange"><span>AI</span></div>
+                            <h3 style="font-size: 1rem;">LLM Claude / GPT-4o</h3>
+                            <p style="font-size: 0.9rem;">Conversations empathiques et extraction de souvenirs</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon icon-green"><span>STT</span></div>
+                            <h3 style="font-size: 1rem;">Whisper / Azure</h3>
+                            <p style="font-size: 0.9rem;">Reconnaissance vocale optimis&eacute;e pour les voix &acirc;g&eacute;es</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon icon-rose"><span>TTS</span></div>
+                            <h3 style="font-size: 1rem;">ElevenLabs / Azure</h3>
+                            <p style="font-size: 0.9rem;">Voix naturelle et chaleureuse, non robotique</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon icon-blue"><span>NLP</span></div>
+                            <h3 style="font-size: 1rem;">Analyse cognitive</h3>
+                            <p style="font-size: 0.9rem;">spaCy + m&eacute;triques pour d&eacute;tection de d&eacute;clin</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                        <h3>S&eacute;curit&eacute; des donn&eacute;es</h3>
+                        <ul class="bullet-list" style="margin-top: 8px;">
+                            <li>Chiffrement <strong>AES-256</strong> de toutes les transcriptions</li>
+                            <li>Conformit&eacute; <strong>RGPD</strong> compl&egrave;te (export, suppression)</li>
+                            <li>H&eacute;bergement <strong>HDS</strong> (H&eacute;bergeur de Donn&eacute;es de Sant&eacute;)</li>
+                            <li>Authentification <strong>JWT</strong> + tokens s&eacute;curis&eacute;s</li>
+                        </ul>
+                        <div style="margin-top: 16px; padding: 12px 16px; background: #F0F7EC; border-radius: 10px;">
+                            <p style="font-size: 0.95rem; margin: 0; color: var(--forest-green); font-weight: 700;">
+                                Les donn&eacute;es de sant&eacute; et les r&eacute;cits de vie sont des donn&eacute;es sensibles. La s&eacute;curit&eacute; n'est pas une option.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 7 : MARCHE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-green">Le march&eacute;</span>
+            <h1>La Silver &Eacute;conomie :<br>un march&eacute; de <span class="green">130 milliards</span> en France</h1>
+            <div class="divider"></div>
+            <div class="stat-grid" style="margin-top: 32px;">
+                <div class="stat-card">
+                    <div class="big-number" style="color: var(--forest-green);">130 Mds</div>
+                    <div class="big-label">March&eacute; Silver &Eacute;conomie France 2025</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number">4,8M</div>
+                    <div class="big-label">Personnes de 80+ ans en France</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number" style="color: var(--soft-orange);">+50%</div>
+                    <div class="big-label">Croissance des 80+ d'ici 2040</div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 28px;">
+                <div class="card col" style="text-align: center;">
+                    <h3>Nos cibles</h3>
+                    <p style="font-size: 1rem;"><strong>B2C :</strong> Familles avec un a&icirc;n&eacute; &agrave; domicile</p>
+                    <p style="font-size: 1rem;"><strong>B2B :</strong> EHPAD, r&eacute;sidences seniors, mutuelles</p>
+                    <p style="font-size: 1rem;"><strong>B2G :</strong> D&eacute;partements, ARS, CCAS</p>
+                </div>
+                <div class="card col" style="text-align: center;">
+                    <h3>Notre avantage</h3>
+                    <p style="font-size: 1rem;">Aucun concurrent ne combine <strong>biographie IA</strong> et <strong>d&eacute;tection cognitive</strong>. Les solutions existantes font l'un ou l'autre, jamais les deux.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 8 : MODELE ECONOMIQUE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-orange">Mod&egrave;le &eacute;conomique</span>
+            <h1>Un abonnement accessible,<br>un impact <span class="accent">mesurable</span></h1>
+            <div class="divider"></div>
+            <div class="row" style="margin-top: 32px; align-items: stretch;">
+                <div class="card col" style="text-align: center; border: 2px solid var(--soft-orange);">
+                    <div class="tag tag-orange">Famille</div>
+                    <div class="price-tag" style="margin-top: 12px;">29,90 /mois</div>
+                    <div class="price-period">par senior</div>
+                    <ul class="bullet-list" style="text-align: left; margin-top: 20px;">
+                        <li>Tablette pr&eacute;-configur&eacute;e (pr&ecirc;t ou achat)</li>
+                        <li>Sessions illimit&eacute;es</li>
+                        <li>Dashboard famille</li>
+                        <li>Gazette hebdomadaire</li>
+                        <li>Alertes Sentinelle</li>
+                    </ul>
+                </div>
+                <div class="card col" style="text-align: center; border: 2px solid var(--forest-green);">
+                    <div class="tag tag-green">EHPAD / R&eacute;sidence</div>
+                    <div class="price-tag" style="margin-top: 12px;">19,90 /mois</div>
+                    <div class="price-period">par r&eacute;sident (min. 10)</div>
+                    <ul class="bullet-list" style="text-align: left; margin-top: 20px;">
+                        <li>D&eacute;ploiement multi-r&eacute;sidents</li>
+                        <li>Dashboard &eacute;quipe soignante</li>
+                        <li>Rapports cognitifs pour le m&eacute;decin</li>
+                        <li>Int&eacute;gration dossier patient</li>
+                        <li>Support et formation</li>
+                    </ul>
+                </div>
+                <div class="card col" style="text-align: center; background: var(--warm-brown); color: white;">
+                    <div style="color: var(--soft-orange); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Projection</div>
+                    <div style="margin-top: 20px;">
+                        <div class="big-number" style="color: white; font-size: 2.5rem;">500</div>
+                        <div style="color: var(--soft-orange); font-weight: 700; font-size: 0.9rem;">abonn&eacute;s &agrave; 18 mois</div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <div class="big-number" style="color: white; font-size: 2.5rem;">180K</div>
+                        <div style="color: var(--soft-orange); font-weight: 700; font-size: 0.9rem;">ARR &agrave; 18 mois</div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <div class="big-number" style="color: white; font-size: 2.5rem;">85%</div>
+                        <div style="color: var(--soft-orange); font-weight: 700; font-size: 0.9rem;">marge brute</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 9 : ROADMAP ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-brown">Roadmap</span>
+            <h1>8 semaines jusqu'&agrave; la <span class="accent">d&eacute;mo</span></h1>
+            <div class="divider"></div>
+            <div class="timeline" style="margin-top: 40px;">
+                <div class="timeline-item">
+                    <div class="timeline-dot done">S1</div>
+                    <div class="timeline-title">Infrastructure</div>
+                    <div class="timeline-desc">Setup complet, BDD, API, auth</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot done">S2</div>
+                    <div class="timeline-title">Moteur IA</div>
+                    <div class="timeline-desc">LLM, STT, TTS, pipeline vocal</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot done">S3</div>
+                    <div class="timeline-title">Narrative</div>
+                    <div class="timeline-desc">Questions bio, extraction, Gazette</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot done">S4</div>
+                    <div class="timeline-title">Sentinelle</div>
+                    <div class="timeline-desc">Analyse cognitive, alertes</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot current">S5</div>
+                    <div class="timeline-title">Interfaces</div>
+                    <div class="timeline-desc">Tablette senior, dashboard</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">S6</div>
+                    <div class="timeline-title">Design</div>
+                    <div class="timeline-desc">Bo&icirc;tier totem, finitions</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">S7</div>
+                    <div class="timeline-title">Tests</div>
+                    <div class="timeline-desc">Groupe t&eacute;moin seniors Nice</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">S8</div>
+                    <div class="timeline-title">D&eacute;mo</div>
+                    <div class="timeline-desc">Salon 2 juin</div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 36px; text-align: center; background: #F0F7EC;">
+                <p style="font-size: 1.1rem; margin: 0;">
+                    <span class="green" style="font-weight: 800;">4 milestones d&eacute;j&agrave; livr&eacute;s</span> —
+                    109 fichiers, 65 fichiers Python, 21 composants React, 43 issues ferm&eacute;es.
+                    Le produit <strong>existe d&eacute;j&agrave;</strong>.
+                </p>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 10 : L'EQUIPE ==================== -->
+    <div class="slide">
+        <div class="content">
+            <span class="tag tag-orange">L'&eacute;quipe</span>
+            <h1>Studio Cavalli</h1>
+            <p class="subtitle">Bas&eacute; &agrave; Nice — Passion pour la tech &agrave; impact social</p>
+            <div class="divider"></div>
+            <div class="row" style="margin-top: 28px;">
+                <div class="card col" style="text-align: center;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--soft-orange); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 800;">SC</div>
+                    <h3>Studio Cavalli</h3>
+                    <p style="font-size: 1rem; color: var(--text-muted);">D&eacute;veloppement produit, IA, design</p>
+                </div>
+                <div class="card col">
+                    <h3>Ce que nous cherchons</h3>
+                    <ul class="bullet-list">
+                        <li><strong>Financement</strong> pour la phase de test et le d&eacute;ploiement pilote</li>
+                        <li><strong>Accompagnement</strong> CCI pour l'acc&egrave;s aux EHPAD et r&eacute;sidences de la r&eacute;gion</li>
+                        <li><strong>R&eacute;seau</strong> de professionnels de sant&eacute; pour valider le module Sentinelle</li>
+                        <li><strong>Visibilit&eacute;</strong> aupr&egrave;s des d&eacute;cideurs de la Silver &Eacute;conomie</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 11 : IMPACT ==================== -->
+    <div class="slide">
+        <div class="content center">
+            <span class="tag tag-green">Impact</span>
+            <h2 style="margin-top: 16px;">Chaque souvenir pr&eacute;serv&eacute; est un cadeau<br>pour les g&eacute;n&eacute;rations futures</h2>
+            <div class="divider-center"></div>
+            <div class="quote" style="margin: 32px auto;">
+                Mamie m'a racont&eacute; comment elle a rencontr&eacute; papy &agrave; un bal en 1958 &agrave; Nice. Je n'aurais jamais connu cette histoire sans Memoria. Maintenant, mes enfants la connaissent aussi.
+            </div>
+            <p style="color: var(--text-muted); margin-top: 16px; font-style: italic;">— Sc&eacute;nario utilisateur type</p>
+            <div class="stat-grid" style="margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div class="stat-card">
+                    <div class="big-number" style="font-size: 3rem; color: var(--forest-green);">+40%</div>
+                    <div class="big-label">bien-&ecirc;tre senior (&eacute;tudes r&eacute;miniscence)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number" style="font-size: 3rem;">6 mois</div>
+                    <div class="big-label">d&eacute;tection pr&eacute;coce avant le diagnostic clinique</div>
+                </div>
+                <div class="stat-card">
+                    <div class="big-number" style="font-size: 3rem; color: var(--soft-orange);">&infin;</div>
+                    <div class="big-label">souvenirs pr&eacute;serv&eacute;s pour les g&eacute;n&eacute;rations</div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer"></div>
+    </div>
+
+    <!-- ==================== SLIDE 12 : CTA ==================== -->
+    <div class="slide" style="padding: 0;" data-no-watermark="true">
+        <div class="cta-bg">
+            <div class="logo-text" style="color: var(--white); margin-bottom: 12px;">Memoria</div>
+            <div class="divider-center" style="background: var(--soft-orange);"></div>
+            <h2 style="color: var(--cream); margin-top: 24px; font-size: 2rem; max-width: 700px; text-align: center;">
+                Donnons une voix &agrave; ceux qui ont tant &agrave; raconter.
+                <br>Avant qu'il ne soit trop tard.
+            </h2>
+            <div style="margin-top: 48px; display: flex; gap: 24px;">
+                <div style="background: var(--soft-orange); padding: 16px 36px; border-radius: 12px; color: var(--warm-brown-dark); font-weight: 800; font-size: 1.15rem;">
+                    Demander une d&eacute;mo
+                </div>
+                <div style="border: 2px solid var(--cream); padding: 16px 36px; border-radius: 12px; color: var(--cream); font-weight: 700; font-size: 1.15rem;">
+                    contact@studiocavalli.fr
+                </div>
+            </div>
+            <p style="margin-top: 48px; color: var(--warm-brown-light); font-size: 0.95rem;">
+                Studio Cavalli — Nice C&ocirc;te d'Azur — 2026
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const deck = document.getElementById('deck');
+    const progressBar = document.getElementById('progressBar');
+    const counter = document.getElementById('slideCounter');
+    const dotsContainer = document.getElementById('navDots');
+    const watermark = document.getElementById('watermark');
+    let current = 0;
+
+    // Create dots
+    slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => goTo(i);
+        dotsContainer.appendChild(dot);
+    });
+
+    function goTo(n) {
+        if (n < 0 || n >= slides.length) return;
+
+        // Clear all classes from all slides, then set proper state
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active', 'prev');
+            if (i < n) {
+                slide.classList.add('prev');
+            }
+            // slides after n have no extra class (default: off to the right)
+            if (i === n) {
+                slide.classList.add('active');
+            }
+        });
+
+        current = n;
+
+        // Update progress
+        progressBar.style.width = ((current / (slides.length - 1)) * 100) + '%';
+        counter.textContent = (current + 1) + ' / ' + slides.length;
+
+        // Update dots
+        document.querySelectorAll('.nav-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === current);
+        });
+
+        // Show/hide watermark on cover (slide 0) and CTA (last slide)
+        var currentSlide = slides[current];
+        if (currentSlide.dataset.noWatermark === 'true') {
+            watermark.classList.add('hidden');
+        } else {
+            watermark.classList.remove('hidden');
+        }
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            goTo(current + 1);
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+            e.preventDefault();
+            goTo(current - 1);
+        }
+        if (e.key === 'f' || e.key === 'F') {
+            document.documentElement.requestFullscreen?.();
+        }
+        if (e.key === 'Escape') {
+            document.exitFullscreen?.();
+        }
+    });
+
+    // Touch/click nav
+    let touchStartX = 0;
+    deck.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    deck.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            diff > 0 ? goTo(current + 1) : goTo(current - 1);
+        }
+    });
+
+    // Click sides to navigate
+    deck.addEventListener('click', (e) => {
+        const x = e.clientX / window.innerWidth;
+        if (x > 0.75) goTo(current + 1);
+        else if (x < 0.25) goTo(current - 1);
+    });
+
+    // Init
+    goTo(0);
+</script>
+
+</body>
+</html>
