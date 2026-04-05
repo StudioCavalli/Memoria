@@ -1,6 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FFF8F0;
+  --color-brown: #7D6340;
+  --color-brown-dark: #6B5235;
+  --color-brown-light: #8B6F47;
+  --color-orange-soft: #E8A87C;
+  --color-orange-text: #9A6429;
+  --color-rose-dusty: #D4A5A5;
+  --color-green-forest: #4A7A35;
+  --color-green-light: #7FB069;
+  --color-text-dark: #3D2C1E;
+  --color-text-muted: #7A6555;
+
+  --font-heading: 'Merriweather', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+}
 
 html {
   scroll-behavior: smooth;
@@ -16,12 +39,6 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Merriweather', Georgia, serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
 }
 
 /* Custom scrollbar */
@@ -52,17 +69,4 @@ h1, h2, h3, h4, h5, h6 {
 :focus-visible {
   outline: 2px solid #E8A87C;
   outline-offset: 2px;
-}
-
-/* Screen reader only utility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }
