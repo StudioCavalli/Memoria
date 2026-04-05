@@ -274,71 +274,74 @@ def build():
     # PAGE 1 — VOTRE ACTIVITÉ
     # ════════════════════════════════════════════
     story.append(SectionBanner("VOTRE ACTIVITÉ", usable))
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
     # Champs d'identité en tableau
     info_data = [
         [Paragraph("<b>Raison sociale :</b>", ST['label']),
-         Paragraph("Christopher Cavalli", ST['value'])],
+         Paragraph("Christopher Cavalli (EI)", ST['value'])],
         [Paragraph("<b>Nom commercial :</b>", ST['label']),
-         Paragraph("Foxcase / Memoria", ST['value'])],
+         Paragraph("Foxcase", ST['value'])],
+        [Paragraph("<b>SIREN :</b>", ST['label']),
+         Paragraph("834 802 407 — NAF 6201Z (Programmation informatique)", ST['value'])],
+        [Paragraph("<b>Adresse :</b>", ST['label']),
+         Paragraph("45 Boulevard de la Croisette, 06400 Cannes", ST['value'])],
         [Paragraph("<b>Cible :</b>", ST['label']),
-         Paragraph("B2C (familles de seniors) / B2B (EHPAD, résidences) / B2G (collectivités, ARS)", ST['value'])],
+         Paragraph("B2B / B2G (et B2C via le projet Memoria)", ST['value'])],
     ]
-    info = Table(info_data, colWidths=[90, usable - 100])
+    info = Table(info_data, colWidths=[80, usable - 90])
     info.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
     story.append(info)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
 
     story.append(Paragraph("<b>Description de votre activité :</b>", ST['label']))
     story.append(Paragraph(
-        "Memoria est un système d'IA biographique et préventif destiné aux seniors de 80 ans et plus, à domicile ou en établissement. "
-        "Le dispositif se compose d'une tablette en mode kiosque (un seul bouton « Parler à Memoria »), d'un moteur d'intelligence artificielle conversationnelle "
-        "et d'un dashboard web pour les proches. L'IA pose des questions ouvertes et bienveillantes pour recueillir les souvenirs de vie du senior, "
-        "les transcrit, les résume et les classe automatiquement par thème. Chaque semaine, une Gazette PDF narrative est envoyée à la famille. "
-        "En parallèle, le module Sentinelle analyse la richesse sémantique et les temps de réponse du senior pour détecter les premiers signes de déclin cognitif "
-        "et alerter les proches en cas de chute brutale des indicateurs.",
+        "Foxcase est une entreprise spécialisée dans la conception et le développement de logiciels et d'outils numériques innovants, "
+        "ainsi que leur exploitation et maintenance. Nous concevons des produits technologiques à fort impact, "
+        "en particulier des solutions intégrant l'intelligence artificielle, à destination des entreprises, des collectivités et du grand public.",
+        ST['body']))
+    story.append(Spacer(1, 2))
+
+    story.append(Paragraph(
+        "<b>Projet présenté — Memoria :</b> système d'IA biographique et préventif destiné aux seniors de 80 ans et plus. "
+        "Une tablette en mode kiosque (un seul bouton), un moteur d'IA conversationnelle qui recueille les souvenirs de vie, "
+        "un dashboard web pour les proches, et un module Sentinelle qui analyse le langage pour détecter les premiers signes de déclin cognitif.",
         ST['body']))
 
     story.append(Paragraph("<b>Références :</b>", ST['label']))
-    story.append(Paragraph("• <b>SchoolSide</b> — Extranet scolaire innovant et assisté par IA, présenté chez Station F", ST['bullet']))
-    story.append(Paragraph("• <b>Clayr</b> — Site communautaire entièrement propulsé par IA et gamifié", ST['bullet']))
-    story.append(Spacer(1, 4))
+    story.append(Paragraph("• <b>SchoolSide</b> — Extranet scolaire innovant assisté par IA, présenté chez Station F", ST['bullet']))
+    story.append(Paragraph("• <b>Clayr</b> — Site communautaire propulsé par IA et gamifié", ST['bullet']))
+    story.append(Spacer(1, 3))
 
     # ── Question 1 : Solution à montrer ──
-    story.append(Paragraph("Avez-vous une solution / produit à montrer et faire expérimenter le jour J ? Si oui, merci de détailler", ST['question']))
+    story.append(Paragraph("Avez-vous une solution / produit à montrer et faire expérimenter le jour J ?", ST['question']))
     story.append(ColoredLine(usable, CREAM_DARK, 1))
 
     story.append(Paragraph(
-        "<b>Oui, absolument.</b> Memoria est un produit fonctionnel, développé et opérationnel, prêt à être expérimenté en conditions réelles le jour de la présentation.",
+        "<b>Oui.</b> Memoria est un produit fonctionnel, prêt à être expérimenté en conditions réelles le jour de la présentation.",
         ST['body']))
 
     story.append(Paragraph(
-        "<b>Le Totem Memoria</b> — Une tablette intégrée dans un boîtier en bois minimaliste que le jury pourra toucher et manipuler. "
-        "L'application est en mode kiosque : un seul bouton « Parler à Memoria ». Le jury pourra lancer une conversation vocale en direct avec l'IA, "
-        "lui raconter un souvenir et constater la fluidité du dialogue (réponse en moins de 1,5 seconde). "
-        "Interface pensée pour les 80+ : police 28pt minimum, contrastes élevés (WCAG AAA), retour haptique, animation d'écoute en temps réel.",
+        "<b>Le Totem Memoria :</b> tablette intégrée dans un boîtier en bois minimaliste. Un seul bouton « Parler à Memoria ». "
+        "Le jury pourra lancer une conversation vocale en direct avec l'IA, raconter un souvenir et constater la fluidité du dialogue "
+        "(réponse &lt; 1,5s). Interface 80+ : police 28pt, contrastes WCAG AAA, retour haptique.",
         ST['body']))
 
     story.append(Paragraph(
-        "<b>Le Dashboard Famille</b> — Sur un écran séparé, consultation en direct des souvenirs extraits et classés par thème, "
-        "des alertes Sentinelle, des graphiques d'évolution cognitive (30 jours) et de la Gazette PDF hebdomadaire.",
+        "<b>Le Dashboard Famille :</b> consultation en direct des souvenirs extraits et classés par thème, alertes Sentinelle, "
+        "graphiques d'évolution cognitive (30 jours), Gazette PDF hebdomadaire.",
         ST['body']))
 
     story.append(Paragraph(
-        "<b>Démonstration en 3 temps :</b> (1) le jury parle au Totem, l'IA écoute et répond ; "
-        "(2) le souvenir apparaît instantanément dans le dashboard, transcrit et classé ; "
-        "(3) présentation du module Sentinelle avec données de démonstration sur 30 jours.",
-        ST['body']))
-
-    story.append(Paragraph(
-        "<b>Stack technique opérationnelle :</b> Backend Python/FastAPI (16 endpoints API), pipeline vocal en streaming via WebSocket (STT → LLM → TTS), "
-        "base PostgreSQL avec chiffrement AES-256, app React Native tablette, dashboard React web. "
-        "109 fichiers, 43 issues livrées, documentation API complète.",
+        "<b>Démo en 3 temps :</b> (1) le jury parle au Totem, l'IA répond ; "
+        "(2) le souvenir apparaît dans le dashboard, transcrit et classé ; "
+        "(3) présentation du module Sentinelle avec données sur 30 jours. "
+        "Stack : Python/FastAPI, WebSocket STT→LLM→TTS, PostgreSQL AES-256, React Native, React web. "
+        "109 fichiers livrés, documentation API complète.",
         ST['body']))
 
     # ── Question 2 : Concurrents ──
@@ -346,19 +349,16 @@ def build():
     story.append(ColoredLine(usable, CREAM_DARK, 1))
 
     story.append(Paragraph(
-        "<b>Memoria est le seul produit qui combine biographie IA et détection cognitive préventive dans un même dispositif.</b>",
+        "<b>Memoria est le seul produit combinant biographie IA et détection cognitive préventive.</b> "
+        "Les robots compagnons (Cutii, ElliQ) ne recueillent aucun souvenir. "
+        "Les plateformes de biographie (Entoureo, Famileo) nécessitent un humain et n'ont aucun suivi cognitif. "
+        "Les outils de suivi (BrainTest) imposent des tests stressants.",
         ST['body']))
 
     story.append(Paragraph(
-        "Les <b>robots compagnons</b> (Cutii, ElliQ) luttent contre l'isolement mais ne recueillent aucun souvenir et n'ont aucune dimension santé. "
-        "Les <b>plateformes de biographie</b> (Entoureo, Famileo) collectent des récits mais nécessitent un intervenant humain et n'intègrent aucun suivi cognitif. "
-        "Les <b>outils de suivi cognitif</b> (BrainTest) imposent des tests formels stressants, ponctuels et déconnectés du quotidien.",
-        ST['body']))
-
-    story.append(Paragraph(
-        "Notre différenciation repose sur <b>trois piliers</b> : (1) l'analyse cognitive est invisible — elle se fait pendant que le senior raconte sa vie, sans stress ; "
-        "(2) le senior est acteur et narrateur, pas patient — chaque session produit un souvenir valorisant ; "
-        "(3) la famille est informée en temps réel, avec jusqu'à 6 mois d'avance sur un diagnostic clinique formel.",
+        "Notre différenciation : (1) l'analyse cognitive est <b>invisible</b> — elle se fait pendant que le senior raconte, sans stress ; "
+        "(2) le senior est <b>acteur</b>, pas patient — chaque session produit un souvenir valorisant ; "
+        "(3) la famille est informée <b>en temps réel</b>, jusqu'à 6 mois avant un diagnostic clinique.",
         ST['body']))
     story.append(PageBreak())
 
