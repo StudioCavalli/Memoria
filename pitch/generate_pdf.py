@@ -223,7 +223,7 @@ def build():
     ]))
     story.append(tags)
     story.append(Spacer(1, 40))
-    story.append(Paragraph("Studio Cavalli \u2014 Nice, 2026", ST['smallc']))
+    story.append(Paragraph("Foxcase \u2014 Nice, 2026", ST['smallc']))
     story.append(PageBreak())
 
     # ════════════════════ SLIDE 2: LE CONSTAT ════════════════════
@@ -606,9 +606,9 @@ def build():
         ST['h2c']
     ))
     story.append(Spacer(1, 40))
-    story.append(Paragraph("<b>Demander une d\u00e9mo</b>  |  contact@studiocavalli.fr", ST['bodyc']))
+    story.append(Paragraph("<b>Demander une d\u00e9mo</b>  |  christopher.cavalli@hotmail.com", ST['bodyc']))
     story.append(Spacer(1, 20))
-    story.append(Paragraph("Studio Cavalli \u2014 Nice C\u00f4te d\u2019Azur \u2014 2026", ST['smallc']))
+    story.append(Paragraph("Foxcase \u2014 Nice C\u00f4te d\u2019Azur \u2014 2026", ST['smallc']))
 
     # ── Build ──
     doc.build(story, onFirstPage=page_bg, onLaterPages=page_bg)

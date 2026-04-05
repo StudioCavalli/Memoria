@@ -57,11 +57,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 60px 80px;
+            padding: 36px 80px 48px;
             opacity: 0;
             transform: translateX(60px);
             transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .slide.active {
@@ -78,58 +80,58 @@
         /* Typography */
         h1 {
             font-family: 'Merriweather', serif;
-            font-size: 3.2rem;
+            font-size: 2.6rem;
             font-weight: 900;
             color: var(--warm-brown);
             line-height: 1.2;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         h2 {
             font-family: 'Merriweather', serif;
-            font-size: 2.4rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--warm-brown);
             line-height: 1.3;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         h3 {
             font-family: 'Merriweather', serif;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--warm-brown-dark);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         p, li {
-            font-size: 1.25rem;
-            line-height: 1.7;
+            font-size: 1.1rem;
+            line-height: 1.6;
             color: var(--text-dark);
         }
 
         .subtitle {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--text-muted);
             font-weight: 600;
-            margin-bottom: 40px;
+            margin-bottom: 24px;
         }
 
         .big-number {
             font-family: 'Merriweather', serif;
-            font-size: 4.5rem;
+            font-size: 3.5rem;
             font-weight: 900;
             color: var(--warm-brown);
             line-height: 1;
         }
 
         .big-label {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .accent { color: var(--soft-orange); }
@@ -140,7 +142,7 @@
         /* Layout helpers */
         .row {
             display: flex;
-            gap: 40px;
+            gap: 24px;
             width: 100%;
             max-width: 1200px;
             align-items: flex-start;
@@ -158,16 +160,16 @@
         /* Cards */
         .card {
             background: var(--white);
-            border-radius: 20px;
-            padding: 36px;
+            border-radius: 16px;
+            padding: 20px 24px;
             box-shadow: var(--shadow);
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .card-sm {
             background: var(--white);
-            border-radius: 16px;
-            padding: 28px;
+            border-radius: 14px;
+            padding: 20px;
             box-shadow: var(--shadow);
             text-align: center;
         }
@@ -175,8 +177,8 @@
         .card-accent {
             background: linear-gradient(135deg, var(--warm-brown), var(--warm-brown-dark));
             color: var(--white);
-            border-radius: 20px;
-            padding: 36px;
+            border-radius: 16px;
+            padding: 20px 28px;
             box-shadow: var(--shadow-lg);
         }
 
@@ -187,15 +189,15 @@
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
+            gap: 16px;
             width: 100%;
             max-width: 1100px;
         }
 
         .stat-card {
             background: var(--white);
-            border-radius: 20px;
-            padding: 32px 24px;
+            border-radius: 16px;
+            padding: 20px 16px;
             text-align: center;
             box-shadow: 0 8px 32px rgba(139,111,71,0.12), 0 2px 8px rgba(139,111,71,0.08);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -210,27 +212,27 @@
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
+            gap: 16px;
             width: 100%;
             max-width: 1100px;
         }
 
         .feature-card {
             background: var(--white);
-            border-radius: 16px;
-            padding: 28px;
+            border-radius: 14px;
+            padding: 18px;
             box-shadow: var(--shadow);
         }
 
         .feature-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 16px;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
         }
 
         .icon-orange { background: #FDE8D0; }
@@ -305,10 +307,10 @@
         /* Quote */
         .quote {
             font-family: 'Merriweather', serif;
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-style: italic;
             color: var(--warm-brown);
-            line-height: 1.6;
+            line-height: 1.5;
             max-width: 800px;
             text-align: center;
             position: relative;
@@ -332,10 +334,10 @@
         }
 
         .bullet-list li {
-            padding: 10px 0;
-            padding-left: 32px;
+            padding: 6px 0;
+            padding-left: 28px;
             position: relative;
-            font-size: 1.15rem;
+            font-size: 1.05rem;
         }
 
         .bullet-list li::before {
@@ -467,7 +469,7 @@
         .logo-text {
             font-family: 'Merriweather', serif;
             font-weight: 900;
-            font-size: 5rem;
+            font-size: 4rem;
             color: var(--warm-brown);
             letter-spacing: -2px;
         }
@@ -618,8 +620,8 @@
                 <div class="tag tag-green">Silver &Eacute;conomie</div>
                 <div class="tag tag-brown">Sant&eacute; Pr&eacute;ventive</div>
             </div>
-            <p style="margin-top: 48px; color: var(--text-muted); font-size: 1rem;">
-                Studio Cavalli — Nice, 2026
+            <p style="margin-top: 24px; color: var(--text-muted); font-size: 1rem;">
+                Foxcase — Nice, 2026
             </p>
         </div>
         <div class="slide-footer"></div>
@@ -631,7 +633,7 @@
             <span class="tag tag-orange">Le constat</span>
             <h1>Chaque jour, des histoires<br>disparaissent <span class="accent">&agrave; jamais</span></h1>
             <div class="divider"></div>
-            <div class="stat-grid" style="margin-top: 32px;">
+            <div class="stat-grid" style="margin-top: 16px;">
                 <div class="stat-card">
                     <div class="big-number">2,2M</div>
                     <div class="big-label">Seniors 80+ isol&eacute;s en France</div>
@@ -662,7 +664,7 @@
             <span class="tag tag-green">La solution</span>
             <h1>Memoria, le biographe IA<br>qui prend soin de nos a&icirc;n&eacute;s</h1>
             <div class="divider"></div>
-            <div class="row" style="margin-top: 32px;">
+            <div class="row" style="margin-top: 16px;">
                 <div class="col" style="flex: 1.2;">
                     <ul class="bullet-list">
                         <li><strong>Un compagnon vocal bienveillant</strong> qui converse avec le senior pour recueillir ses souvenirs de vie</li>
@@ -707,7 +709,7 @@
             <span class="tag tag-brown">Comment &ccedil;a marche</span>
             <h1>3 &eacute;tapes, <span class="accent">z&eacute;ro friction</span></h1>
             <div class="divider"></div>
-            <div class="feature-grid" style="margin-top: 32px;">
+            <div class="feature-grid" style="margin-top: 16px;">
                 <div class="card-sm">
                     <div class="feature-icon icon-orange" style="margin: 0 auto 16px;">
                         <span>1</span>
@@ -746,13 +748,13 @@
             <span class="tag tag-orange">Innovation sant&eacute;</span>
             <h1>Le Module Sentinelle :<br>d&eacute;tecter avant qu'il ne soit <span class="rose">trop tard</span></h1>
             <div class="divider"></div>
-            <div class="row" style="margin-top: 32px;">
+            <div class="row" style="margin-top: 16px;">
                 <div class="col">
-                    <div class="card" style="margin-bottom: 16px;">
+                    <div class="card" style="margin-bottom: 8px;">
                         <h3>Richesse s&eacute;mantique</h3>
                         <p style="font-size: 1rem;">L'IA mesure le nombre de mots uniques, la complexit&eacute; des phrases et la diversit&eacute; du vocabulaire &agrave; chaque session.</p>
                     </div>
-                    <div class="card" style="margin-bottom: 16px;">
+                    <div class="card" style="margin-bottom: 8px;">
                         <h3>Temps de r&eacute;ponse</h3>
                         <p style="font-size: 1rem;">La latence entre la question et la r&eacute;ponse du senior est trac&eacute;e. Une augmentation peut signaler un trouble.</p>
                     </div>
@@ -841,7 +843,7 @@
             <span class="tag tag-green">Le march&eacute;</span>
             <h1>La Silver &Eacute;conomie :<br>un march&eacute; de <span class="green">130 milliards</span> en France</h1>
             <div class="divider"></div>
-            <div class="stat-grid" style="margin-top: 32px;">
+            <div class="stat-grid" style="margin-top: 16px;">
                 <div class="stat-card">
                     <div class="big-number" style="color: var(--forest-green);">130 Mds</div>
                     <div class="big-label">March&eacute; Silver &Eacute;conomie France 2025</div>
@@ -855,7 +857,7 @@
                     <div class="big-label">Croissance des 80+ d'ici 2040</div>
                 </div>
             </div>
-            <div class="row" style="margin-top: 28px;">
+            <div class="row" style="margin-top: 14px;">
                 <div class="card col" style="text-align: center;">
                     <h3>Nos cibles</h3>
                     <p style="font-size: 1rem;"><strong>B2C :</strong> Familles avec un a&icirc;n&eacute; &agrave; domicile</p>
@@ -928,7 +930,7 @@
             <span class="tag tag-brown">Roadmap</span>
             <h1>8 semaines jusqu'&agrave; la <span class="accent">d&eacute;mo</span></h1>
             <div class="divider"></div>
-            <div class="timeline" style="margin-top: 40px;">
+            <div class="timeline" style="margin-top: 20px;">
                 <div class="timeline-item">
                     <div class="timeline-dot done">S1</div>
                     <div class="timeline-title">Infrastructure</div>
@@ -985,13 +987,13 @@
     <div class="slide">
         <div class="content">
             <span class="tag tag-orange">L'&eacute;quipe</span>
-            <h1>Studio Cavalli</h1>
+            <h1>Foxcase</h1>
             <p class="subtitle">Bas&eacute; &agrave; Nice — Passion pour la tech &agrave; impact social</p>
             <div class="divider"></div>
-            <div class="row" style="margin-top: 28px;">
+            <div class="row" style="margin-top: 14px;">
                 <div class="card col" style="text-align: center;">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--soft-orange); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 800;">SC</div>
-                    <h3>Studio Cavalli</h3>
+                    <h3>Foxcase</h3>
                     <p style="font-size: 1rem; color: var(--text-muted);">D&eacute;veloppement produit, IA, design</p>
                 </div>
                 <div class="card col">
@@ -1018,7 +1020,7 @@
                 Mamie m'a racont&eacute; comment elle a rencontr&eacute; papy &agrave; un bal en 1958 &agrave; Nice. Je n'aurais jamais connu cette histoire sans Memoria. Maintenant, mes enfants la connaissent aussi.
             </div>
             <p style="color: var(--text-muted); margin-top: 16px; font-style: italic;">— Sc&eacute;nario utilisateur type</p>
-            <div class="stat-grid" style="margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <div class="stat-grid" style="margin-top: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
                 <div class="stat-card">
                     <div class="big-number" style="font-size: 3rem; color: var(--forest-green);">+40%</div>
                     <div class="big-label">bien-&ecirc;tre senior (&eacute;tudes r&eacute;miniscence)</div>
@@ -1045,16 +1047,16 @@
                 Donnons une voix &agrave; ceux qui ont tant &agrave; raconter.
                 <br>Avant qu'il ne soit trop tard.
             </h2>
-            <div style="margin-top: 48px; display: flex; gap: 24px;">
+            <div style="margin-top: 24px; display: flex; gap: 24px;">
                 <div style="background: var(--soft-orange); padding: 16px 36px; border-radius: 12px; color: var(--warm-brown-dark); font-weight: 800; font-size: 1.15rem;">
                     Demander une d&eacute;mo
                 </div>
                 <div style="border: 2px solid var(--cream); padding: 16px 36px; border-radius: 12px; color: var(--cream); font-weight: 700; font-size: 1.15rem;">
-                    contact@studiocavalli.fr
+                    christopher.cavalli@hotmail.com
                 </div>
             </div>
-            <p style="margin-top: 48px; color: var(--warm-brown-light); font-size: 0.95rem;">
-                Studio Cavalli — Nice C&ocirc;te d'Azur — 2026
+            <p style="margin-top: 24px; color: var(--warm-brown-light); font-size: 0.95rem;">
+                Foxcase — Nice C&ocirc;te d'Azur — 2026
             </p>
         </div>
     </div>

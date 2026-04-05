@@ -1,0 +1,131 @@
+'use client'
+
+const footerLinks = [
+  { href: '#probleme', label: 'Le Problème' },
+  { href: '#solution', label: 'La Solution' },
+  { href: '#fonctionnement', label: 'Comment ça marche' },
+  { href: '#sentinelle', label: 'Sentinelle' },
+  { href: '#technologie', label: 'Technologie' },
+  { href: '#tarifs', label: 'Tarifs' },
+]
+
+export default function Footer() {
+  return (
+    <footer className="bg-cream border-t border-brown/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-1">
+            <a href="#" className="font-heading text-2xl font-bold text-brown-dark">
+              Memoria
+            </a>
+            <p className="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
+              L&rsquo;IA biographique qui recueille les souvenirs de nos
+              aînés et veille sur leur santé cognitive.
+            </p>
+            <a
+              href="/MEMORIA_Pitch.pdf"
+              download
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-orange-soft/20 text-brown-dark font-bold text-sm rounded-full hover:bg-orange-soft/40 transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Télécharger le pitch
+            </a>
+          </div>
+
+          {/* Navigation */}
+          <div>
+            <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
+              Navigation
+            </h4>
+            <ul className="space-y-2">
+              {footerLinks.map((link) => (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-text-muted hover:text-brown transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
+              Contact
+            </h4>
+            <ul className="space-y-2 text-sm text-text-muted">
+              <li>
+                <a
+                  href="mailto:christopher.cavalli@hotmail.com"
+                  className="hover:text-brown transition-colors"
+                >
+                  christopher.cavalli@hotmail.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+33610449818" className="hover:text-brown transition-colors">
+                  +33 6 10 44 98 18
+                </a>
+              </li>
+              <li>45 Boulevard de la Croisette</li>
+              <li>06400 Cannes, France</li>
+            </ul>
+          </div>
+
+          {/* Social */}
+          <div>
+            <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
+              Suivez-nous
+            </h4>
+            <div className="flex gap-3">
+              {['LinkedIn', 'Twitter', 'Instagram'].map((social) => (
+                <a
+                  key={social}
+                  href="#"
+                  className="w-10 h-10 rounded-full bg-brown/10 flex items-center justify-center text-brown hover:bg-brown hover:text-white transition-all text-xs font-bold"
+                  aria-label={social}
+                >
+                  {social[0]}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Legal info */}
+        <div className="mt-10 pt-6 border-t border-brown/10">
+          <div className="bg-white/60 rounded-xl px-6 py-4 text-xs text-text-muted leading-relaxed">
+            <p className="font-bold text-text-dark mb-1">Informations légales</p>
+            <p>
+              Foxcase — Entrepreneur individuel — Christopher Cavalli<br />
+              SIREN 834 802 407 — SIRET 834 802 407 00033<br />
+              45 Boulevard de la Croisette, 06400 Cannes, France<br />
+              Activité : Programmation informatique (NAF 6201Z)
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-text-muted">
+            &copy; 2026 Memoria — Foxcase / Christopher Cavalli — Cannes, Côte d&rsquo;Azur
+          </p>
+          <div className="flex gap-6 text-xs text-text-muted">
+            <a href="#" className="hover:text-brown transition-colors">
+              Mentions légales
+            </a>
+            <a href="#" className="hover:text-brown transition-colors">
+              Politique de confidentialité
+            </a>
+            <a href="#" className="hover:text-brown transition-colors">
+              RGPD
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}

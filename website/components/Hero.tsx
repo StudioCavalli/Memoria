@@ -1,0 +1,136 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import dynamic from 'next/dynamic'
+
+const Scene3D = dynamic(() => import('./Scene3D'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full min-h-[400px] flex items-center justify-center">
+      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-soft to-rose-dusty animate-pulse-slow opacity-50" />
+    </div>
+  ),
+})
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.2 + i * 0.15, duration: 0.7, ease: 'easeOut' },
+  }),
+}
+
+const stats = [
+  { value: '2,2M', label: 'seniors isol\u00e9s en France' },
+  { value: '1,2M', label: 'personnes avec troubles cognitifs' },
+  { value: '<1,5s', label: 'de latence IA' },
+]
+
+export default function Hero() {
+  return (
+    <section className="relative min-h-[110vh] flex items-center pt-24 pb-16 overflow-hidden">
+      {/* Subtle background decorations */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-orange-soft/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-rose-dusty/10 rounded-full blur-3xl" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Text */}
+          <div className="order-2 lg:order-1">
+            <motion.p
+              custom={0}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-4"
+            >
+              L&rsquo;IA biographique pour nos a&icirc;n&eacute;s
+            </motion.p>
+
+            <motion.h1
+              custom={1}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-text-dark mb-6"
+            >
+              Chaque souvenir m&eacute;rite d&rsquo;&ecirc;tre{' '}
+              <span className="text-brown">pr&eacute;serv&eacute;</span>
+            </motion.h1>
+
+            <motion.p
+              custom={2}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="text-lg sm:text-xl text-text-muted leading-relaxed mb-8 max-w-xl"
+            >
+              Memoria, l&rsquo;IA biographique qui recueille les souvenirs de
+              nos a&icirc;n&eacute;s et veille sur leur sant&eacute; cognitive.
+            </motion.p>
+
+            <motion.div
+              custom={3}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-wrap gap-4 mb-12"
+            >
+              <a
+                href="#solution"
+                className="px-8 py-3.5 bg-brown text-white font-bold rounded-full hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              >
+                D&eacute;couvrir Memoria
+              </a>
+              <a
+                href="#fonctionnement"
+                className="px-8 py-3.5 border-2 border-brown text-brown font-bold rounded-full hover:bg-brown hover:text-white transition-all"
+              >
+                Voir la d&eacute;mo
+              </a>
+              <a
+                href="/MEMORIA_Pitch.pdf"
+                download
+                className="px-8 py-3.5 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/80 transition-all flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                Pitch Deck PDF
+              </a>
+            </motion.div>
+
+            {/* Stats row */}
+            <motion.div
+              custom={4}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-wrap gap-8"
+            >
+              {stats.map((stat) => (
+                <div key={stat.value} className="text-center sm:text-left">
+                  <div className="text-2xl font-bold text-brown font-heading">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs text-text-muted mt-1">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Right: 3D Scene */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, duration: 1, ease: 'easeOut' }}
+            className="order-1 lg:order-2 h-[350px] sm:h-[450px] lg:h-[550px]"
+          >
+            <Scene3D />
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
