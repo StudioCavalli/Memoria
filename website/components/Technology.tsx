@@ -9,33 +9,33 @@ const techStack = [
     icon: Cpu,
     name: 'LLM Claude / GPT-4o',
     description:
-      'Mod\u00e8les de langage de pointe pour des conversations empathiques et une analyse s\u00e9mantique fine.',
+      'Modèles de langage de pointe pour des conversations empathiques et une analyse sémantique fine.',
   },
   {
     icon: AudioWaveform,
     name: 'Whisper STT',
     description:
-      'Reconnaissance vocale d\u2019OpenAI optimis\u00e9e pour les voix \u00e2g\u00e9es, accents et d\u00e9bits lents.',
+      'Reconnaissance vocale d\'OpenAI optimisée pour les voix âgées, accents et débits lents.',
   },
   {
     icon: Volume2,
     name: 'ElevenLabs TTS',
     description:
-      'Synth\u00e8se vocale naturelle et chaleureuse, pour une r\u00e9ponse humaine et rassurante.',
+      'Synthèse vocale naturelle et chaleureuse, pour une réponse humaine et rassurante.',
   },
   {
     icon: Code2,
     name: 'spaCy NLP',
     description:
-      'Pipeline d\u2019analyse linguistique pour l\u2019extraction d\u2019entit\u00e9s, d\u2019\u00e9motions et de marqueurs cognitifs.',
+      'Pipeline d\'analyse linguistique pour l\'extraction d\'entités, d\'émotions et de marqueurs cognitifs.',
   },
 ]
 
 const security = [
   'Chiffrement AES-256 bout en bout',
-  'Conformit\u00e9 RGPD native',
-  'Compatible h\u00e9bergement HDS',
-  'Authentification JWT s\u00e9curis\u00e9e',
+  'Conformité RGPD native',
+  'Compatible hébergement HDS',
+  'Authentification JWT sécurisée',
 ]
 
 export default function Technology() {
@@ -60,7 +60,7 @@ export default function Technology() {
             Sous le capot
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
-            Une architecture pens&eacute;e pour la fiabilit&eacute;
+            Une architecture pensée pour la fiabilité
           </h2>
         </motion.div>
 
@@ -96,7 +96,7 @@ export default function Technology() {
           <div className="flex items-center gap-3 mb-6">
             <ShieldCheck size={28} className="text-green-forest" />
             <h3 className="font-heading text-xl font-bold text-text-dark">
-              S&eacute;curit&eacute; &amp; conformit&eacute;
+              Sécurité &amp; conformité
             </h3>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">

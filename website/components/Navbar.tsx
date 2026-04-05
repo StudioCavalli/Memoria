@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
-  { href: '#probleme', label: 'Le Probl\u00e8me' },
+  { href: '#probleme', label: 'Le Problème' },
   { href: '#solution', label: 'La Solution' },
-  { href: '#fonctionnement', label: 'Comment \u00e7a marche' },
+  { href: '#fonctionnement', label: 'Comment ça marche' },
   { href: '#sentinelle', label: 'Sentinelle' },
   { href: '#tarifs', label: 'Tarifs' },
 ]
@@ -54,7 +54,7 @@ export default function Navbar() {
               href="#contact"
               className="ml-2 px-5 py-2.5 bg-brown text-white text-sm font-bold rounded-full hover:bg-brown-dark transition-colors shadow-md hover:shadow-lg"
             >
-              Demander une d&eacute;mo
+              Demander une démo
             </a>
           </div>
 
@@ -94,7 +94,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="block w-full text-center px-5 py-3 bg-brown text-white font-bold rounded-full"
               >
-                Demander une d&eacute;mo
+                Demander une démo
               </a>
             </div>
           </motion.div>

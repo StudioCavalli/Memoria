@@ -7,21 +7,21 @@ import { Activity, Clock, Bell } from 'lucide-react'
 const features = [
   {
     icon: Activity,
-    title: 'Richesse s\u00e9mantique',
+    title: 'Richesse sémantique',
     description:
-      'Analyse de la diversit\u00e9 lexicale, de la complexit\u00e9 syntaxique et de la coh\u00e9rence narrative au fil du temps.',
+      'Analyse de la diversité lexicale, de la complexité syntaxique et de la cohérence narrative au fil du temps.',
   },
   {
     icon: Clock,
-    title: 'Temps de r\u00e9ponse',
+    title: 'Temps de réponse',
     description:
-      'Mesure de la latence conversationnelle et des h\u00e9sitations, indicateurs pr\u00e9coces de d\u00e9clin.',
+      'Mesure de la latence conversationnelle et des hésitations, indicateurs précoces de déclin.',
   },
   {
     icon: Bell,
     title: 'Alertes intelligentes',
     description:
-      'Notifications graduelles aux familles et m\u00e9decins d\u00e8s qu\u2019un seuil critique est d\u00e9tect\u00e9.',
+      'Notifications graduelles aux familles et médecins dès qu\'un seuil critique est détecté.',
   },
 ]
 
@@ -34,7 +34,7 @@ function VitalityGauge() {
     <div className="bg-white rounded-2xl p-8 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h4 className="font-heading text-lg font-bold text-text-dark">
-          Score de vitalit&eacute;
+          Score de vitalité
         </h4>
         <span className="px-3 py-1 bg-green-forest/15 text-green-forest text-xs font-bold rounded-full">
           Stable
@@ -88,7 +88,7 @@ function VitalityGauge() {
           </div>
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-muted">Coh&eacute;rence</span>
+              <span className="text-text-muted">Cohérence</span>
               <span className="font-bold text-orange-soft">84%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
@@ -97,7 +97,7 @@ function VitalityGauge() {
           </div>
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-muted">R&eacute;activit&eacute;</span>
+              <span className="text-text-muted">Réactivité</span>
               <span className="font-bold text-brown">88%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
@@ -133,10 +133,10 @@ export default function Sentinel() {
           className="text-center mb-16"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
-            D&eacute;tection pr&eacute;coce
+            Détection précoce
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
-            Le Module Sentinelle : d&eacute;tecter avant qu&rsquo;il ne soit
+            Le Module Sentinelle : détecter avant qu'il ne soit
             trop tard
           </h2>
         </motion.div>
@@ -186,14 +186,14 @@ export default function Sentinel() {
         >
           <div className="bg-gradient-to-r from-brown-dark to-brown rounded-2xl p-8 sm:p-10 text-center">
             <p className="font-heading text-xl sm:text-2xl font-bold text-white leading-relaxed">
-              Jusqu&rsquo;&agrave;{' '}
-              <span className="text-orange-soft">6 mois d&rsquo;avance</span>{' '}
+              Jusqu'à{' '}
+              <span className="text-orange-soft">6 mois d'avance</span>{' '}
               sur un diagnostic clinique
             </p>
             <p className="text-white/70 mt-3 text-sm max-w-2xl mx-auto">
-              Gr&acirc;ce &agrave; l&rsquo;analyse linguistique continue, Memoria
-              rep&egrave;re des marqueurs subtils invisibles &agrave;
-              l&rsquo;\u0153il nu.
+              Grâce à l'analyse linguistique continue, Memoria
+              repère des marqueurs subtils invisibles à
+              l'œil nu.
             </p>
           </div>
         </motion.div>

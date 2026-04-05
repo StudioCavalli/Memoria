@@ -6,21 +6,21 @@ import { useRef } from 'react'
 const stats = [
   {
     number: '2,2M',
-    label: 'de seniors isol\u00e9s',
+    label: 'de seniors isolés',
     description:
-      'En France, 2,2 millions de personnes \u00e2g\u00e9es souffrent d\u2019isolement social s\u00e9v\u00e8re.',
+      'En France, 2,2 millions de personnes âgées souffrent d\'isolement social sévère.',
   },
   {
     number: '1,2M',
     label: 'de troubles cognitifs',
     description:
-      '1,2 million de Fran\u00e7ais sont touch\u00e9s par la maladie d\u2019Alzheimer ou un trouble apparent\u00e9.',
+      '1,2 million de Français sont touchés par la maladie d\'Alzheimer ou un trouble apparenté.',
   },
   {
     number: '300K',
     label: 'nouveaux cas par an',
     description:
-      'Chaque ann\u00e9e, 300 000 nouveaux cas de troubles neurod\u00e9g\u00e9n\u00e9ratifs sont diagnostiqu\u00e9s.',
+      'Chaque année, 300 000 nouveaux cas de troubles neurodégénératifs sont diagnostiqués.',
   },
 ]
 
@@ -43,7 +43,7 @@ export default function Problem() {
           className="text-center mb-16"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
-            Un enjeu de soci&eacute;t&eacute;
+            Un enjeu de société
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
             Le constat
@@ -80,18 +80,18 @@ export default function Problem() {
         >
           <div className="relative">
             <span className="absolute -top-8 -left-4 text-8xl text-orange-soft/20 font-heading">
-              &ldquo;
+              “
             </span>
             <p className="font-heading text-xl sm:text-2xl lg:text-3xl text-text-dark italic leading-relaxed px-8">
-              Quand ils disparaissent, c&rsquo;est une biblioth&egrave;que qui
-              br&ucirc;le.
+              Quand ils disparaissent, c'est une bibliothèque qui
+              brûle.
             </p>
             <span className="absolute -bottom-12 -right-4 text-8xl text-orange-soft/20 font-heading">
-              &rdquo;
+              ”
             </span>
           </div>
           <footer className="mt-8 text-text-muted text-sm font-semibold">
-            &mdash; Proverbe africain, popularis&eacute; par Amadou Hamp&acirc;t&eacute; B&acirc;
+            — Proverbe africain, popularisé par Amadou Hampâté Bâ
           </footer>
         </motion.blockquote>
       </div>

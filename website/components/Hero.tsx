@@ -22,7 +22,7 @@ const fadeUp = {
 }
 
 const stats = [
-  { value: '2,2M', label: 'seniors isol\u00e9s en France' },
+  { value: '2,2M', label: 'seniors isolés en France' },
   { value: '1,2M', label: 'personnes avec troubles cognitifs' },
   { value: '<1,5s', label: 'de latence IA' },
 ]
@@ -45,7 +45,7 @@ export default function Hero() {
               animate="visible"
               className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-4"
             >
-              L&rsquo;IA biographique pour nos a&icirc;n&eacute;s
+              L'IA biographique pour nos aînés
             </motion.p>
 
             <motion.h1
@@ -55,8 +55,8 @@ export default function Hero() {
               animate="visible"
               className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-text-dark mb-6"
             >
-              Chaque souvenir m&eacute;rite d&rsquo;&ecirc;tre{' '}
-              <span className="text-brown">pr&eacute;serv&eacute;</span>
+              Chaque souvenir mérite d'être{' '}
+              <span className="text-brown">préservé</span>
             </motion.h1>
 
             <motion.p
@@ -66,8 +66,8 @@ export default function Hero() {
               animate="visible"
               className="text-lg sm:text-xl text-text-muted leading-relaxed mb-8 max-w-xl"
             >
-              Memoria, l&rsquo;IA biographique qui recueille les souvenirs de
-              nos a&icirc;n&eacute;s et veille sur leur sant&eacute; cognitive.
+              Memoria, l'IA biographique qui recueille les souvenirs de
+              nos aînés et veille sur leur santé cognitive.
             </motion.p>
 
             <motion.div
@@ -81,13 +81,13 @@ export default function Hero() {
                 href="#solution"
                 className="px-8 py-3.5 bg-brown text-white font-bold rounded-full hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                D&eacute;couvrir Memoria
+                Découvrir Memoria
               </a>
               <a
                 href="#fonctionnement"
                 className="px-8 py-3.5 border-2 border-brown text-brown font-bold rounded-full hover:bg-brown hover:text-white transition-all"
               >
-                Voir la d&eacute;mo
+                Voir la démo
               </a>
               <a
                 href="/MEMORIA_Pitch.pdf"

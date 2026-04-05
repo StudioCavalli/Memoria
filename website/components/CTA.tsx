@@ -26,16 +26,16 @@ export default function CTA() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
-            Donnons une voix &agrave; ceux qui ont tant &agrave; raconter.{' '}
+            Donnons une voix à ceux qui ont tant à raconter.{' '}
             <span className="text-orange-soft">
-              Avant qu&rsquo;il ne soit trop tard.
+              Avant qu'il ne soit trop tard.
             </span>
           </h2>
 
           <p className="text-white/70 text-lg max-w-2xl mx-auto mb-10">
-            Rejoignez les familles et &eacute;tablissements qui font confiance
-            &agrave; Memoria pour pr&eacute;server la m&eacute;moire et prot&eacute;ger
-            la sant&eacute; cognitive de leurs proches.
+            Rejoignez les familles et établissements qui font confiance
+            à Memoria pour préserver la mémoire et protéger
+            la santé cognitive de leurs proches.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -43,7 +43,7 @@ export default function CTA() {
               href="mailto:christopher.cavalli@hotmail.com"
               className="px-8 py-4 bg-orange-soft text-white font-bold rounded-full hover:bg-orange-soft/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-lg"
             >
-              Demander une d&eacute;mo
+              Demander une démo
             </a>
             <a
               href="mailto:christopher.cavalli@hotmail.com"

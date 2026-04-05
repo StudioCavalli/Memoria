@@ -9,37 +9,37 @@ const plans = [
     name: 'Famille',
     price: '29,90',
     period: '/mois',
-    description: 'Pour les familles souhaitant pr\u00e9server les souvenirs de leurs proches.',
+    description: 'Pour les familles souhaitant préserver les souvenirs de leurs proches.',
     features: [
-      'Conversations vocales illimit\u00e9es',
+      'Conversations vocales illimitées',
       'Journal de vie automatique',
-      'Gazette mensuelle illustr\u00e9e',
+      'Gazette mensuelle illustrée',
       'Module Sentinelle inclus',
       'Tableau de bord familial',
-      'Alertes cognitives en temps r\u00e9el',
+      'Alertes cognitives en temps réel',
       'Export PDF du journal de vie',
       'Support prioritaire',
     ],
     highlighted: true,
-    cta: 'Commencer l\u2019essai gratuit',
+    cta: 'Commencer l\'essai gratuit',
   },
   {
     name: 'EHPAD',
     price: '19,90',
-    period: '/r\u00e9sident/mois',
-    description: 'Tarif \u00e9tablissement, \u00e0 partir de 20 r\u00e9sidents.',
+    period: '/résident/mois',
+    description: 'Tarif établissement, à partir de 20 résidents.',
     features: [
       'Tout le plan Famille',
-      'Dashboard \u00e9tablissement',
-      'Int\u00e9gration DUI',
-      'Rapports m\u00e9dicaux automatis\u00e9s',
-      'API & interop\u00e9rabilit\u00e9',
-      'Formation \u00e9quipes incluse',
-      'Account manager d\u00e9di\u00e9',
+      'Dashboard établissement',
+      'Intégration DUI',
+      'Rapports médicaux automatisés',
+      'API & interopérabilité',
+      'Formation équipes incluse',
+      'Account manager dédié',
       'SLA 99,9%',
     ],
     highlighted: false,
-    cta: 'Contacter l\u2019\u00e9quipe commerciale',
+    cta: 'Contacter l\'équipe commerciale',
   },
 ]
 
@@ -67,7 +67,7 @@ export default function Pricing() {
             Un abonnement accessible
           </h2>
           <p className="text-text-muted mt-4 max-w-xl mx-auto">
-            Pas de frais cach&eacute;s. 30 jours d&rsquo;essai gratuit. Annulation &agrave; tout moment.
+            Pas de frais cachés. 30 jours d'essai gratuit. Annulation à tout moment.
           </p>
         </motion.div>
 
@@ -99,7 +99,7 @@ export default function Pricing() {
 
               <div className="flex items-baseline gap-1 mb-8">
                 <span className="text-4xl font-heading font-bold text-brown">
-                  {plan.price}&euro;
+                  {plan.price}€
                 </span>
                 <span className="text-text-muted text-sm">{plan.period}</span>
               </div>

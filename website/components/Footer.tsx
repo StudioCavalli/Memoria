@@ -20,7 +20,7 @@ export default function Footer() {
               Memoria
             </a>
             <p className="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
-              L&rsquo;IA biographique qui recueille les souvenirs de nos
+              L'IA biographique qui recueille les souvenirs de nos
               aînés et veille sur leur santé cognitive.
             </p>
             <a
@@ -111,7 +111,7 @@ export default function Footer() {
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-text-muted">
-            &copy; 2026 Memoria — Foxcase / Christopher Cavalli — Cannes, Côte d&rsquo;Azur
+            © 2026 Memoria — Foxcase / Christopher Cavalli — Cannes, Côte d'Azur
           </p>
           <div className="flex gap-6 text-xs text-text-muted">
             <a href="#" className="hover:text-brown transition-colors">

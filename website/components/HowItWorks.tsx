@@ -10,24 +10,24 @@ const steps = [
     icon: Phone,
     title: 'Le senior parle',
     description:
-      'Un simple bouton pour d\u00e9marrer la conversation. Pas de clavier, pas d\u2019\u00e9cran complexe. Juste la voix, naturellement.',
-    details: ['Un seul bouton', 'Conversation vocale', 'Interface simplifi\u00e9e'],
+      'Un simple bouton pour démarrer la conversation. Pas de clavier, pas d\'écran complexe. Juste la voix, naturellement.',
+    details: ['Un seul bouton', 'Conversation vocale', 'Interface simplifiée'],
   },
   {
     number: '2',
     icon: Brain,
-    title: "L\u2019IA pr\u00e9serve",
+    title: "L'IA préserve",
     description:
-      'Transcription en temps r\u00e9el, classification s\u00e9mantique, extraction d\u2019\u00e9motions et d\u2019\u00e9v\u00e9nements. Chaque mot compte.',
-    details: ['Transcription STT', 'Classification IA', 'Analyse s\u00e9mantique'],
+      'Transcription en temps réel, classification sémantique, extraction d\'émotions et d\'événements. Chaque mot compte.',
+    details: ['Transcription STT', 'Classification IA', 'Analyse sémantique'],
   },
   {
     number: '3',
     icon: Heart,
-    title: 'La famille re\u00e7oit',
+    title: 'La famille reçoit',
     description:
-      'La Gazette mensuelle, les alertes cognitives, un tableau de bord familial. Les souvenirs prennent vie et la sant\u00e9 est surveill\u00e9e.',
-    details: ['Gazette mensuelle', 'Alertes sant\u00e9', 'Dashboard famille'],
+      'La Gazette mensuelle, les alertes cognitives, un tableau de bord familial. Les souvenirs prennent vie et la santé est surveillée.',
+    details: ['Gazette mensuelle', 'Alertes santé', 'Dashboard famille'],
   },
 ]
 
@@ -51,10 +51,10 @@ export default function HowItWorks() {
           className="text-center mb-20"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
-            Simplicit&eacute; absolue
+            Simplicité absolue
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
-            3 &eacute;tapes, z&eacute;ro friction
+            3 étapes, zéro friction
           </h2>
         </motion.div>
 

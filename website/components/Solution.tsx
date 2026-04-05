@@ -9,21 +9,21 @@ const features = [
     icon: Mic,
     title: 'Un compagnon vocal bienveillant',
     description:
-      'Memoria engage la conversation naturellement, comme un ami attentif. Le senior parle, l\u2019IA \u00e9coute avec empathie et relance avec douceur.',
+      'Memoria engage la conversation naturellement, comme un ami attentif. Le senior parle, l\'IA écoute avec empathie et relance avec douceur.',
     color: 'bg-orange-soft/15 text-orange-soft',
   },
   {
     icon: BookOpen,
     title: 'Un journal de vie automatique',
     description:
-      'Chaque souvenir est transcrit, dat\u00e9, class\u00e9 et enrichi. Les familles re\u00e7oivent une \u00ab\u00a0Gazette\u00a0\u00bb mensuelle illustr\u00e9e, un v\u00e9ritable tr\u00e9sor familial.',
+      'Chaque souvenir est transcrit, daté, classé et enrichi. Les familles reçoivent une « Gazette » mensuelle illustrée, un véritable trésor familial.',
     color: 'bg-green-forest/15 text-green-forest',
   },
   {
     icon: Shield,
     title: 'Une sentinelle cognitive',
     description:
-      'Gr\u00e2ce \u00e0 l\u2019analyse du langage en temps r\u00e9el, Memoria d\u00e9tecte les premiers signes de d\u00e9clin cognitif \u2014 jusqu\u2019\u00e0 6 mois avant un diagnostic clinique.',
+      'Grâce à l\'analyse du langage en temps réel, Memoria détecte les premiers signes de déclin cognitif — jusqu\'à 6 mois avant un diagnostic clinique.',
     color: 'bg-rose-dusty/20 text-rose-dusty',
   },
 ]
@@ -46,10 +46,10 @@ export default function Solution() {
           className="text-center mb-16"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
-            Notre r&eacute;ponse
+            Notre réponse
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
-            Memoria, le biographe IA qui prend soin de nos a&icirc;n&eacute;s
+            Memoria, le biographe IA qui prend soin de nos aînés
           </h2>
         </motion.div>
 
@@ -87,11 +87,11 @@ export default function Solution() {
             <p className="font-heading text-lg sm:text-xl font-bold text-brown">
               2 missions en 1 :{' '}
               <span className="text-orange-soft">
-                Pr&eacute;server la m&eacute;moire
+                Préserver la mémoire
               </span>{' '}
               ET{' '}
               <span className="text-green-forest">
-                pr&eacute;venir les troubles cognitifs
+                prévenir les troubles cognitifs
               </span>
             </p>
           </div>

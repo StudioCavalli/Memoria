@@ -17,23 +17,23 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: "Memoria \u2014 L\u2019IA biographique pour nos a\u00een\u00e9s",
+  title: "Memoria — L'IA biographique pour nos aînés",
   description:
-    "Memoria est l\u2019IA biographique qui recueille les souvenirs de nos a\u00een\u00e9s et veille sur leur sant\u00e9 cognitive. Pr\u00e9servez la m\u00e9moire, d\u00e9tectez les troubles cognitifs.",
+    "Memoria est l'IA biographique qui recueille les souvenirs de nos aînés et veille sur leur santé cognitive. Préservez la mémoire, détectez les troubles cognitifs.",
   keywords: [
     'Memoria',
     'IA biographique',
     'seniors',
     'souvenirs',
-    'sant\u00e9 cognitive',
+    'santé cognitive',
     'EHPAD',
     'biographie',
     'intelligence artificielle',
   ],
   openGraph: {
-    title: "Memoria \u2014 L\u2019IA biographique pour nos a\u00een\u00e9s",
+    title: "Memoria — L'IA biographique pour nos aînés",
     description:
-      "Recueillir les souvenirs, veiller sur la sant\u00e9 cognitive.",
+      "Recueillir les souvenirs, veiller sur la santé cognitive.",
     type: 'website',
   },
 }
