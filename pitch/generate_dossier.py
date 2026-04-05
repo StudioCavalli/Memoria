@@ -15,18 +15,47 @@ from reportlab.platypus import (
 
 W, H = A4
 
-# ── Couleurs Memoria ──
+# ── Couleurs Memoria (WCAG AA) ──
 CREAM = colors.HexColor("#FFF8F0")
 WHITE = colors.HexColor("#FFFFFF")
-BROWN = colors.HexColor("#8B6F47")
+BROWN = colors.HexColor("#7D6340")         # AA-safe text on cream
 BROWN_DARK = colors.HexColor("#6B5235")
-BROWN_LIGHT = colors.HexColor("#A8956F")
-ORANGE = colors.HexColor("#E8A87C")
+BROWN_LIGHT = colors.HexColor("#8B6F47")   # decorative
+ORANGE = colors.HexColor("#E8A87C")        # decorative/bg
+ORANGE_TEXT = colors.HexColor("#9A6429")    # AA-safe orange text
 ROSE = colors.HexColor("#D4A5A5")
-GREEN = colors.HexColor("#7FB069")
+GREEN = colors.HexColor("#4A7A35")         # AA-safe green text
 TEXT_DARK = colors.HexColor("#3D2C1E")
 TEXT_MUTED = colors.HexColor("#7A6555")
 CREAM_DARK = colors.HexColor("#F5EDE2")
+
+
+def draw_logo(canvas, x, y, size=28):
+    """Draw the Memoria logo (orb + book) at given position."""
+    s = size / 48.0
+    canvas.saveState()
+    canvas.translate(x, y)
+    canvas.setStrokeColor(BROWN)
+    canvas.setLineWidth(1.5 * s)
+    canvas.setFillColor(CREAM)
+    canvas.circle(24 * s, 24 * s, 23 * s, fill=1, stroke=1)
+    canvas.setFillColor(colors.HexColor("#E8C4A0"))
+    canvas.setStrokeColor(colors.transparent)
+    canvas.circle(24 * s, 24 * s, 17 * s, fill=1, stroke=0)
+    canvas.setStrokeColor(BROWN)
+    canvas.setLineWidth(2 * s)
+    p = canvas.beginPath()
+    p.moveTo(16 * s, (48 - 30) * s)
+    p.curveTo(16 * s, (48 - 22) * s, 20 * s, (48 - 18) * s, 24 * s, (48 - 16) * s)
+    p.curveTo(28 * s, (48 - 18) * s, 32 * s, (48 - 22) * s, 32 * s, (48 - 30) * s)
+    canvas.drawPath(p, fill=0, stroke=1)
+    canvas.setLineWidth(1.5 * s)
+    canvas.line(24 * s, (48 - 16) * s, 24 * s, (48 - 30) * s)
+    canvas.setFillColor(ORANGE)
+    canvas.circle(20 * s, (48 - 14) * s, 1.5 * s, fill=1, stroke=0)
+    canvas.circle(28 * s, (48 - 13) * s, 1.0 * s, fill=1, stroke=0)
+    canvas.circle(24 * s, (48 - 11) * s, 1.2 * s, fill=1, stroke=0)
+    canvas.restoreState()
 
 
 # ── Flowable pour séparateur ──
@@ -122,6 +151,8 @@ def cover_bg(canvas, doc):
     # Bande orange en bas
     canvas.setFillColor(ORANGE)
     canvas.rect(0, 0, W, 4, fill=1, stroke=0)
+    # Logo centered at top
+    draw_logo(canvas, W / 2 - 22, H - 80, size=44)
 
 def page_bg(canvas, doc):
     canvas.saveState()
@@ -133,10 +164,11 @@ def page_bg(canvas, doc):
     # Ligne orange en bas
     canvas.setFillColor(ORANGE)
     canvas.rect(0, 0, W, 3, fill=1, stroke=0)
-    # Footer
-    canvas.setFont("Helvetica", 7)
-    canvas.setFillColor(BROWN_LIGHT)
-    canvas.drawString(doc.leftMargin, 14, "Memoria — Foxcase")
+    # Footer with logo
+    draw_logo(canvas, doc.leftMargin, 6, size=18)
+    canvas.setFont("Helvetica-Bold", 7)
+    canvas.setFillColor(BROWN)
+    canvas.drawString(doc.leftMargin + 24, 14, "Memoria — Foxcase")
     canvas.drawRightString(W - doc.rightMargin, 14, f"Page {doc.page}")
     # Center: website link
     canvas.setFont("Helvetica", 7)

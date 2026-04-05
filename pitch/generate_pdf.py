@@ -17,15 +17,17 @@ from reportlab.graphics import renderPDF
 
 W, H = landscape(A4)
 
-# ── Colors ──
+# ── Colors (WCAG AA compliant) ──
 CREAM = colors.HexColor("#FFF8F0")
 WHITE = colors.HexColor("#FFFFFF")
-BROWN = colors.HexColor("#8B6F47")
+BROWN = colors.HexColor("#7D6340")         # AA-safe for text on cream (5.34:1)
 BROWN_DARK = colors.HexColor("#6B5235")
-BROWN_LIGHT = colors.HexColor("#A8956F")
-ORANGE = colors.HexColor("#E8A87C")
+BROWN_LIGHT = colors.HexColor("#8B6F47")   # decorative only
+ORANGE = colors.HexColor("#E8A87C")        # decorative/backgrounds
+ORANGE_TEXT = colors.HexColor("#9A6429")    # AA-safe orange for text (4.97:1)
 ROSE = colors.HexColor("#D4A5A5")
-GREEN = colors.HexColor("#7FB069")
+GREEN = colors.HexColor("#4A7A35")         # AA-safe green for text (5.09:1)
+GREEN_BG = colors.HexColor("#D9F0CE")
 TEXT_DARK = colors.HexColor("#3D2C1E")
 TEXT_MUTED = colors.HexColor("#7A6555")
 GREEN_BG = colors.HexColor("#F0F7EC")
@@ -33,6 +35,45 @@ ORANGE_BG = colors.HexColor("#FDE8D0")
 ROSE_BG = colors.HexColor("#F5E0E0")
 BROWN_BG = colors.HexColor("#E8DDD0")
 SHADOW_COLOR = colors.HexColor("#E0D6C8")
+
+
+def draw_logo(canvas, x, y, size=28):
+    """Draw the Memoria logo (orb + book) at given position."""
+    s = size / 48.0  # scale factor (SVG is 48x48)
+    canvas.saveState()
+    canvas.translate(x, y)
+
+    # Outer circle
+    canvas.setStrokeColor(BROWN)
+    canvas.setLineWidth(1.5 * s)
+    canvas.setFillColor(CREAM)
+    canvas.circle(24 * s, 24 * s, 23 * s, fill=1, stroke=1)
+
+    # Inner gradient orb (simplified as filled circle)
+    canvas.setFillColor(colors.HexColor("#E8C4A0"))
+    canvas.setStrokeColor(colors.transparent)
+    canvas.circle(24 * s, 24 * s, 17 * s, fill=1, stroke=0)
+
+    # Book shape
+    canvas.setStrokeColor(BROWN)
+    canvas.setLineWidth(2 * s)
+    p = canvas.beginPath()
+    p.moveTo(16 * s, (48 - 30) * s)
+    p.curveTo(16 * s, (48 - 22) * s, 20 * s, (48 - 18) * s, 24 * s, (48 - 16) * s)
+    p.curveTo(28 * s, (48 - 18) * s, 32 * s, (48 - 22) * s, 32 * s, (48 - 30) * s)
+    canvas.drawPath(p, fill=0, stroke=1)
+
+    # Spine
+    canvas.setLineWidth(1.5 * s)
+    canvas.line(24 * s, (48 - 16) * s, 24 * s, (48 - 30) * s)
+
+    # Memory dots
+    canvas.setFillColor(ORANGE)
+    canvas.circle(20 * s, (48 - 14) * s, 1.5 * s, fill=1, stroke=0)
+    canvas.circle(28 * s, (48 - 13) * s, 1.0 * s, fill=1, stroke=0)
+    canvas.circle(24 * s, (48 - 11) * s, 1.2 * s, fill=1, stroke=0)
+
+    canvas.restoreState()
 
 
 # ── Styles ──
@@ -166,6 +207,11 @@ def page_bg(canvas, doc):
     canvas.saveState()
     canvas.setFillColor(CREAM)
     canvas.rect(0, 0, W, H, fill=1, stroke=0)
+    # Logo bottom-left
+    draw_logo(canvas, 25, 10, size=22)
+    canvas.setFont("Helvetica-Bold", 8)
+    canvas.setFillColor(BROWN)
+    canvas.drawString(52, 16, "Memoria")
     # Slide number
     canvas.setFont("Helvetica", 9)
     canvas.setFillColor(BROWN_LIGHT)
