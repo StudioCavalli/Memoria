@@ -41,7 +41,7 @@ docs/          Documentation technique (architecture, setup, API)
 | **Text-to-Speech** | ElevenLabs / Azure Neural TTS |
 | **Analyse NLP** | spaCy (fr_core_news_sm) + regex fallback |
 | **App Senior** | React Native (Expo) / TypeScript |
-| **Dashboard Famille** | React 18 + Vite + TypeScript + Recharts |
+| **Dashboard Famille** | React 19 + Vite 6 + TypeScript + Tailwind v4 + Recharts |
 | **Stockage fichiers** | S3-compatible (MinIO / AWS S3) |
 | **Notifications** | WebSocket temps réel + SendGrid email |
 | **Infra** | Docker Compose / Makefile |
@@ -159,7 +159,7 @@ frontend/src/
 
 ---
 
-## Dashboard — Interface famille (React + Vite)
+## Dashboard — Interface famille (React 19 + Vite 6 + Tailwind v4)
 
 ```
 dashboard/src/
@@ -190,6 +190,8 @@ dashboard/src/
 
 **Notifications temps réel :** connexion WebSocket au backend, réception d'événements `new_alert`, bannière de notification avec bouton refresh.
 
+**Design system :** même palette Tailwind v4 que le site vitrine — cream/brown/orange, Merriweather (titres) + Nunito (corps), cards `rounded-2xl shadow-sm`, aucun style inline.
+
 **CORS :** origines configurables via variable d'environnement `CORS_ORIGINS` (séparés par virgules).
 
 ---
@@ -204,6 +206,13 @@ La base est hébergée sur **Prisma Postgres** (cloud). Schéma complet avec 11 
 - Email : `demo@memoria.fr`
 - Mot de passe : `Memoria2026!`
 - Senior associé : Jeanne Martin (née le 15/03/1940 à Nice)
+
+**Données de démo** (via `scripts/seed_demo.py`) :
+- 18 sessions sur 30 jours avec conversations biographiques françaises
+- 30 souvenirs classés dans les 10 thèmes (enfance à Nice, mariage, enseignement, Italie 1965, cuisine, Mai 68...)
+- Métriques cognitives par session (baseline saine → légère amélioration)
+- 3 alertes (inactivité, vigilance, évasive)
+- 3 gazettes hebdomadaires
 
 ---
 
@@ -345,7 +354,8 @@ python3 scripts/test_pipeline.py
 | Questions biographiques | 145 questions en 8 thèmes |
 | Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
 | Stockage | S3-compatible + fallback local (uploads/) |
-| Issues GitHub | 63 fermées sur 67 |
+| Données de démo | 18 sessions, 30 souvenirs, 3 alertes, 3 gazettes (30 jours) |
+| Issues GitHub | 65 fermées sur 67 |
 | Milestones | 12 (P1 + P2 + P3 terminés, P4 en cours) |
 
 ---
