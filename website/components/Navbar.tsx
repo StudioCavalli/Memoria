@@ -6,13 +6,10 @@ import { Menu, X } from 'lucide-react'
 import Logo from './Logo'
 
 const navLinks = [
-  { href: '#probleme', label: 'Le Problème' },
   { href: '#solution', label: 'La Solution' },
-  { href: '#fonctionnement', label: 'Comment ça marche' },
   { href: '#sentinelle', label: 'Sentinelle' },
   { href: '#tarifs', label: 'Tarifs' },
   { href: '#roadmap', label: 'Roadmap' },
-  { href: '/docs', label: 'API Docs' },
 ]
 
 export default function Navbar() {
