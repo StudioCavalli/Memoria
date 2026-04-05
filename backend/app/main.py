@@ -99,18 +99,3 @@ app.include_router(notifications.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "memoria-api"}
-
-
-@app.get("/debug/db")
-def debug_db():
-    """Temporary debug endpoint — check DB connection."""
-    import traceback
-    try:
-        from app.core.database import SessionLocal
-        from sqlalchemy import text
-        db = SessionLocal()
-        result = db.execute(text("SELECT COUNT(*) FROM users")).scalar()
-        db.close()
-        return {"db": "ok", "users": result}
-    except Exception as e:
-        return {"db": "error", "error": str(e), "trace": traceback.format_exc()}
