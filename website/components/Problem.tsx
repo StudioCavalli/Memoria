@@ -6,22 +6,25 @@ import { useRef } from 'react'
 
 const stats = [
   {
-    number: '2,2M',
+    number: '2M',
     label: 'de seniors isolés',
     description:
-      'En France, 2,2 millions de personnes âgées souffrent d\'isolement social sévère.',
+      'Près de 2 millions de personnes âgées sont isolées des cercles familiaux et amicaux en France.',
+    source: 'Petits Frères des Pauvres, Baromètre 2025',
   },
   {
-    number: '1,2M',
-    label: 'de troubles cognitifs',
+    number: '1,4M',
+    label: 'atteints d\'Alzheimer',
     description:
-      '1,2 million de Français sont touchés par la maladie d\'Alzheimer ou un trouble apparenté.',
+      '1,4 million de Français vivent avec la maladie d\'Alzheimer ou une maladie apparentée.',
+    source: 'France Alzheimer, 2025',
   },
   {
-    number: '300K',
+    number: '225K',
     label: 'nouveaux cas par an',
     description:
-      'Chaque année, 300 000 nouveaux cas de troubles neurodégénératifs sont diagnostiqués.',
+      'Chaque année, 225 000 nouveaux cas de troubles neurodégénératifs sont diagnostiqués en France.',
+    source: 'Fondation Alzheimer',
   },
 ]
 
@@ -71,6 +74,11 @@ export default function Problem() {
                 <p className="text-text-muted text-sm leading-relaxed">
                   {stat.description}
                 </p>
+                {'source' in stat && (
+                  <p className="text-text-muted/60 text-[10px] mt-2 italic">
+                    Source : {stat.source}
+                  </p>
+                )}
               </motion.div>
             ))}
           </div>

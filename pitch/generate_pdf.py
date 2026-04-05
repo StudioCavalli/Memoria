@@ -284,9 +284,9 @@ def build():
     story.append(Spacer(1, 20))
 
     stats_data = [
-        [StatBox("2,2M", "Seniors 80+ isol\u00e9s en France", BROWN, 210, 85),
-         StatBox("1,2M", "Personnes avec troubles cognitifs", ROSE, 210, 85),
-         StatBox("300K", "Nouveaux cas chaque ann\u00e9e", GREEN, 210, 85)],
+        [StatBox("2M", "Seniors isol\u00e9s en France", BROWN, 210, 85),
+         StatBox("1,4M", "Atteints d\u2019Alzheimer", ROSE, 210, 85),
+         StatBox("225K", "Nouveaux cas chaque ann\u00e9e", GREEN, 210, 85)],
     ]
     stats = Table(stats_data, colWidths=[220, 220, 220])
     stats.setStyle(TableStyle([
@@ -294,7 +294,11 @@ def build():
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
     ]))
     story.append(stats)
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(
+        "<font size='7' color='#7A6555'><i>Sources : Petits Fr\u00e8res des Pauvres 2025, France Alzheimer 2025, Fondation Alzheimer</i></font>",
+        ST['smallc']))
+    story.append(Spacer(1, 12))
     story.append(Paragraph(
         "<b>Le paradoxe :</b> nos grands-parents sont les derniers t\u00e9moins d\u2019une \u00e9poque, "
         "mais personne ne prend le temps de recueillir leurs histoires. "
@@ -461,14 +465,18 @@ def build():
     story.append(Spacer(1, 20))
 
     market_stats = [
-        [StatBox("130 Mds", "March\u00e9 Silver \u00c9conomie France", GREEN, 210, 85),
-         StatBox("4,8M", "Personnes de 80+ ans en France", BROWN, 210, 85),
+        [StatBox("130 Mds\u20ac", "March\u00e9 Silver \u00c9conomie France (est.)", GREEN, 210, 85),
+         StatBox("4,2M", "Personnes de 80+ ans en France", BROWN, 210, 85),
          StatBox("+50%", "Croissance des 80+ d\u2019ici 2040", ORANGE, 210, 85)],
     ]
     ms = Table(market_stats, colWidths=[220, 220, 220])
     ms.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('ALIGN', (0, 0), (-1, -1), 'CENTER')]))
     story.append(ms)
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(
+        "<font size='7' color='#7A6555'><i>Sources : BPI France, INSEE Bilan d\u00e9mographique 2025, Serge Gu\u00e9rin</i></font>",
+        ST['smallc']))
+    story.append(Spacer(1, 12))
 
     targets = Table([
         [Paragraph("<b>B2C</b> Familles avec un a\u00een\u00e9 \u00e0 domicile", ST['bodyc']),

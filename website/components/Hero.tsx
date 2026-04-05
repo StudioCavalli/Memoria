@@ -13,8 +13,8 @@ const fadeUp = {
 }
 
 const stats = [
-  { value: '2,2M', label: 'seniors isolés en France' },
-  { value: '1,2M', label: 'personnes avec troubles cognitifs' },
+  { value: '2M', label: 'seniors isolés en France' },
+  { value: '1,4M', label: 'atteints d\'Alzheimer' },
   { value: '<1,5s', label: 'de latence IA' },
 ]
 
