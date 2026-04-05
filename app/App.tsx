@@ -12,7 +12,7 @@ import './global.css';
 import React, { useCallback, useEffect, useState } from "react";
 import { View, ActivityIndicator, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
 import HomeScreen from "./src/screens/HomeScreen";
 import SetupScreen from "./src/screens/SetupScreen";
 import { getPairing } from "./src/services/storage";
@@ -57,7 +57,7 @@ export default function App() {
     setIsPaired(false);
   }, []);
 
-  if (isLoading) {
+if (isLoading) {
     return (
       <SafeAreaProvider>
         <View style={[rootStyle, { justifyContent: "center", alignItems: "center" }]}>
@@ -73,15 +73,13 @@ export default function App() {
 
   return (
     <I18nProvider>
-      <SafeAreaProvider>
-        <View style={rootStyle}>
-          <StatusBar style="dark" />
-          {isPaired ? (
-            <HomeScreen onRequestSetup={handleUnpaired} />
-          ) : (
-            <SetupScreen onSetupComplete={handleSetupComplete} />
-          )}
-        </View>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
+        <StatusBar style="dark" />
+        {isPaired ? (
+          <HomeScreen onRequestSetup={handleUnpaired} />
+        ) : (
+          <SetupScreen onSetupComplete={handleSetupComplete} />
+        )}
       </SafeAreaProvider>
     </I18nProvider>
   );
