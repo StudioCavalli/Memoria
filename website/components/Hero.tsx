@@ -1,16 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import dynamic from 'next/dynamic'
-
-const Scene3D = dynamic(() => import('./Scene3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full min-h-[200px] flex items-center justify-center">
-      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-orange-soft to-rose-dusty animate-pulse-slow opacity-50" />
-    </div>
-  ),
-})
+import Scene3D from './Scene3D'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
