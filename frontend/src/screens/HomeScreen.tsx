@@ -310,15 +310,25 @@ export default function HomeScreen() {
       return sessionIdRef.current;
     }
 
-    // Créer une nouvelle session via REST
-    const session = await startSession(SENIOR_ID);
-    const sessionId = session.id;
-    sessionIdRef.current = sessionId;
+    try {
+      // Créer une nouvelle session via REST
+      const session = await startSession(SENIOR_ID);
+      const sessionId = session.id;
+      sessionIdRef.current = sessionId;
 
-    // Connecter le pipeline WebSocket
-    await connectPipeline(sessionId);
+      // Connecter le pipeline WebSocket
+      await connectPipeline(sessionId);
 
-    return sessionId;
+      return sessionId;
+    } catch (error) {
+      console.error("[HomeScreen] Impossible de joindre le serveur:", error);
+      setResponseText(
+        "Je ne suis pas disponible pour le moment. " +
+        "Vérifiez la connexion internet et réessayez dans quelques instants."
+      );
+      setAppState("idle");
+      throw error;
+    }
   }, [connectPipeline]);
 
   // -------------------------------------------------------------------------
