@@ -7,7 +7,7 @@ import { Cpu, AudioWaveform, Volume2, Code2, ShieldCheck, Server, Smartphone, La
 const aiStack = [
   {
     icon: Cpu,
-    name: 'LLM Claude / GPT-4o',
+    name: 'LLM Anthropic / GPT-4o',
     description:
       'Modèles de langage de pointe pour des conversations empathiques et une analyse sémantique fine.',
     why: 'Double provider pour la résilience : si un service tombe, l\'autre prend le relais automatiquement.',

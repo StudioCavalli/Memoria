@@ -245,7 +245,7 @@ export default function PolitiqueDeConfidentialite() {
                     <td className="py-2">États-Unis</td>
                   </tr>
                   <tr>
-                    <td className="py-2 pr-4">Anthropic (Claude)</td>
+                    <td className="py-2 pr-4">Anthropic</td>
                     <td className="py-2 pr-4">Traitement IA conversationnelle</td>
                     <td className="py-2">États-Unis</td>
                   </tr>
