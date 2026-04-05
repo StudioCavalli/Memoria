@@ -10,6 +10,7 @@ const footerLinks = [
   { href: '#sentinelle', label: 'Sentinelle' },
   { href: '#technologie', label: 'Technologie' },
   { href: '#tarifs', label: 'Tarifs' },
+  { href: '#roadmap', label: 'Roadmap' },
 ]
 
 export default function Footer() {

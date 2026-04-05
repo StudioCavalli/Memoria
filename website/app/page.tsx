@@ -6,6 +6,7 @@ import HowItWorks from '@/components/HowItWorks'
 import Sentinel from '@/components/Sentinel'
 import Technology from '@/components/Technology'
 import Pricing from '@/components/Pricing'
+import Roadmap from '@/components/Roadmap'
 import CTA from '@/components/CTA'
 import Footer from '@/components/Footer'
 
@@ -47,6 +48,7 @@ export default function Home() {
         <Sentinel />
         <Technology />
         <Pricing />
+        <Roadmap />
         <CTA />
       </main>
       <Footer />
