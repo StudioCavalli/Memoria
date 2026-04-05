@@ -605,7 +605,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
               {t('settings.pin.subtitle')}
             </Text>
             <TextInput
-              className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-3xl text-text-dark text-center tracking-widest"
+              style={{ backgroundColor: '#FFF8F0', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(125,99,64,0.2)', paddingHorizontal: 16, paddingVertical: 14, fontSize: 28, color: '#3D2C1E', textAlign: 'center', letterSpacing: 8 }}
               value={pinInput}
               onChangeText={setPinInput}
               placeholder={t('settings.pin.placeholder')}

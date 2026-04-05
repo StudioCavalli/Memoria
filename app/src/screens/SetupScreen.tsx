@@ -270,7 +270,7 @@ export default function SetupScreen({
                 <LanguagePicker />
                 <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.pin.title')}</Text>
                 <TextInput
-                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
+                  style={{ backgroundColor: '#FFF8F0', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(125,99,64,0.2)', paddingHorizontal: 16, paddingVertical: 14, fontSize: 22, color: '#3D2C1E', marginBottom: 12 }}
                   value={pin}
                   onChangeText={setPin}
                   placeholder={t('setup.pin.placeholder')}
@@ -299,7 +299,7 @@ export default function SetupScreen({
               <>
                 <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.server')}</Text>
                 <TextInput
-                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
+                  style={{ backgroundColor: '#FFF8F0', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(125,99,64,0.2)', paddingHorizontal: 16, paddingVertical: 14, fontSize: 22, color: '#3D2C1E', marginBottom: 12 }}
                   value={apiUrl}
                   onChangeText={setApiUrl}
                   placeholder="http://192.168.1.x:8000"
@@ -311,7 +311,7 @@ export default function SetupScreen({
 
                 <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.email')}</Text>
                 <TextInput
-                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
+                  style={{ backgroundColor: '#FFF8F0', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(125,99,64,0.2)', paddingHorizontal: 16, paddingVertical: 14, fontSize: 22, color: '#3D2C1E', marginBottom: 12 }}
                   value={email}
                   onChangeText={setEmail}
                   placeholder="votre@email.com"
@@ -323,7 +323,7 @@ export default function SetupScreen({
 
                 <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.password')}</Text>
                 <TextInput
-                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
+                  style={{ backgroundColor: '#FFF8F0', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(125,99,64,0.2)', paddingHorizontal: 16, paddingVertical: 14, fontSize: 22, color: '#3D2C1E', marginBottom: 12 }}
                   value={password}
                   onChangeText={setPassword}
                   placeholder={t('setup.login.password.placeholder')}
