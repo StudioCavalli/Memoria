@@ -47,8 +47,21 @@ if [ "$MODE" = "docker" ]; then
     log "Attente PostgreSQL..."
     until docker compose exec -T postgres pg_isready -U memoria &>/dev/null; do sleep 1; done
 
+    log "Attente backend..."
+    for i in $(seq 1 30); do
+        if curl -s http://localhost:8000/health >/dev/null 2>&1; then break; fi
+        sleep 1
+    done
+
     log "Migrations Alembic..."
-    docker compose exec -T backend alembic upgrade head 2>/dev/null || warn "Migrations skipped"
+    if ! docker compose exec -T backend sh -c "cd /app && PYTHONPATH=/app alembic upgrade head" 2>&1; then
+        err "Migrations echouees — arret."
+        docker compose logs backend
+        exit 1
+    fi
+
+    log "Seed demo (si premiere installation)..."
+    docker compose exec -T backend sh -c "cd /app && PYTHONPATH=/app python scripts/seed_demo.py" 2>&1 | grep -E "(Login|ERROR|SEED COMPLETE|Creating|Skipping)" || true
 
     echo ""
     log "============================================"
@@ -57,6 +70,9 @@ if [ "$MODE" = "docker" ]; then
     info "  Backend API  : http://localhost:8000"
     info "  Swagger Docs : http://localhost:8000/docs"
     info "  Dashboard    : http://localhost:3000"
+    info ""
+    info "  Login : demo@memoria.fr / Memoria2026!"
+    info ""
     log "============================================"
     log "Logs : docker compose logs -f"
     log "Stop : docker compose down"
