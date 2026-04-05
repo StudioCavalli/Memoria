@@ -605,7 +605,9 @@ def build():
         "Donnons une voix \u00e0 ceux qui ont tant \u00e0 raconter.<br/>Avant qu\u2019il ne soit trop tard.",
         ST['h2c']
     ))
-    story.append(Spacer(1, 40))
+    story.append(Spacer(1, 30))
+    story.append(Paragraph('<b><font color="#E8A87C">https://memoria-dusky.vercel.app</font></b>', ST['bodyc']))
+    story.append(Spacer(1, 12))
     story.append(Paragraph("<b>Demander une d\u00e9mo</b>  |  christopher.cavalli@hotmail.com", ST['bodyc']))
     story.append(Spacer(1, 20))
     story.append(Paragraph("Foxcase \u2014 Nice C\u00f4te d\u2019Azur \u2014 2026", ST['smallc']))

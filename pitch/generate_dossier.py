@@ -138,10 +138,10 @@ def page_bg(canvas, doc):
     canvas.setFillColor(BROWN_LIGHT)
     canvas.drawString(doc.leftMargin, 14, "Memoria — Foxcase")
     canvas.drawRightString(W - doc.rightMargin, 14, f"Page {doc.page}")
-    # Watermark
+    # Center: website link
     canvas.setFont("Helvetica", 7)
-    canvas.setFillColor(BROWN_LIGHT)
-    canvas.drawCentredString(W / 2, 14, "Dossier de candidature — Espace Rencontre Silver Eco 2026")
+    canvas.setFillColor(BROWN)
+    canvas.drawCentredString(W / 2, 14, "memoria-dusky.vercel.app")
     canvas.restoreState()
 
 
@@ -216,6 +216,13 @@ def build():
 
     story.append(Paragraph("Le dossier déposé ne doit pas dépasser 3 pages (hors documents annexes).", ST['small']))
     story.append(Spacer(1, 30))
+
+    # Website link
+    story.append(Paragraph(
+        '<b><font color="#8B6F47">https://memoria-dusky.vercel.app</font></b>',
+        ParagraphStyle('web', fontName='Helvetica-Bold', fontSize=10, textColor=BROWN,
+                       alignment=TA_CENTER, leading=14)))
+    story.append(Spacer(1, 16))
 
     # Contact bas de page couverture
     contact_cover = Table([
