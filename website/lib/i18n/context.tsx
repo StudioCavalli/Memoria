@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
 import { translations, Locale } from './translations'
 
 interface I18nContextType {
@@ -16,18 +16,20 @@ const I18nContext = createContext<I18nContextType>({
 })
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('memoria_locale') as Locale) || 'fr'
+  // Always start with 'fr' to match SSR — avoids hydration mismatch
+  const [locale, setLocaleState] = useState<Locale>('fr')
+
+  // Load saved locale AFTER hydration
+  useEffect(() => {
+    const saved = localStorage.getItem('memoria_locale') as Locale | null
+    if (saved && saved !== 'fr' && translations[saved]) {
+      setLocaleState(saved)
     }
-    return 'fr'
-  })
+  }, [])
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('memoria_locale', newLocale)
-    }
+    localStorage.setItem('memoria_locale', newLocale)
   }, [])
 
   const t = useCallback(
