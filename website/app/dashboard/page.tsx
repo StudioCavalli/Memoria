@@ -18,6 +18,7 @@ import {
   metricsService,
   gazettesService,
 } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -49,15 +50,6 @@ const EMPTY_SUMMARY: MetricsSummary = {
   session_count_7d: 0,
 }
 
-const trendLabel = (trend: string | null): { text: string; colorClass: string } => {
-  if (!trend) return { text: '--', colorClass: 'text-text-light' }
-  if (trend === 'up' || trend === 'improving')
-    return { text: 'En hausse', colorClass: 'text-green-light' }
-  if (trend === 'down' || trend === 'declining')
-    return { text: 'En baisse', colorClass: 'text-red-500' }
-  return { text: 'Stable', colorClass: 'text-yellow-warm' }
-}
-
 const vitalityColorClass = (score: number): string => {
   if (score > 70) return 'text-green-light'
   if (score >= 40) return 'text-amber-warm'
@@ -65,6 +57,17 @@ const vitalityColorClass = (score: number): string => {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n()
+
+  const trendLabel = (trend: string | null): { text: string; colorClass: string } => {
+    if (!trend) return { text: '--', colorClass: 'text-text-light' }
+    if (trend === 'up' || trend === 'improving')
+      return { text: t('dash.trend.up'), colorClass: 'text-green-light' }
+    if (trend === 'down' || trend === 'declining')
+      return { text: t('dash.trend.down'), colorClass: 'text-red-500' }
+    return { text: t('dash.trend.stable'), colorClass: 'text-yellow-warm' }
+  }
+
   const [data, setData] = useState<DashboardData>({
     lastSession: null,
     memoriesCount: 0,
@@ -166,13 +169,13 @@ export default function DashboardPage() {
   }, [])
 
   if (loading) {
-    return <p className="p-8 text-text-muted">Chargement...</p>
+    return <p className="p-8 text-text-muted">{t('dash.loading')}</p>
   }
 
   if (error) {
     return (
       <p className="p-8 text-red-500">
-        Erreur lors du chargement du tableau de bord.
+        {t('dash.error')}
       </p>
     )
   }
@@ -182,67 +185,67 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Bonjour !</h2>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('dash.greeting')}</h2>
       <p className="mb-7 text-[15px] text-text-muted">
-        Voici un aperçu de l{"'"}état de votre proche.
+        {t('dash.overview')}
       </p>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
         {/* Last session */}
         <div className="col-span-1 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm sm:col-span-2">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Dernière session</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.last.session')}</h3>
           {data.lastSession ? (
             <>
               <p className="text-[13px] text-text-light">{data.lastSession.date}</p>
-              <p className="text-[15px] leading-relaxed text-text-dark">{data.lastSession.summary || 'Aucun résumé disponible.'}</p>
+              <p className="text-[15px] leading-relaxed text-text-dark">{data.lastSession.summary || t('dash.no.summary')}</p>
             </>
           ) : (
-            <p className="text-[15px] leading-relaxed text-text-dark">Aucune session enregistrée.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">{t('dash.no.session')}</p>
           )}
         </div>
 
         {/* Memories count */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Souvenirs</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.memories.count')}</h3>
           <p className="text-[42px] font-bold leading-none text-brown-light">{data.memoriesCount}</p>
           <Link href="/dashboard/memories" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
-            Voir tout
+            {t('dash.view.all')}
           </Link>
         </div>
 
         {/* Unread alerts */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Alertes non lues</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.unread.alerts')}</h3>
           <p className={`text-[42px] font-bold leading-none ${data.unreadAlerts > 0 ? 'text-amber-warm' : 'text-green-light'}`}>
             {data.unreadAlerts}
           </p>
           <Link href="/dashboard/alerts" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
-            Gérer
+            {t('dash.manage')}
           </Link>
         </div>
 
         {/* Sessions 7 days */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Sessions (7 jours)</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.sessions.7d')}</h3>
           <p className="text-[42px] font-bold leading-none text-brown-light">{data.summary.session_count_7d}</p>
         </div>
 
         {/* Vitality score */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Score de vitalité</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.vitality.score')}</h3>
           <p className={`text-[42px] font-bold leading-none ${vitalityColorClass(data.summary.vitality_score)}`}>
             {data.summary.vitality_score}
             <span className="text-lg font-normal"> / 100</span>
           </p>
           <Link href="/dashboard/metrics" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
-            Détails
+            {t('dash.details')}
           </Link>
         </div>
 
         {/* Semantic richness chart */}
         <div className="col-span-1 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm sm:col-span-2">
           <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">
-            Richesse sémantique — mots uniques (7 jours)
+            {t('dash.semantic.chart')}
           </h3>
           {data.metricsHistory.length > 0 ? (
             <ResponsiveContainer width="100%" height={180}>
@@ -261,7 +264,7 @@ export default function DashboardPage() {
                     boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
                     fontFamily: "'Nunito', sans-serif",
                   }}
-                  formatter={(value: number) => [`${value}`, 'Mots uniques']}
+                  formatter={(value: number) => [`${value}`, t('dash.unique.words')]}
                 />
                 <Line
                   type="monotone"
@@ -269,25 +272,25 @@ export default function DashboardPage() {
                   stroke="#E8A87C"
                   strokeWidth={2.5}
                   dot={{ fill: '#8B6F47', r: 3 }}
-                  name="Mots uniques"
+                  name={t('dash.unique.words')}
                 />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-[15px] leading-relaxed text-text-dark">Pas de données disponibles.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">{t('dash.no.data')}</p>
           )}
         </div>
 
         {/* Trends */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Tendances</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.trends')}</h3>
           <div className="flex flex-col gap-3">
             <div>
-              <p className="mb-0.5 text-[13px] text-text-light">Richesse sémantique</p>
+              <p className="mb-0.5 text-[13px] text-text-light">{t('dash.semantic.richness')}</p>
               <p className={`text-base font-bold ${semTrend.colorClass}`}>{semTrend.text}</p>
             </div>
             <div>
-              <p className="mb-0.5 text-[13px] text-text-light">Latence de réponse</p>
+              <p className="mb-0.5 text-[13px] text-text-light">{t('dash.response.latency')}</p>
               <p className={`text-base font-bold ${latTrend.colorClass}`}>{latTrend.text}</p>
             </div>
           </div>
@@ -295,17 +298,17 @@ export default function DashboardPage() {
 
         {/* Latest gazette */}
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Dernière gazette</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">{t('dash.latest.gazette')}</h3>
           {data.latestGazette ? (
             <>
               <p className="text-[15px] leading-relaxed text-text-dark">{data.latestGazette.title}</p>
               <p className="text-[13px] text-text-light">{data.latestGazette.date}</p>
               <Link href="/dashboard/gazettes" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
-                Voir les gazettes
+                {t('dash.view.gazettes')}
               </Link>
             </>
           ) : (
-            <p className="text-[15px] leading-relaxed text-text-dark">Aucune gazette disponible.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">{t('dash.no.gazette')}</p>
           )}
         </div>
       </div>

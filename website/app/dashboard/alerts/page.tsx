@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { resolveSeniorId, alertsService, authService } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -14,34 +15,36 @@ interface Alert {
   read: boolean
 }
 
-const SEVERITY_MAP: Record<
-  string,
-  { bgClass: string; borderColor: string; label: string; badgeBg: string; badgeText: string }
-> = {
-  low: {
-    bgClass: 'bg-success-bg',
-    borderColor: '#7FB069',
-    label: 'Faible',
-    badgeBg: 'bg-green-light/15',
-    badgeText: 'text-green-dark',
-  },
-  medium: {
-    bgClass: 'bg-[#FFF8EB]',
-    borderColor: '#E6B333',
-    label: 'Moyen',
-    badgeBg: 'bg-yellow-warm/15',
-    badgeText: 'text-yellow-dark',
-  },
-  high: {
-    bgClass: 'bg-error-bg',
-    borderColor: '#D14343',
-    label: 'Élevé',
-    badgeBg: 'bg-red-500/15',
-    badgeText: 'text-error-text',
-  },
-}
-
 export default function AlertsPage() {
+  const { t } = useI18n()
+
+  const SEVERITY_MAP: Record<
+    string,
+    { bgClass: string; borderColor: string; label: string; badgeBg: string; badgeText: string }
+  > = {
+    low: {
+      bgClass: 'bg-success-bg',
+      borderColor: '#7FB069',
+      label: t('alerts.severity.low'),
+      badgeBg: 'bg-green-light/15',
+      badgeText: 'text-green-dark',
+    },
+    medium: {
+      bgClass: 'bg-[#FFF8EB]',
+      borderColor: '#E6B333',
+      label: t('alerts.severity.medium'),
+      badgeBg: 'bg-yellow-warm/15',
+      badgeText: 'text-yellow-dark',
+    },
+    high: {
+      bgClass: 'bg-error-bg',
+      borderColor: '#D14343',
+      label: t('alerts.severity.high'),
+      badgeBg: 'bg-red-500/15',
+      badgeText: 'text-error-text',
+    },
+  }
+
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -134,7 +137,7 @@ export default function AlertsPage() {
       {/* WebSocket banner */}
       {wsBanner && (
         <div className="mb-[18px] flex items-center gap-3 rounded-[10px] border border-yellow-warm bg-[#FFF8EB] px-[18px] py-2.5 text-sm font-semibold text-yellow-dark">
-          <span>Nouvelle alerte reçue</span>
+          <span>{t('alerts.new')}</span>
           <button
             className="rounded-lg border border-yellow-warm bg-white px-3.5 py-1 font-body text-[13px] font-bold text-brown-light cursor-pointer"
             onClick={() => {
@@ -142,12 +145,12 @@ export default function AlertsPage() {
               load()
             }}
           >
-            Rafraîchir
+            {t('alerts.refresh')}
           </button>
           <button
             className="ml-auto rounded-md border-none bg-transparent p-1 text-base font-bold text-text-light cursor-pointer"
             onClick={() => setWsBanner(false)}
-            aria-label="Fermer"
+            aria-label={t('alerts.close')}
           >
             x
           </button>
@@ -157,7 +160,7 @@ export default function AlertsPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="mb-1 flex items-center gap-2.5 font-heading text-[28px] text-text-dark">
-            Alertes
+            {t('alerts.title')}
             {unreadCount > 0 && (
               <span className="rounded-full bg-amber-warm px-2.5 py-0.5 font-body text-[13px] font-bold leading-5 text-white">
                 {unreadCount}
@@ -165,7 +168,7 @@ export default function AlertsPage() {
             )}
           </h2>
           <p className="text-[15px] text-text-muted">
-            Notifications concernant la santé cognitive de votre proche.
+            {t('alerts.subtitle')}
           </p>
         </div>
         <label className="flex cursor-pointer items-center gap-2 pt-2 text-sm font-semibold text-text-muted">
@@ -175,19 +178,19 @@ export default function AlertsPage() {
             onChange={(e) => setShowUnreadOnly(e.target.checked)}
             className="h-4 w-4 accent-brown-light"
           />
-          Non lues uniquement
+          {t('alerts.unread.only')}
         </label>
       </div>
 
       {loading ? (
-        <p className="p-5 text-text-muted">Chargement...</p>
+        <p className="p-5 text-text-muted">{t('alerts.loading')}</p>
       ) : error ? (
         <p className="p-5 text-red-500">
-          Erreur lors du chargement des alertes.
+          {t('alerts.error')}
         </p>
       ) : alerts.length === 0 ? (
         <div className="rounded-2xl bg-success-bg p-10 text-center text-base font-semibold text-green-light">
-          <p>Aucune alerte pour le moment. Tout va bien !</p>
+          <p>{t('alerts.empty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3.5">
@@ -224,7 +227,7 @@ export default function AlertsPage() {
                     className="mt-1 self-start rounded-lg border border-beige bg-white px-4 py-1.5 font-body text-[13px] font-semibold text-brown-light cursor-pointer hover:bg-cream"
                     onClick={() => handleMarkRead(alert.id)}
                   >
-                    Marquer comme lu
+                    {t('alerts.mark.read')}
                   </button>
                 )}
               </div>

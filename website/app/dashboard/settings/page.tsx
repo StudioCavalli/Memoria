@@ -7,6 +7,7 @@ import {
   seniorsService,
   gdprService,
 } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -44,19 +45,21 @@ interface Toast {
   type: ToastType
 }
 
-const DAYS_OF_WEEK = [
-  'Lundi',
-  'Mardi',
-  'Mercredi',
-  'Jeudi',
-  'Vendredi',
-  'Samedi',
-  'Dimanche',
-]
-
 let toastCounter = 0
 
 export default function SettingsPage() {
+  const { t } = useI18n()
+
+  const DAYS_OF_WEEK = [
+    { key: 'settings.day.mon', value: 'Lundi' },
+    { key: 'settings.day.tue', value: 'Mardi' },
+    { key: 'settings.day.wed', value: 'Mercredi' },
+    { key: 'settings.day.thu', value: 'Jeudi' },
+    { key: 'settings.day.fri', value: 'Vendredi' },
+    { key: 'settings.day.sat', value: 'Samedi' },
+    { key: 'settings.day.sun', value: 'Dimanche' },
+  ]
+
   const [profile, setProfile] = useState<Profile>({
     first_name: '',
     last_name: '',
@@ -87,7 +90,7 @@ export default function SettingsPage() {
     const id = ++toastCounter
     setToasts((prev) => [...prev, { id, message, type }])
     setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
+      setToasts((prev) => prev.filter((tt) => tt.id !== id))
     }, 3000)
   }
 
@@ -154,9 +157,9 @@ export default function SettingsPage() {
     setSavingProfile(true)
     try {
       await settingsService.updateProfile(seniorId, { ...profile })
-      addToast('Profil sauvegardé avec succès.', 'success')
+      addToast(t('settings.toast.profile.ok'), 'success')
     } catch {
-      addToast('Erreur lors de la sauvegarde du profil.', 'error')
+      addToast(t('settings.toast.profile.err'), 'error')
     } finally {
       setSavingProfile(false)
     }
@@ -167,9 +170,9 @@ export default function SettingsPage() {
     setSavingSchedule(true)
     try {
       await settingsService.updateSchedule(seniorId, { ...schedule })
-      addToast('Planning sauvegardé avec succès.', 'success')
+      addToast(t('settings.toast.schedule.ok'), 'success')
     } catch {
-      addToast('Erreur lors de la sauvegarde du planning.', 'error')
+      addToast(t('settings.toast.schedule.err'), 'error')
     } finally {
       setSavingSchedule(false)
     }
@@ -179,9 +182,9 @@ export default function SettingsPage() {
     setSavingNotifs(true)
     try {
       await settingsService.updateNotificationPrefs({ ...notifs })
-      addToast('Préférences de notification sauvegardées.', 'success')
+      addToast(t('settings.toast.notif.ok'), 'success')
     } catch {
-      addToast('Erreur lors de la sauvegarde des notifications.', 'error')
+      addToast(t('settings.toast.notif.err'), 'error')
     } finally {
       setSavingNotifs(false)
     }
@@ -201,9 +204,9 @@ export default function SettingsPage() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      addToast('Export téléchargé avec succès.', 'success')
+      addToast(t('settings.toast.export.ok'), 'success')
     } catch {
-      addToast("Erreur lors de l'export des données.", 'error')
+      addToast(t('settings.toast.export.err'), 'error')
     }
   }
 
@@ -217,7 +220,7 @@ export default function SettingsPage() {
       localStorage.clear()
       window.location.href = '/login'
     } catch {
-      addToast('Erreur lors de la suppression du compte.', 'error')
+      addToast(t('settings.toast.delete.err'), 'error')
       setDeleteConfirm(false)
     }
   }
@@ -232,13 +235,13 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-    return <p className="p-8 text-text-muted">Chargement...</p>
+    return <p className="p-8 text-text-muted">{t('dash.loading')}</p>
   }
 
   if (error && !seniorId) {
     return (
       <p className="p-8 text-red-500">
-        Erreur lors du chargement des paramètres.
+        {t('settings.error')}
       </p>
     )
   }
@@ -248,32 +251,32 @@ export default function SettingsPage() {
       {/* Toast container */}
       {toasts.length > 0 && (
         <div className="fixed top-5 right-5 z-[9999] flex flex-col gap-2">
-          {toasts.map((t) => (
+          {toasts.map((tt) => (
             <div
-              key={t.id}
+              key={tt.id}
               className={`rounded-[10px] border px-5 py-3 font-body text-sm font-semibold shadow-lg ${
-                t.type === 'success'
+                tt.type === 'success'
                   ? 'border-green-light bg-success-bg text-green-dark'
                   : 'border-red-500 bg-error-bg text-error-text'
               }`}
             >
-              {t.message}
+              {tt.message}
             </div>
           ))}
         </div>
       )}
 
-      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Paramètres</h2>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('settings.title')}</h2>
       <p className="mb-7 text-[15px] text-text-muted">
-        Gérez le profil de votre proche et vos préférences.
+        {t('settings.subtitle')}
       </p>
 
       {/* Senior profile */}
       <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-text-dark">Profil du proche</h3>
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.profile')}</h3>
         <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Prénom
+            {t('settings.firstname')}
             <input
               type="text"
               value={profile.first_name}
@@ -284,7 +287,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Nom de famille
+            {t('settings.lastname')}
             <input
               type="text"
               value={profile.last_name}
@@ -295,7 +298,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Date de naissance
+            {t('settings.birthdate')}
             <input
               type="date"
               value={profile.birth_date}
@@ -306,7 +309,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Lieu de naissance
+            {t('settings.birthplace')}
             <input
               type="text"
               value={profile.birth_place}
@@ -323,35 +326,35 @@ export default function SettingsPage() {
             onClick={saveProfile}
             disabled={savingProfile}
           >
-            {savingProfile ? 'Enregistrement...' : 'Enregistrer'}
+            {savingProfile ? t('settings.saving') : t('settings.save')}
           </button>
         </div>
       </section>
 
       {/* Session schedule */}
       <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-text-dark">Planning des sessions</h3>
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.schedule')}</h3>
         <p className="mb-3 text-sm text-text-muted">
-          Choisissez les jours et l{"'"}heure des sessions de réminiscence.
+          {t('settings.schedule.desc')}
         </p>
         <div className="mb-4 flex flex-wrap gap-2">
           {DAYS_OF_WEEK.map((day) => (
             <button
-              key={day}
-              onClick={() => toggleDay(day)}
+              key={day.value}
+              onClick={() => toggleDay(day.value)}
               className={`rounded-full border px-3.5 py-2 font-body text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
-                schedule.days.includes(day)
+                schedule.days.includes(day.value)
                   ? 'border-brown-light bg-brown-light text-white'
                   : 'border-beige bg-white text-text-muted hover:bg-cream'
               }`}
             >
-              {day.slice(0, 3)}
+              {t(day.key).slice(0, 3)}
             </button>
           ))}
         </div>
         <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Heure
+            {t('settings.time')}
             <input
               type="time"
               value={schedule.time}
@@ -362,7 +365,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Durée (minutes)
+            {t('settings.duration')}
             <input
               type="number"
               min={10}
@@ -384,14 +387,14 @@ export default function SettingsPage() {
             onClick={saveSchedule}
             disabled={savingSchedule}
           >
-            {savingSchedule ? 'Enregistrement...' : 'Enregistrer'}
+            {savingSchedule ? t('settings.saving') : t('settings.save')}
           </button>
         </div>
       </section>
 
       {/* Notification preferences */}
       <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-text-dark">Notifications</h3>
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.notifications')}</h3>
         <div className="mb-4 flex flex-col gap-3">
           <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
@@ -402,7 +405,7 @@ export default function SettingsPage() {
               }
               className="h-[18px] w-[18px] accent-brown-light"
             />
-            Recevoir les alertes par e-mail
+            {t('settings.notif.email.alerts')}
           </label>
           <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
@@ -413,7 +416,7 @@ export default function SettingsPage() {
               }
               className="h-[18px] w-[18px] accent-brown-light"
             />
-            Recevoir les gazettes par e-mail
+            {t('settings.notif.email.gazette')}
           </label>
           <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
@@ -424,7 +427,7 @@ export default function SettingsPage() {
               }
               className="h-[18px] w-[18px] accent-brown-light"
             />
-            Notifications push (navigateur)
+            {t('settings.notif.push')}
           </label>
         </div>
         <div className="flex items-center gap-3.5">
@@ -433,17 +436,17 @@ export default function SettingsPage() {
             onClick={saveNotifs}
             disabled={savingNotifs}
           >
-            {savingNotifs ? 'Enregistrement...' : 'Enregistrer'}
+            {savingNotifs ? t('settings.saving') : t('settings.save')}
           </button>
         </div>
       </section>
 
       {/* Family members */}
       <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-text-dark">Membres de la famille</h3>
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.family')}</h3>
         {family.length === 0 ? (
           <p className="text-sm text-text-muted">
-            Aucun membre ajouté pour l{"'"}instant.
+            {t('settings.family.empty')}
           </p>
         ) : (
           <div className="flex flex-col gap-3">
@@ -465,16 +468,16 @@ export default function SettingsPage() {
 
       {/* GDPR section */}
       <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-text-dark">Données personnelles (RGPD)</h3>
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.gdpr')}</h3>
         <p className="mb-3 text-sm text-text-muted">
-          Conformément au RGPD, vous pouvez exporter ou supprimer vos données à tout moment.
+          {t('settings.gdpr.desc')}
         </p>
         <div className="mt-3 flex flex-wrap gap-3">
           <button
             className="rounded-[10px] border border-brown-light bg-white px-6 py-2.5 font-body text-sm font-bold text-brown-light cursor-pointer hover:bg-cream"
             onClick={handleExportData}
           >
-            Exporter mes données
+            {t('settings.export')}
           </button>
           <button
             className={`rounded-[10px] border border-red-500 px-6 py-2.5 font-body text-sm font-bold cursor-pointer transition-colors duration-200 ${
@@ -485,22 +488,21 @@ export default function SettingsPage() {
             onClick={handleDeleteAccount}
           >
             {deleteConfirm
-              ? 'Confirmer la suppression définitive'
-              : 'Supprimer mon compte'}
+              ? t('settings.delete.confirm')
+              : t('settings.delete')}
           </button>
           {deleteConfirm && (
             <button
               className="rounded-[10px] border border-beige bg-white px-6 py-2.5 font-body text-sm font-semibold text-text-muted cursor-pointer hover:bg-cream"
               onClick={() => setDeleteConfirm(false)}
             >
-              Annuler
+              {t('settings.delete.cancel')}
             </button>
           )}
         </div>
         {deleteConfirm && (
           <p className="mt-2 text-[13px] text-error-text">
-            Attention : cette action est irréversible. Toutes vos données seront
-            définitivement supprimées.
+            {t('settings.delete.warning')}
           </p>
         )}
       </section>

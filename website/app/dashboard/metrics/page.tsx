@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import { metricsService } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -43,13 +44,15 @@ interface MetricsSummary {
 
 const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default'
 
-const TREND_LABELS: Record<string, { label: string; colorClass: string; arrow: string }> = {
-  increasing: { label: 'En hausse', colorClass: 'text-green-light', arrow: '\u2191' },
-  stable: { label: 'Stable', colorClass: 'text-yellow-warm', arrow: '\u2192' },
-  decreasing: { label: 'En baisse', colorClass: 'text-red-500', arrow: '\u2193' },
-}
-
 export default function MetricsPage() {
+  const { t } = useI18n()
+
+  const TREND_LABELS: Record<string, { label: string; colorClass: string; arrow: string }> = {
+    increasing: { label: t('metrics.trend.up'), colorClass: 'text-green-light', arrow: '\u2191' },
+    stable: { label: t('metrics.trend.stable'), colorClass: 'text-yellow-warm', arrow: '\u2192' },
+    decreasing: { label: t('metrics.trend.down'), colorClass: 'text-red-500', arrow: '\u2193' },
+  }
+
   const [history, setHistory] = useState<MetricPoint[]>([])
   const [summary, setSummary] = useState<MetricsSummary>({
     vitality_score: 0,
@@ -100,21 +103,21 @@ export default function MetricsPage() {
   const latTrend = TREND_LABELS[summary.latency_trend] || TREND_LABELS.stable
 
   if (loading) {
-    return <p className="p-8 text-text-muted">Chargement...</p>
+    return <p className="p-8 text-text-muted">{t('metrics.title')}... {t('dash.loading')}</p>
   }
 
   return (
     <div>
-      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Suivi cognitif</h2>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('metrics.title')}</h2>
       <p className="mb-7 text-[15px] text-text-muted">
-        Évolution des indicateurs cognitifs sur les 30 derniers jours.
+        {t('metrics.subtitle')}
       </p>
 
       {/* Vitality gauge + trend cards */}
       <div className="mb-6 flex flex-wrap gap-[18px]">
         {/* Vitality score */}
         <div className="flex min-w-[200px] flex-1 flex-col items-center gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Score de vitalité</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">{t('metrics.vitality')}</h3>
           <svg viewBox="0 0 160 95" width="180" height="105">
             <path
               d="M15 80 A65 65 0 0 1 145 80"
@@ -163,7 +166,7 @@ export default function MetricsPage() {
 
         {/* Semantic trend */}
         <div className="flex min-w-[160px] flex-1 flex-col gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Richesse sémantique</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">{t('metrics.semantic')}</h3>
           <div className="flex items-center gap-2.5">
             <span className={`text-[28px] font-bold ${semTrend.colorClass}`}>{semTrend.arrow}</span>
             <span className={`text-lg font-bold ${semTrend.colorClass}`}>{semTrend.label}</span>
@@ -172,7 +175,7 @@ export default function MetricsPage() {
 
         {/* Latency trend */}
         <div className="flex min-w-[160px] flex-1 flex-col gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Temps de réponse</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">{t('metrics.latency')}</h3>
           <div className="flex items-center gap-2.5">
             <span className={`text-[28px] font-bold ${latTrend.colorClass}`}>{latTrend.arrow}</span>
             <span className={`text-lg font-bold ${latTrend.colorClass}`}>{latTrend.label}</span>
@@ -182,7 +185,7 @@ export default function MetricsPage() {
 
       {/* Semantic richness chart */}
       <div className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-base font-bold text-text-dark">Richesse sémantique (30 jours)</h3>
+        <h3 className="mb-4 text-base font-bold text-text-dark">{t('metrics.chart.semantic')}</h3>
         {history.length > 0 ? (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={history}>
@@ -209,7 +212,7 @@ export default function MetricsPage() {
               <Line
                 type="monotone"
                 dataKey="unique_words"
-                name="Mots uniques"
+                name={t('metrics.unique.words')}
                 stroke="#7D6340"
                 strokeWidth={2.5}
                 dot={{ fill: '#8B6F47', r: 3 }}
@@ -218,13 +221,13 @@ export default function MetricsPage() {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="p-8 text-center text-text-muted">Aucune donnée</p>
+          <p className="p-8 text-center text-text-muted">{t('metrics.no.data')}</p>
         )}
       </div>
 
       {/* Response latency chart */}
       <div className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-base font-bold text-text-dark">Temps de réponse (30 jours)</h3>
+        <h3 className="mb-4 text-base font-bold text-text-dark">{t('metrics.chart.latency')}</h3>
         {history.length > 0 ? (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={history}>
@@ -252,7 +255,7 @@ export default function MetricsPage() {
               <Line
                 type="monotone"
                 dataKey="avg_latency_ms"
-                name="Latence (ms)"
+                name={t('metrics.latency.ms')}
                 stroke="#E8A87C"
                 strokeWidth={2.5}
                 dot={{ fill: '#8B6F47', r: 3 }}
@@ -261,7 +264,7 @@ export default function MetricsPage() {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="p-8 text-center text-text-muted">Aucune donnée</p>
+          <p className="p-8 text-center text-text-muted">{t('metrics.no.data')}</p>
         )}
       </div>
     </div>

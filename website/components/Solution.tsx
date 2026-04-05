@@ -94,7 +94,7 @@ export default function Solution() {
           <div className="absolute inset-0 bg-gradient-to-r from-brown-dark/50 via-brown-dark/20 to-transparent" />
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8">
             <p className="font-heading text-base sm:text-lg font-bold text-white drop-shadow-md">
-              Les souvenirs qui nous lient
+              {t('solution.image.caption')}
             </p>
           </div>
         </motion.div>
@@ -111,7 +111,7 @@ export default function Solution() {
               <span className="text-orange-text">
                 {t('solution.mission.memory')}
               </span>{' '}
-              ET{' '}
+              {t('solution.mission.and')}{' '}
               <span className="text-green-forest">
                 {t('solution.mission.prevent')}
               </span>

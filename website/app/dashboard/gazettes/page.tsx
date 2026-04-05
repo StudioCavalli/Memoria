@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { gazettesService } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -15,6 +16,7 @@ interface Gazette {
 const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default'
 
 export default function GazettesPage() {
+  const { t } = useI18n()
   const [gazettes, setGazettes] = useState<Gazette[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -45,22 +47,22 @@ export default function GazettesPage() {
       link.remove()
       window.URL.revokeObjectURL(url)
     } catch {
-      alert('Impossible de télécharger la gazette.')
+      alert(t('gazettes.download.error'))
     }
   }
 
   return (
     <div>
-      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Gazettes</h2>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('gazettes.title')}</h2>
       <p className="mb-6 text-[15px] text-text-muted">
-        Les gazettes résument les souvenirs et moments clés de votre proche.
+        {t('gazettes.subtitle')}
       </p>
 
       {loading ? (
-        <p className="p-5 text-text-muted">Chargement...</p>
+        <p className="p-5 text-text-muted">{t('gazettes.loading')}</p>
       ) : gazettes.length === 0 ? (
         <div className="rounded-2xl bg-white p-10 text-center text-[15px] text-text-muted shadow-sm">
-          <p>Aucune gazette disponible pour le moment.</p>
+          <p>{t('gazettes.empty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3.5">
@@ -85,7 +87,7 @@ export default function GazettesPage() {
                 className="whitespace-nowrap rounded-[10px] border-none bg-brown-light px-5 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark"
                 onClick={() => handleDownload(g)}
               >
-                Télécharger PDF
+                {t('gazettes.download')}
               </button>
             </div>
           ))}

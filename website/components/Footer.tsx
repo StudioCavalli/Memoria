@@ -9,7 +9,7 @@ const footerLinks = [
   { href: '#solution', labelKey: 'nav.solution' },
   { href: '#fonctionnement', labelKey: 'how.tag' },
   { href: '#sentinelle', labelKey: 'nav.sentinel' },
-  { href: '#technologie', label: 'Technologie' },
+  { href: '#technologie', labelKey: 'footer.technology' },
   { href: '#tarifs', labelKey: 'nav.pricing' },
   { href: '#roadmap', labelKey: 'nav.roadmap' },
   { href: '/docs', label: 'API Docs' },

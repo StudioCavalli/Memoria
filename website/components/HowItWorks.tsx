@@ -15,25 +15,22 @@ export default function HowItWorks() {
       number: '1',
       icon: Phone,
       titleKey: 'how.step1.title',
-      description:
-        'Un simple bouton pour démarrer la conversation. Pas de clavier, pas d\'écran complexe. Juste la voix, naturellement.',
-      details: ['Un seul bouton', 'Conversation vocale', 'Interface simplifiée'],
+      descKey: 'how.step1.desc',
+      detailKeys: ['how.step1.detail1', 'how.step1.detail2', 'how.step1.detail3'],
     },
     {
       number: '2',
       icon: Brain,
       titleKey: 'how.step2.title',
-      description:
-        'Transcription en temps réel, classification sémantique, extraction d\'émotions et d\'événements. Chaque mot compte.',
-      details: ['Transcription STT', 'Classification IA', 'Analyse sémantique'],
+      descKey: 'how.step2.desc',
+      detailKeys: ['how.step2.detail1', 'how.step2.detail2', 'how.step2.detail3'],
     },
     {
       number: '3',
       icon: Heart,
       titleKey: 'how.step3.title',
-      description:
-        'La Gazette mensuelle, les alertes cognitives, un tableau de bord familial. Les souvenirs prennent vie et la santé est surveillée.',
-      details: ['Gazette mensuelle', 'Alertes santé', 'Dashboard famille'],
+      descKey: 'how.step3.desc',
+      detailKeys: ['how.step3.detail1', 'how.step3.detail2', 'how.step3.detail3'],
     },
   ]
 
@@ -94,15 +91,15 @@ export default function HowItWorks() {
                   {t(step.titleKey)}
                 </h3>
                 <p className="text-text-muted text-sm leading-relaxed mb-6">
-                  {step.description}
+                  {t(step.descKey)}
                 </p>
                 <div className="space-y-2">
-                  {step.details.map((detail) => (
+                  {step.detailKeys.map((key) => (
                     <div
-                      key={detail}
+                      key={key}
                       className="inline-block mx-1 px-3 py-1 bg-cream rounded-full text-xs font-semibold text-brown"
                     >
-                      {detail}
+                      {t(key)}
                     </div>
                   ))}
                 </div>

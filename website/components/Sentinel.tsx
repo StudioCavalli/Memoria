@@ -6,28 +6,8 @@ import { Activity, Clock, Bell } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
 
-const features = [
-  {
-    icon: Activity,
-    title: 'Richesse sémantique',
-    description:
-      'Analyse de la diversité lexicale, de la complexité syntaxique et de la cohérence narrative au fil du temps.',
-  },
-  {
-    icon: Clock,
-    title: 'Temps de réponse',
-    description:
-      'Mesure de la latence conversationnelle et des hésitations, indicateurs précoces de déclin.',
-  },
-  {
-    icon: Bell,
-    title: 'Alertes intelligentes',
-    description:
-      'Notifications graduelles aux familles et médecins dès qu\'un seuil critique est détecté.',
-  },
-]
-
 function VitalityGauge() {
+  const { t } = useI18n()
   const score = 87
   const circumference = 2 * Math.PI * 54
   const offset = circumference - (score / 100) * circumference
@@ -36,10 +16,10 @@ function VitalityGauge() {
     <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h4 className="font-heading text-base sm:text-lg font-bold text-text-dark">
-          Score de vitalité
+          {t('sentinel.vitality.title')}
         </h4>
         <span className="px-3 py-1 bg-green-forest/15 text-green-forest text-xs font-bold rounded-full">
-          Stable
+          {t('sentinel.vitality.stable')}
         </span>
       </div>
 
@@ -49,7 +29,7 @@ function VitalityGauge() {
             className="w-full h-full -rotate-90"
             viewBox="0 0 120 120"
             role="img"
-            aria-label={`Score de vitalité : ${score} sur 100`}
+            aria-label={t('sentinel.vitality.aria').replace('{score}', String(score))}
           >
             <circle
               cx="60"
@@ -83,7 +63,7 @@ function VitalityGauge() {
         <div className="space-y-3 flex-1 w-full">
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-muted">Lexique</span>
+              <span className="text-text-muted">{t('sentinel.vitality.lexicon')}</span>
               <span className="font-bold text-green-forest">92%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
@@ -92,7 +72,7 @@ function VitalityGauge() {
           </div>
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-muted">Cohérence</span>
+              <span className="text-text-muted">{t('sentinel.vitality.coherence')}</span>
               <span className="font-bold text-orange-text">84%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
@@ -101,7 +81,7 @@ function VitalityGauge() {
           </div>
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-muted">Réactivité</span>
+              <span className="text-text-muted">{t('sentinel.vitality.reactivity')}</span>
               <span className="font-bold text-brown">88%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
@@ -113,7 +93,7 @@ function VitalityGauge() {
 
       <div className="mt-6 flex items-center gap-2 text-xs text-text-muted">
         <div className="w-2 h-2 rounded-full bg-green-forest" />
-        Tendance stable sur les 30 derniers jours
+        {t('sentinel.vitality.trend')}
       </div>
     </div>
   )
@@ -123,6 +103,24 @@ export default function Sentinel() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
   const { t } = useI18n()
+
+  const features = [
+    {
+      icon: Activity,
+      titleKey: 'sentinel.feature1.title',
+      descKey: 'sentinel.feature1.desc',
+    },
+    {
+      icon: Clock,
+      titleKey: 'sentinel.feature2.title',
+      descKey: 'sentinel.feature2.desc',
+    },
+    {
+      icon: Bell,
+      titleKey: 'sentinel.feature3.title',
+      descKey: 'sentinel.feature3.desc',
+    },
+  ]
 
   return (
     <section
@@ -150,7 +148,7 @@ export default function Sentinel() {
           <div className="space-y-6 sm:space-y-8">
             {features.map((feature, i) => (
               <motion.div
-                key={feature.title}
+                key={feature.titleKey}
                 initial={{ opacity: 0, x: -30 }}
                 animate={isInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
@@ -161,10 +159,10 @@ export default function Sentinel() {
                 </div>
                 <div>
                   <h3 className="font-heading text-base sm:text-lg font-bold text-text-dark mb-1">
-                    {feature.title}
+                    {t(feature.titleKey)}
                   </h3>
                   <p className="text-text-muted text-sm leading-relaxed">
-                    {feature.description}
+                    {t(feature.descKey)}
                   </p>
                 </div>
               </motion.div>
@@ -206,14 +204,12 @@ export default function Sentinel() {
         >
           <div className="bg-gradient-to-r from-brown-dark to-brown rounded-2xl p-6 sm:p-8 md:p-10 text-center">
             <p className="font-heading text-lg sm:text-xl md:text-2xl font-bold text-white leading-relaxed">
-              Jusqu'à{' '}
-              <span className="text-orange-text">6 mois d'avance</span>{' '}
-              sur un diagnostic clinique
+              {t('sentinel.alert.title').split('{value}')[0]}
+              <span className="text-orange-text">{t('sentinel.alert.value')}</span>
+              {t('sentinel.alert.title').split('{value}')[1]}
             </p>
             <p className="text-white/70 mt-3 text-xs sm:text-sm max-w-2xl mx-auto">
-              Grâce à l'analyse linguistique continue, Memoria
-              repère des marqueurs subtils invisibles à
-              l'oeil nu.
+              {t('sentinel.alert.desc')}
             </p>
           </div>
         </motion.div>

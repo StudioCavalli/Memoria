@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { resolveSeniorId, memoriesService } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -48,6 +49,7 @@ const truncate = (text: string, len: number): string =>
   text.length > len ? text.slice(0, len) + '...' : text
 
 export default function MemoriesPage() {
+  const { t } = useI18n()
   const [memories, setMemories] = useState<Memory[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -111,9 +113,9 @@ export default function MemoriesPage() {
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE))
 
   const themeButtons = useMemo(() => {
-    const items: { id: string; name: string }[] = [{ id: '', name: 'Tous' }]
-    for (const t of themes) {
-      items.push({ id: t.id, name: t.name })
+    const items: { id: string; name: string }[] = [{ id: '', name: t('memories.all') }]
+    for (const th of themes) {
+      items.push({ id: th.id, name: th.name })
     }
     if (themes.length === 0) {
       for (const name of ['Enfance', 'Famille', 'Travail', 'Voyages', 'Loisirs']) {
@@ -121,39 +123,39 @@ export default function MemoriesPage() {
       }
     }
     return items
-  }, [themes])
+  }, [themes, t])
 
   return (
     <div>
-      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Souvenirs</h2>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('memories.title')}</h2>
       <p className="mb-6 text-[15px] text-text-muted">
-        Découvrez les souvenirs partagés par votre proche.
+        {t('memories.subtitle')}
       </p>
 
       {/* Filters */}
       <div className="mb-6 flex flex-col gap-3.5">
         <input
           type="text"
-          placeholder="Rechercher un souvenir..."
+          placeholder={t('memories.search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-[400px] rounded-[10px] border border-beige bg-white px-4 py-3 font-body text-[15px] outline-none focus:border-orange-soft"
         />
         <div className="flex flex-wrap gap-2">
-          {themeButtons.map((t) => (
+          {themeButtons.map((th) => (
             <button
-              key={t.id}
+              key={th.id}
               onClick={() => {
-                setThemeFilter(t.id)
+                setThemeFilter(th.id)
                 setPage(1)
               }}
               className={`rounded-full border px-4 py-2 font-body text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
-                themeFilter === t.id
+                themeFilter === th.id
                   ? 'border-brown-light bg-brown-light text-white'
                   : 'border-beige bg-white text-text-muted hover:bg-cream'
               }`}
             >
-              {t.name}
+              {th.name}
             </button>
           ))}
         </div>
@@ -161,13 +163,13 @@ export default function MemoriesPage() {
 
       {/* Content */}
       {loading ? (
-        <p className="p-5 text-text-muted">Chargement...</p>
+        <p className="p-5 text-text-muted">{t('memories.loading')}</p>
       ) : error ? (
         <p className="p-5 text-red-500">
-          Erreur lors du chargement des souvenirs.
+          {t('memories.error')}
         </p>
       ) : filtered.length === 0 ? (
-        <p className="p-5 text-text-muted">Aucun souvenir trouvé.</p>
+        <p className="p-5 text-text-muted">{t('memories.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {filtered.map((m) => {
@@ -184,7 +186,7 @@ export default function MemoriesPage() {
                   if (e.key === 'Enter') setExpandedId(isExpanded ? null : m.id)
                 }}
               >
-                <h3 className="text-[17px] font-bold text-text-dark">{m.title || 'Sans titre'}</h3>
+                <h3 className="text-[17px] font-bold text-text-dark">{m.title || t('memories.no.title')}</h3>
                 {m.period && <p className="text-[13px] font-semibold text-text-light">{m.period}</p>}
                 {m.created_at && (
                   <p className="text-xs text-text-light">
@@ -193,22 +195,22 @@ export default function MemoriesPage() {
                 )}
                 <p className="flex-1 text-sm leading-relaxed text-text-dark/80">
                   {isExpanded
-                    ? m.summary || 'Aucun résumé.'
-                    : truncate(m.summary || 'Aucun résumé.', 150)}
+                    ? m.summary || t('memories.no.summary')
+                    : truncate(m.summary || t('memories.no.summary'), 150)}
                 </p>
                 {!isExpanded && m.summary && m.summary.length > 150 && (
-                  <span className="text-[13px] font-bold text-brown-light">Lire la suite</span>
+                  <span className="text-[13px] font-bold text-brown-light">{t('memories.read.more')}</span>
                 )}
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  {themeList.map((t: string) => {
-                    const color = getThemeColor(t)
+                  {themeList.map((th: string) => {
+                    const color = getThemeColor(th)
                     return (
                       <span
-                        key={t}
+                        key={th}
                         className="rounded-full px-2.5 py-1 text-xs font-bold"
                         style={{ backgroundColor: color + '22', color }}
                       >
-                        {t}
+                        {th}
                       </span>
                     )
                   })}
@@ -218,10 +220,10 @@ export default function MemoriesPage() {
                     className="mt-1.5 self-start rounded-lg border border-orange-soft bg-cream px-4 py-1.5 font-body text-[13px] font-semibold text-brown-light cursor-pointer hover:bg-orange-soft/20"
                     onClick={(e) => {
                       e.stopPropagation()
-                      alert('La réécoute audio sera bientôt disponible.')
+                      alert(t('memories.listen.soon'))
                     }}
                   >
-                    Réécouter
+                    {t('memories.listen')}
                   </button>
                 )}
               </div>
@@ -238,17 +240,17 @@ export default function MemoriesPage() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-lg border border-beige bg-white px-[18px] py-2 font-body text-sm font-semibold text-brown-light cursor-pointer disabled:cursor-default disabled:opacity-50"
           >
-            Précédent
+            {t('memories.prev')}
           </button>
           <span className="text-sm font-semibold text-text-muted">
-            Page {page} / {totalPages}
+            {t('memories.page').replace('{current}', String(page)).replace('{total}', String(totalPages))}
           </span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
             className="rounded-lg border border-beige bg-white px-[18px] py-2 font-body text-sm font-semibold text-brown-light cursor-pointer disabled:cursor-default disabled:opacity-50"
           >
-            Suivant
+            {t('memories.next')}
           </button>
         </div>
       )}

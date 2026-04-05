@@ -74,7 +74,7 @@ export default function Problem() {
                   {t(stat.descKey)}
                 </p>
                 <p className="text-text-muted/60 text-[10px] mt-2 italic">
-                  Source : {t(stat.sourceKey)}
+                  {t('problem.source.label')} {t(stat.sourceKey)}
                 </p>
               </motion.div>
             ))}
@@ -108,15 +108,14 @@ export default function Problem() {
               &ldquo;
             </span>
             <p className="font-heading text-lg sm:text-xl md:text-2xl lg:text-3xl text-text-dark italic leading-relaxed px-4 sm:px-8">
-              Quand ils disparaissent, c'est une bibliothèque qui
-              brûle.
+              {t('problem.quote')}
             </p>
             <span className="absolute -bottom-12 -right-4 text-6xl sm:text-8xl text-orange-soft/20 font-heading">
               &rdquo;
             </span>
           </div>
           <footer className="mt-8 text-text-muted text-sm font-semibold">
-            — Proverbe africain, popularisé par Amadou Hampâté Bâ
+            {t('problem.quote.author')}
           </footer>
         </motion.blockquote>
       </div>

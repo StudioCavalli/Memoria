@@ -3,66 +3,27 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Cpu, AudioWaveform, Volume2, Code2, ShieldCheck, Server, Smartphone, LayoutDashboard } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
-const aiStack = [
-  {
-    icon: Cpu,
-    name: 'LLM Anthropic / GPT-4o',
-    description:
-      'Modèles de langage de pointe pour des conversations empathiques et une analyse sémantique fine.',
-    why: 'Double provider pour la résilience : si un service tombe, l\'autre prend le relais automatiquement.',
-  },
-  {
-    icon: AudioWaveform,
-    name: 'Whisper STT',
-    description:
-      'Reconnaissance vocale d\'OpenAI optimisée pour les voix âgées, accents et débits lents.',
-    why: 'Meilleure précision du marché sur le français parlé, y compris les voix tremblantes et les accents régionaux.',
-  },
-  {
-    icon: Volume2,
-    name: 'ElevenLabs TTS',
-    description:
-      'Synthèse vocale naturelle et chaleureuse, pour une réponse humaine et rassurante.',
-    why: 'Voix les plus naturelles disponibles. Pour un senior, une voix robotique = méfiance. Le naturel est critique.',
-  },
-  {
-    icon: Code2,
-    name: 'spaCy NLP',
-    description:
-      'Analyse linguistique pour l\'extraction d\'entités, de marqueurs cognitifs et de richesse sémantique.',
-    why: 'Léger, rapide, modèle français mature. Tourne en local sans appel API, idéal pour l\'analyse en temps réel.',
-  },
+const aiStackKeys = [
+  { icon: Cpu, nameKey: 'tech.ai1.name', descKey: 'tech.ai1.desc', whyKey: 'tech.ai1.why' },
+  { icon: AudioWaveform, nameKey: 'tech.ai2.name', descKey: 'tech.ai2.desc', whyKey: 'tech.ai2.why' },
+  { icon: Volume2, nameKey: 'tech.ai3.name', descKey: 'tech.ai3.desc', whyKey: 'tech.ai3.why' },
+  { icon: Code2, nameKey: 'tech.ai4.name', descKey: 'tech.ai4.desc', whyKey: 'tech.ai4.why' },
 ]
 
-const infraStack = [
-  {
-    icon: Server,
-    name: 'Python / FastAPI',
-    why: 'L\'écosystème IA est en Python (Anthropic SDK, OpenAI, spaCy, scikit-learn). FastAPI offre les performances async nécessaires au streaming WebSocket tout en restant dans le même langage que les modèles IA. Pas de surcoût de communication inter-services.',
-  },
-  {
-    icon: Smartphone,
-    name: 'React Native / Expo',
-    why: 'Un seul code pour Android et iOS. Expo simplifie le déploiement sur tablettes sans passer par les app stores (mode kiosque). Accès natif au micro, haptique et gestion audio via expo-av.',
-  },
-  {
-    icon: LayoutDashboard,
-    name: 'React / Vite / TypeScript',
-    why: 'Dashboard famille en React pour partager les compétences avec le frontend mobile (même paradigme). Vite pour un dev rapide. TypeScript pour la fiabilité sur une codebase qui grandit.',
-  },
+const infraStackKeys = [
+  { icon: Server, nameKey: 'tech.infra1.name', whyKey: 'tech.infra1.why' },
+  { icon: Smartphone, nameKey: 'tech.infra2.name', whyKey: 'tech.infra2.why' },
+  { icon: LayoutDashboard, nameKey: 'tech.infra3.name', whyKey: 'tech.infra3.why' },
 ]
 
-const security = [
-  'Chiffrement AES-256-GCM — nonce unique par entrée',
-  'Conformité RGPD native — export et suppression des données',
-  'Compatible hébergement HDS (données de santé)',
-  'JWT access token 15min + refresh 7 jours + bcrypt',
-]
+const securityKeys = ['tech.security1', 'tech.security2', 'tech.security3', 'tech.security4']
 
 export default function Technology() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
 
   return (
     <section
@@ -79,13 +40,13 @@ export default function Technology() {
           className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
-            Sous le capot
+            {t('tech.tag')}
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark">
-            Chaque choix technique est justifié
+            {t('tech.title')}
           </h2>
           <p className="text-text-muted mt-4 max-w-2xl mx-auto">
-            Pas de stack à la mode pour le plaisir. Chaque brique est là pour une raison précise, dictée par les contraintes du projet.
+            {t('tech.subtitle')}
           </p>
         </motion.div>
 
@@ -96,11 +57,11 @@ export default function Technology() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-8"
         >
-          <h3 className="font-heading text-lg font-bold text-brown mb-4">Pipeline IA &amp; Voix</h3>
+          <h3 className="font-heading text-lg font-bold text-brown mb-4">{t('tech.ai.title')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {aiStack.map((tech, i) => (
+            {aiStackKeys.map((tech, i) => (
               <motion.div
-                key={tech.name}
+                key={tech.nameKey}
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
@@ -110,14 +71,14 @@ export default function Technology() {
                   <tech.icon size={20} className="text-brown" />
                 </div>
                 <h4 className="font-heading text-sm font-bold text-text-dark mb-1">
-                  {tech.name}
+                  {t(tech.nameKey)}
                 </h4>
                 <p className="text-text-muted text-xs leading-relaxed mb-3">
-                  {tech.description}
+                  {t(tech.descKey)}
                 </p>
                 <div className="bg-cream rounded-lg px-3 py-2">
                   <p className="text-orange-text text-xs font-semibold leading-relaxed">
-                    Pourquoi ? {tech.why}
+                    {t('tech.why')} {t(tech.whyKey)}
                   </p>
                 </div>
               </motion.div>
@@ -132,11 +93,11 @@ export default function Technology() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mb-8"
         >
-          <h3 className="font-heading text-lg font-bold text-brown mb-4">Infrastructure &amp; Développement</h3>
+          <h3 className="font-heading text-lg font-bold text-brown mb-4">{t('tech.infra.title')}</h3>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {infraStack.map((tech, i) => (
+            {infraStackKeys.map((tech, i) => (
               <motion.div
-                key={tech.name}
+                key={tech.nameKey}
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
@@ -147,11 +108,11 @@ export default function Technology() {
                     <tech.icon size={20} className="text-orange-text" />
                   </div>
                   <h4 className="font-heading text-sm font-bold text-text-dark">
-                    {tech.name}
+                    {t(tech.nameKey)}
                   </h4>
                 </div>
                 <p className="text-text-muted text-xs leading-relaxed">
-                  {tech.why}
+                  {t(tech.whyKey)}
                 </p>
               </motion.div>
             ))}
@@ -168,12 +129,12 @@ export default function Technology() {
           <div className="flex items-center gap-3 mb-5">
             <ShieldCheck size={24} className="text-green-forest" />
             <h3 className="font-heading text-lg font-bold text-text-dark">
-              Sécurité &amp; conformité
+              {t('tech.security.title')}
             </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {security.map((item) => (
-              <div key={item} className="flex items-center gap-3">
+            {securityKeys.map((key) => (
+              <div key={key} className="flex items-center gap-3">
                 <div className="w-5 h-5 rounded-full bg-green-forest/15 flex items-center justify-center flex-shrink-0">
                   <svg
                     className="w-3 h-3 text-green-forest"
@@ -190,7 +151,7 @@ export default function Technology() {
                   </svg>
                 </div>
                 <span className="text-sm font-semibold text-text-dark">
-                  {item}
+                  {t(key)}
                 </span>
               </div>
             ))}

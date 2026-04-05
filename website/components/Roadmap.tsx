@@ -3,82 +3,84 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Rocket, Users, Globe, FlaskConical, BookHeart, Radio, Code2, ArrowRight } from 'lucide-react'
-
-const phases = [
-  {
-    period: 'Juin — Déc. 2026',
-    label: 'Court terme',
-    color: 'bg-orange-soft',
-    textColor: 'text-orange-text',
-    borderColor: 'border-orange-soft',
-    icon: FlaskConical,
-    title: 'Valider sur le terrain niçois',
-    items: [
-      'Pilote avec 20 seniors (10 à domicile, 10 en établissement)',
-      'Partenariat clinique CHU de Nice (validation MMS / test de l\'horloge)',
-      'Recrutement développeur full-stack + chargé de déploiement',
-      'Itérations produit : accents régionaux, voix très âgées, photos dans la Gazette',
-    ],
-  },
-  {
-    period: '2027',
-    label: 'Moyen terme',
-    color: 'bg-brown',
-    textColor: 'text-brown',
-    borderColor: 'border-brown',
-    icon: Users,
-    title: 'Passer à l\'échelle en région Sud',
-    items: [
-      '500 abonnés actifs (B2C + B2B) — Alpes-Maritimes, Var, Bouches-du-Rhône',
-      'Partenariats CCAS, CARSAT Sud-Est, AG2R pour la prise en charge financière',
-      'Équipe de 6-8 personnes basée à Nice',
-      'Lancement de Memoria Pro pour les professionnels de santé (rapports cognitifs, DMP)',
-      'Publication scientifique avec notre partenaire clinique',
-    ],
-  },
-  {
-    period: '2028 — 2029',
-    label: 'Long terme',
-    color: 'bg-green-forest',
-    textColor: 'text-green-forest',
-    borderColor: 'border-green-forest',
-    icon: Globe,
-    title: 'Devenir la référence française',
-    items: [
-      'Expansion nationale — 5 000 seniors équipés',
-      'Internationalisation Italie & Espagne',
-      'Memoria Héritage — livre biographique imprimé, illustré par IA',
-      'Memoria Lien — podcast familial privé avec la voix du senior',
-      'API Sentinelle — brique technologique pour éditeurs santé',
-      'Équipe de 15-20 personnes avec pôle R&D IA',
-    ],
-  },
-]
-
-const futureProducts = [
-  {
-    icon: BookHeart,
-    name: 'Memoria Héritage',
-    description: 'Un livre biographique imprimé compilant des années de souvenirs, illustré par IA. Un objet physique transmis de génération en génération.',
-    color: 'bg-orange-soft/15 text-orange-text',
-  },
-  {
-    icon: Radio,
-    name: 'Memoria Lien',
-    description: 'Les petits-enfants écoutent les récits de leurs grands-parents sous forme de podcast privé, avec la voix originale du senior.',
-    color: 'bg-green-forest/15 text-green-forest',
-  },
-  {
-    icon: Code2,
-    name: 'API Sentinelle',
-    description: 'Le module d\'analyse cognitive ouvert en API pour les éditeurs de logiciels de santé, les plateformes de téléassistance et les assureurs.',
-    color: 'bg-brown/10 text-brown',
-  },
-]
+import { useI18n } from '@/lib/i18n'
 
 export default function Roadmap() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
+
+  const phases = [
+    {
+      periodKey: 'roadmap.phase1.period',
+      labelKey: 'roadmap.phase1.label',
+      color: 'bg-orange-soft',
+      textColor: 'text-orange-text',
+      borderColor: 'border-orange-soft',
+      icon: FlaskConical,
+      titleKey: 'roadmap.phase1.title',
+      itemKeys: [
+        'roadmap.phase1.item1',
+        'roadmap.phase1.item2',
+        'roadmap.phase1.item3',
+        'roadmap.phase1.item4',
+      ],
+    },
+    {
+      periodKey: 'roadmap.phase2.period',
+      labelKey: 'roadmap.phase2.label',
+      color: 'bg-brown',
+      textColor: 'text-brown',
+      borderColor: 'border-brown',
+      icon: Users,
+      titleKey: 'roadmap.phase2.title',
+      itemKeys: [
+        'roadmap.phase2.item1',
+        'roadmap.phase2.item2',
+        'roadmap.phase2.item3',
+        'roadmap.phase2.item4',
+        'roadmap.phase2.item5',
+      ],
+    },
+    {
+      periodKey: 'roadmap.phase3.period',
+      labelKey: 'roadmap.phase3.label',
+      color: 'bg-green-forest',
+      textColor: 'text-green-forest',
+      borderColor: 'border-green-forest',
+      icon: Globe,
+      titleKey: 'roadmap.phase3.title',
+      itemKeys: [
+        'roadmap.phase3.item1',
+        'roadmap.phase3.item2',
+        'roadmap.phase3.item3',
+        'roadmap.phase3.item4',
+        'roadmap.phase3.item5',
+        'roadmap.phase3.item6',
+      ],
+    },
+  ]
+
+  const futureProducts = [
+    {
+      icon: BookHeart,
+      nameKey: 'roadmap.future1.name',
+      descKey: 'roadmap.future1.desc',
+      color: 'bg-orange-soft/15 text-orange-text',
+    },
+    {
+      icon: Radio,
+      nameKey: 'roadmap.future2.name',
+      descKey: 'roadmap.future2.desc',
+      color: 'bg-green-forest/15 text-green-forest',
+    },
+    {
+      icon: Code2,
+      nameKey: 'roadmap.future3.name',
+      descKey: 'roadmap.future3.desc',
+      color: 'bg-brown/10 text-brown',
+    },
+  ]
 
   return (
     <section id="roadmap" ref={ref} className="py-24 sm:py-32 relative overflow-hidden">
@@ -93,13 +95,13 @@ export default function Roadmap() {
           className="text-center mb-16"
         >
           <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
-            Vision & Feuille de route
+            {t('roadmap.tag')}
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
-            Ce qui arrive
+            {t('roadmap.title')}
           </h2>
           <p className="text-text-muted mt-4 max-w-2xl mx-auto text-lg">
-            La v1 de Memoria est prête. Voici les prochaines étapes pour le déployer et le faire grandir.
+            {t('roadmap.subtitle')}
           </p>
         </motion.div>
 
@@ -111,7 +113,7 @@ export default function Roadmap() {
           <div className="space-y-12 lg:space-y-16">
             {phases.map((phase, i) => (
               <motion.div
-                key={phase.period}
+                key={phase.periodKey}
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.2 + i * 0.2 }}
@@ -135,16 +137,16 @@ export default function Roadmap() {
                     </div>
 
                     <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${phase.color}/15 ${phase.textColor} mb-3`}>
-                      {phase.label}
+                      {t(phase.labelKey)}
                     </div>
-                    <p className="text-text-muted text-sm font-semibold mb-1">{phase.period}</p>
-                    <h3 className="font-heading text-xl font-bold text-text-dark mb-4">{phase.title}</h3>
+                    <p className="text-text-muted text-sm font-semibold mb-1">{t(phase.periodKey)}</p>
+                    <h3 className="font-heading text-xl font-bold text-text-dark mb-4">{t(phase.titleKey)}</h3>
 
                     <ul className={`space-y-2 ${i % 2 === 0 ? 'lg:text-left' : ''}`}>
-                      {phase.items.map((item, j) => (
+                      {phase.itemKeys.map((key, j) => (
                         <li key={j} className="flex items-start gap-2 text-sm text-text-muted">
                           <ArrowRight size={14} className={`${phase.textColor} mt-0.5 flex-shrink-0`} />
-                          <span>{item}</span>
+                          <span>{t(key)}</span>
                         </li>
                       ))}
                     </ul>
@@ -166,20 +168,20 @@ export default function Roadmap() {
           className="mt-20"
         >
           <h3 className="font-heading text-2xl font-bold text-text-dark text-center mb-10">
-            Les produits à venir
+            {t('roadmap.future.title')}
           </h3>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {futureProducts.map((product) => (
               <div
-                key={product.name}
+                key={product.nameKey}
                 className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group"
               >
                 <div className={`w-12 h-12 rounded-xl ${product.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <product.icon size={22} />
                 </div>
-                <h4 className="font-heading text-lg font-bold text-text-dark mb-2">{product.name}</h4>
-                <p className="text-sm text-text-muted leading-relaxed">{product.description}</p>
+                <h4 className="font-heading text-lg font-bold text-text-dark mb-2">{t(product.nameKey)}</h4>
+                <p className="text-sm text-text-muted leading-relaxed">{t(product.descKey)}</p>
               </div>
             ))}
           </div>
@@ -194,10 +196,12 @@ export default function Roadmap() {
         >
           <div className="inline-block bg-gradient-to-r from-brown/10 via-orange-soft/15 to-brown/10 rounded-2xl px-8 py-5">
             <p className="font-heading text-lg font-bold text-brown">
-              La <span className="text-orange-text">première version</span> est livrée — 67 issues, 120+ tests, démo fonctionnelle. Prêts pour le terrain.
+              {t('roadmap.bottom.line1').split('{accent}')[0]}
+              <span className="text-orange-text">{t('roadmap.bottom.accent')}</span>
+              {t('roadmap.bottom.line1').split('{accent}')[1]}
             </p>
             <p className="text-text-muted text-sm mt-2">
-              Nous cherchons des partenaires pour le déployer à grande échelle sur la Côte d'Azur.
+              {t('roadmap.bottom.line2')}
             </p>
           </div>
         </motion.div>

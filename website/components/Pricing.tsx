@@ -15,16 +15,16 @@ export default function Pricing() {
       nameKey: 'pricing.family',
       price: '29,90',
       periodKey: 'pricing.month',
-      description: 'Pour les familles souhaitant préserver les souvenirs de leurs proches.',
-      features: [
-        'Conversations vocales illimitées',
-        'Journal de vie automatique',
-        'Gazette mensuelle illustrée',
-        'Module Sentinelle inclus',
-        'Tableau de bord familial',
-        'Alertes cognitives en temps réel',
-        'Export PDF du journal de vie',
-        'Support prioritaire',
+      descKey: 'pricing.family.desc',
+      featureKeys: [
+        'pricing.family.f1',
+        'pricing.family.f2',
+        'pricing.family.f3',
+        'pricing.family.f4',
+        'pricing.family.f5',
+        'pricing.family.f6',
+        'pricing.family.f7',
+        'pricing.family.f8',
       ],
       highlighted: true,
       ctaKey: 'pricing.cta.family',
@@ -33,16 +33,16 @@ export default function Pricing() {
       nameKey: 'pricing.ehpad',
       price: '19,90',
       periodKey: 'pricing.per.resident',
-      description: 'Tarif établissement, à partir de 20 résidents.',
-      features: [
-        'Tout le plan Famille',
-        'Dashboard établissement',
-        'Intégration DUI',
-        'Rapports médicaux automatisés',
-        'API & interopérabilité',
-        'Formation équipes incluse',
-        'Account manager dédié',
-        'SLA 99,9%',
+      descKey: 'pricing.ehpad.desc',
+      featureKeys: [
+        'pricing.ehpad.f1',
+        'pricing.ehpad.f2',
+        'pricing.ehpad.f3',
+        'pricing.ehpad.f4',
+        'pricing.ehpad.f5',
+        'pricing.ehpad.f6',
+        'pricing.ehpad.f7',
+        'pricing.ehpad.f8',
       ],
       highlighted: false,
       ctaKey: 'pricing.cta.ehpad',
@@ -69,7 +69,7 @@ export default function Pricing() {
             {t('pricing.title')}
           </h2>
           <p className="text-text-muted mt-4 max-w-xl mx-auto">
-            Pas de frais cachés. 30 jours d'essai gratuit. Annulation à tout moment.
+            {t('pricing.subtitle')}
           </p>
         </motion.div>
 
@@ -88,7 +88,7 @@ export default function Pricing() {
             >
               {plan.highlighted && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-brown text-white text-xs font-bold rounded-full">
-                  Le plus populaire
+                  {t('pricing.popular')}
                 </div>
               )}
 
@@ -96,7 +96,7 @@ export default function Pricing() {
                 {t(plan.nameKey)}
               </h3>
               <p className="text-text-muted text-sm mb-6">
-                {plan.description}
+                {t(plan.descKey)}
               </p>
 
               <div className="flex items-baseline gap-1 mb-8">
@@ -107,12 +107,12 @@ export default function Pricing() {
               </div>
 
               <ul className="space-y-3 mb-8">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
+                {plan.featureKeys.map((key) => (
+                  <li key={key} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-green-forest/15 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check size={12} className="text-green-forest" />
                     </div>
-                    <span className="text-sm text-text-dark">{feature}</span>
+                    <span className="text-sm text-text-dark">{t(key)}</span>
                   </li>
                 ))}
               </ul>
