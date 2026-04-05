@@ -20,6 +20,8 @@ import { setBaseURL, setWsURL } from "./src/services/api";
 import { Colors } from "./src/constants/theme";
 import { I18nProvider } from "./src/i18n";
 
+const rootStyle = { flex: 1, backgroundColor: Colors.cream };
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPaired, setIsPaired] = useState(false);
@@ -28,7 +30,6 @@ export default function App() {
     try {
       const pairing = await getPairing();
       if (pairing) {
-        // Configurer les URLs de l'API depuis le jumelage sauvegarde
         const cleanUrl = pairing.api_url.replace(/\/+$/, "");
         setBaseURL(`${cleanUrl}/api`);
         setWsURL(cleanUrl.replace(/^http/, "ws"));
@@ -59,9 +60,11 @@ export default function App() {
   if (isLoading) {
     return (
       <SafeAreaProvider>
-        <View className="flex-1 bg-cream justify-center items-center">
+        <View style={[rootStyle, { justifyContent: "center", alignItems: "center" }]}>
           <StatusBar style="dark" />
-          <Text className="text-5xl font-bold text-brown mb-6">Memoria</Text>
+          <Text style={{ fontSize: 48, fontWeight: "bold", color: Colors.brown, marginBottom: 24 }}>
+            Memoria
+          </Text>
           <ActivityIndicator size="large" color={Colors.brown} />
         </View>
       </SafeAreaProvider>
@@ -71,7 +74,7 @@ export default function App() {
   return (
     <I18nProvider>
       <SafeAreaProvider>
-        <View className="flex-1 bg-cream">
+        <View style={rootStyle}>
           <StatusBar style="dark" />
           {isPaired ? (
             <HomeScreen onRequestSetup={handleUnpaired} />
