@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import Image from 'next/image'
+
 
 const stats = [
   {
@@ -82,12 +82,11 @@ export default function Problem() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="hidden lg:block lg:col-span-2 relative h-full min-h-[320px] rounded-2xl overflow-hidden"
           >
-            <Image
-              src="https://images.unsplash.com/photo-1581579438747-104c53d7fbc4?w=1200&q=90&fit=crop"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/senior-happy.jpg"
               alt="Personne âgée souriante et heureuse"
-              fill
-              className="object-cover rounded-2xl"
-              sizes="(max-width: 1024px) 0vw, 40vw"
+              className="absolute inset-0 w-full h-full object-cover rounded-2xl"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-brown-dark/30 to-transparent rounded-2xl" />
           </motion.div>

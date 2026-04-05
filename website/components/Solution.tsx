@@ -3,7 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Mic, BookOpen, Shield } from 'lucide-react'
-import Image from 'next/image'
+
 
 const features = [
   {
@@ -86,12 +86,11 @@ export default function Solution() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="relative rounded-2xl overflow-hidden h-[200px] sm:h-[260px] mb-12 sm:mb-16"
         >
-          <Image
-            src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1200&q=90&fit=crop"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/grandparent-child.jpg"
             alt="Grand-parent et petit-enfant partageant un moment chaleureux"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 80vw"
+            className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-brown-dark/50 via-brown-dark/20 to-transparent" />
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8">
