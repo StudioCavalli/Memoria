@@ -69,7 +69,7 @@ if [ "$MODE" = "docker" ]; then
     log "============================================"
     info "  Backend API  : http://localhost:8000"
     info "  Swagger Docs : http://localhost:8000/docs"
-    info "  Dashboard    : http://localhost:3000"
+    info "  Site + Dashboard : http://localhost:3000"
     info ""
     info "  Login : demo@memoria.fr / Memoria2026!"
     info ""
@@ -121,15 +121,15 @@ else
         sleep 1
     done
 
-    # --- Dashboard React ---
-    cd "$ROOT_DIR/dashboard"
+    # --- Website + Dashboard (Next.js) ---
+    cd "$ROOT_DIR/website"
     if [ ! -d node_modules ]; then
-        log "Installation des dependances dashboard..."
-        npm install --silent 2>&1 | tail -3
+        log "Installation des dependances website..."
+        npm install --legacy-peer-deps --silent 2>&1 | tail -3
     fi
 
-    log "Lancement du dashboard React (port 3000)..."
-    npm run dev &
+    log "Lancement du site + dashboard Next.js (port 3000)..."
+    NEXT_PUBLIC_API_URL=http://localhost:8000/api npm run dev &
     DASHBOARD_PID=$!
 
     cd "$ROOT_DIR"
@@ -144,7 +144,7 @@ else
     info ""
     info "  Backend API  : http://localhost:8000"
     info "  Swagger Docs : http://localhost:8000/docs"
-    info "  Dashboard    : http://localhost:3000"
+    info "  Site + Dashboard : http://localhost:3000"
     info ""
     info "  Login : demo@memoria.fr / Memoria2026!"
     info ""

@@ -43,15 +43,16 @@ services:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  dashboard:
-    build: ./dashboard
+  website:
+    build: ./website
     ports:
       - "3000:3000"
     volumes:
-      - ./dashboard:/app
+      - ./website:/app
       - /app/node_modules
+      - /app/.next
     environment:
-      VITE_API_URL: http://localhost:8000/api
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
     depends_on:
       - backend
 

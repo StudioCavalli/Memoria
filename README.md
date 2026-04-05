@@ -20,9 +20,9 @@ Memoria est un compagnon vocal bienveillant qui recueille les souvenirs de vie d
 ```
 backend/       API Python/FastAPI — moteur IA, STT/TTS, analyse cognitive, alertes
 frontend/      App React Native (Expo) — tablette senior, mode kiosque
-dashboard/     Dashboard famille — React + Vite + TypeScript
+website/       Site vitrine + Dashboard famille — Next.js 15 + Tailwind v4
 database/      Scripts SQL, seed des thèmes
-docs/          Documentation technique (architecture, setup, API)
+docs/          Documentation technique (architecture, setup, API, scénario démo)
 ```
 
 ---
@@ -41,7 +41,7 @@ docs/          Documentation technique (architecture, setup, API)
 | **Text-to-Speech** | ElevenLabs / Azure Neural TTS |
 | **Analyse NLP** | spaCy (fr_core_news_sm) + regex fallback |
 | **App Senior** | React Native (Expo) / TypeScript |
-| **Dashboard Famille** | React 19 + Vite 6 + TypeScript + Tailwind v4 + Recharts |
+| **Dashboard Famille** | Next.js 15 + React 19 + Tailwind v4 + Recharts (dans website/) |
 | **Stockage fichiers** | S3-compatible (MinIO / AWS S3) |
 | **Notifications** | WebSocket temps réel + SendGrid email |
 | **Infra** | Docker Compose / Makefile |
@@ -159,20 +159,25 @@ frontend/src/
 
 ---
 
-## Dashboard — Interface famille (React 19 + Vite 6 + Tailwind v4)
+## Dashboard — Interface famille (intégré dans website/ — Next.js 15)
 
 ```
-dashboard/src/
-  pages/LoginPage.tsx        Connexion email/mot de passe, stockage JWT
-  pages/DashboardPage.tsx    Vue d'ensemble : dernière session, souvenirs, alertes, vitalité
-  pages/MemoriesPage.tsx     Liste souvenirs avec filtres thème/recherche/pagination
-  pages/AlertsPage.tsx       Alertes couleur par sévérité, marquer comme lue
-  pages/GazettesPage.tsx     Archive des Gazettes PDF, téléchargement
-  pages/MetricsPage.tsx      Graphiques Recharts : vocabulaire, latence, score vitalité (SVG)
-  pages/SettingsPage.tsx     Profil senior, horaires sessions, notifications, famille
-  components/Layout.tsx      Sidebar responsive, menu mobile hamburger
-  components/ProtectedRoute.tsx  Guard JWT avec redirect
-  services/api.ts            Axios + intercepteur JWT auto-refresh sur 401 + 10 services API complets
+website/app/
+  login/page.tsx              Connexion email/mot de passe, stockage JWT
+  dashboard/page.tsx          Vue d'ensemble : dernière session, souvenirs, alertes, vitalité
+  dashboard/memories/page.tsx Liste souvenirs avec filtres thème/recherche/pagination
+  dashboard/alerts/page.tsx   Alertes couleur par sévérité, WebSocket temps réel
+  dashboard/gazettes/page.tsx Archive des Gazettes PDF, téléchargement
+  dashboard/metrics/page.tsx  Graphiques Recharts : vocabulaire, latence, score vitalité
+  dashboard/settings/page.tsx Profil senior, horaires sessions, notifications, RGPD
+  dashboard/layout.tsx        AuthGuard + DashboardLayout (sidebar, navigation)
+
+website/components/dashboard/
+  AuthGuard.tsx               Vérification JWT, redirect vers /login si absent
+  DashboardLayout.tsx         Sidebar responsive, menu mobile, navigation Next.js
+
+website/lib/
+  dashboard-api.ts            Fetch natif + auto-refresh JWT + 10 services API complets
 ```
 
 **Services API implémentés :** authService, seniorsService, sessionsService, memoriesService, alertsService (avec unreadCount), metricsService, gazettesService, gdprService, questionsService, settingsService + helper `resolveSeniorId()`
