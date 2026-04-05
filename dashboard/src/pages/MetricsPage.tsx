@@ -10,10 +10,25 @@ import {
 } from 'recharts';
 import { metricsService } from '../services/api';
 
+interface ApiMetricPoint {
+  id: number;
+  senior_id: number;
+  session_id: number;
+  unique_words: number;
+  type_token_ratio: number;
+  avg_sentence_length: number;
+  named_entities_count: number;
+  avg_latency_ms: number;
+  max_latency_ms: number;
+  silence_count: number;
+  evasive_responses: number;
+  recorded_at: string;
+}
+
 interface MetricPoint {
   date: string;
-  semantic_richness: number;
-  response_latency: number;
+  unique_words: number;
+  avg_latency_ms: number;
 }
 
 interface MetricsSummary {
@@ -48,7 +63,16 @@ const MetricsPage: React.FC = () => {
           metricsService.summary(sid),
         ]);
         if (histRes.status === 'fulfilled') {
-          setHistory(histRes.value.data.history || histRes.value.data || []);
+          const raw: ApiMetricPoint[] = histRes.value.data.history || histRes.value.data || [];
+          const mapped: MetricPoint[] = raw.map((p) => {
+            const d = new Date(p.recorded_at);
+            return {
+              date: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+              unique_words: p.unique_words,
+              avg_latency_ms: p.avg_latency_ms,
+            };
+          });
+          setHistory(mapped);
         }
         if (sumRes.status === 'fulfilled') {
           setSummary({
@@ -178,9 +202,9 @@ const MetricsPage: React.FC = () => {
               />
               <Line
                 type="monotone"
-                dataKey="semantic_richness"
-                name="Richesse"
-                stroke="#E8A87C"
+                dataKey="unique_words"
+                name="Mots uniques"
+                stroke="#7D6340"
                 strokeWidth={2.5}
                 dot={{ fill: '#8B6F47', r: 3 }}
                 activeDot={{ r: 5 }}
@@ -188,7 +212,7 @@ const MetricsPage: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="p-8 text-center text-text-muted">Pas de données disponibles.</p>
+          <p className="p-8 text-center text-text-muted">Aucune donnée</p>
         )}
       </div>
 
@@ -221,9 +245,9 @@ const MetricsPage: React.FC = () => {
               />
               <Line
                 type="monotone"
-                dataKey="response_latency"
-                name="Latence"
-                stroke="#D4A5A5"
+                dataKey="avg_latency_ms"
+                name="Latence (ms)"
+                stroke="#E8A87C"
                 strokeWidth={2.5}
                 dot={{ fill: '#8B6F47', r: 3 }}
                 activeDot={{ r: 5 }}
@@ -231,7 +255,7 @@ const MetricsPage: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="p-8 text-center text-text-muted">Pas de données disponibles.</p>
+          <p className="p-8 text-center text-text-muted">Aucune donnée</p>
         )}
       </div>
     </div>

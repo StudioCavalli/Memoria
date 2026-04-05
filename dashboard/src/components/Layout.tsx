@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import Logo from './Logo';
 
 interface Props {
   children: React.ReactNode;
@@ -35,7 +36,7 @@ const Layout: React.FC<Props> = ({ children }) => {
         >
           {sidebarOpen ? '✕' : '☰'}
         </button>
-        <h1 className="font-heading text-xl font-bold text-brown-light">Memoria</h1>
+        <Logo size="sm" />
       </header>
 
       {/* Overlay for mobile */}
@@ -55,8 +56,8 @@ const Layout: React.FC<Props> = ({ children }) => {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="mb-8 text-center">
-          <h1 className="font-heading text-[28px] font-bold text-brown-light">Memoria</h1>
+        <div className="mb-8 flex flex-col items-center gap-1">
+          <Logo size="md" />
           <p className="mt-1 text-[13px] text-text-muted">Préserver les souvenirs</p>
         </div>
 

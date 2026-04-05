@@ -184,17 +184,15 @@ export const alertsService = {
   markRead: (_seniorId: string, alertId: string) =>
     api.put(`/alerts/${alertId}/read`),
 
-  /** Compteur d'alertes non lues (utilise la liste filtrée) */
+  /** Compteur d'alertes non lues (récupère la liste et compte) */
   unreadCount: (seniorId: string) =>
     api
       .get('/alerts/', {
-        params: { senior_id: seniorId, unread_only: true, limit: 0 },
+        params: { senior_id: seniorId, unread_only: true, limit: 100 },
       })
       .then((res) => {
-        const d = res.data;
-        // Renvoie un objet { data: { count: N } }
-        const items = Array.isArray(d) ? d : d.items ?? d.results ?? [];
-        return { data: { count: d.total ?? items.length } };
+        const items = Array.isArray(res.data) ? res.data : [];
+        return { data: { count: items.length } };
       }),
 };
 
