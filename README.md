@@ -138,7 +138,9 @@ app/src/
   services/api.ts             REST + WebSocket VoicePipeline client
   services/audio.ts           Capture micro (expo-av), lecture TTS, permissions
   services/storage.ts         AsyncStorage : pairing tablette ↔ senior
-  constants/theme.ts          Palette Memoria (même que le site via NativeWind)
+  i18n/translations.ts        Traductions FR/EN/ES/IT (40+ clés par langue)
+  i18n/context.tsx             I18nProvider + useI18n hook (AsyncStorage)
+  constants/theme.ts           Palette Memoria (même que le site via NativeWind)
 ```
 
 **Pairing tablette ↔ senior (premier lancement) :**
@@ -207,6 +209,8 @@ website/components/dashboard/
 
 website/lib/
   dashboard-api.ts            Fetch natif + auto-refresh JWT + 10 services API complets
+  i18n/translations.ts        Traductions FR/EN/ES/IT (200+ clés par langue)
+  i18n/context.tsx             I18nProvider + useI18n hook (localStorage)
 ```
 
 **Services API implémentés :** authService, seniorsService, sessionsService, memoriesService, alertsService (avec unreadCount), metricsService, gazettesService, gdprService, questionsService, settingsService + helper `resolveSeniorId()`
@@ -227,6 +231,23 @@ website/lib/
 **Design system :** même palette Tailwind v4 que le site vitrine — cream/brown/orange, Merriweather (titres) + Nunito (corps), cards `rounded-2xl shadow-sm`, aucun style inline.
 
 **CORS :** origines configurables via variable d'environnement `CORS_ORIGINS` (séparés par virgules).
+
+---
+
+## Internationalisation (i18n)
+
+L'ensemble du projet supporte **4 langues** : Français, English, Español, Italiano.
+
+| Composant | Approche | Clés | Persistance |
+|-----------|----------|------|-------------|
+| **Website + Dashboard** | React context + `useI18n()` | 200+ clés | `localStorage` |
+| **App tablette** | React context + `useI18n()` | 40+ clés | `AsyncStorage` |
+
+- **Aucune bibliothèque externe** — contexte React natif avec fallback vers le français
+- **Dropdown langue** dans la navbar du site (Français / English / Español / Italiano)
+- **Sélecteur compact** FR/EN/ES/IT sur l'écran de setup de l'app tablette + dans les paramètres cachés
+- Les données métier (souvenirs, alertes) restent dans la langue source — seule l'interface est traduite
+- Les pages légales restent en français (obligation légale)
 
 ---
 
@@ -389,6 +410,7 @@ python3 scripts/test_pipeline.py
 | Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
 | Stockage | S3-compatible + fallback local (uploads/) |
 | Données de démo | 18 sessions, 30 souvenirs, 3 alertes, 3 gazettes (30 jours) |
+| Langues supportées | 4 (FR, EN, ES, IT) — 240+ clés de traduction |
 | Issues GitHub | 67/67 fermées |
 | Milestones | 12 terminés |
 
