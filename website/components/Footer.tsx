@@ -1,5 +1,7 @@
 'use client'
 
+import Logo from './Logo'
+
 const footerLinks = [
   { href: '#probleme', label: 'Le Problème' },
   { href: '#solution', label: 'La Solution' },
@@ -12,12 +14,12 @@ const footerLinks = [
 export default function Footer() {
   return (
     <footer className="bg-cream border-t border-brown/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <a href="#" className="font-heading text-2xl font-bold text-brown-dark">
-              Memoria
+            <a href="#">
+              <Logo size="md" />
             </a>
             <p className="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
               L'IA biographique qui recueille les souvenirs de nos
@@ -61,7 +63,7 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:christopher.cavalli@hotmail.com"
-                  className="hover:text-brown transition-colors"
+                  className="hover:text-brown transition-colors break-all"
                 >
                   christopher.cavalli@hotmail.com
                 </a>
@@ -98,7 +100,7 @@ export default function Footer() {
 
         {/* Legal info */}
         <div className="mt-10 pt-6 border-t border-brown/10">
-          <div className="bg-white/60 rounded-xl px-6 py-4 text-xs text-text-muted leading-relaxed">
+          <div className="bg-white/60 rounded-xl px-4 sm:px-6 py-4 text-xs text-text-muted leading-relaxed">
             <p className="font-bold text-text-dark mb-1">Informations légales</p>
             <p>
               Foxcase — Entrepreneur individuel — Christopher Cavalli<br />
@@ -110,10 +112,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-muted text-center sm:text-left">
             © 2026 Memoria — Foxcase / Christopher Cavalli — Cannes, Côte d'Azur
           </p>
-          <div className="flex gap-6 text-xs text-text-muted">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs text-text-muted">
             <a href="#" className="hover:text-brown transition-colors">
               Mentions légales
             </a>

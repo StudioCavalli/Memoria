@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import Logo from './Logo'
 
 const navLinks = [
   { href: '#probleme', label: 'Le Problème' },
@@ -35,8 +36,8 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <a href="#" className="font-heading text-2xl font-bold text-brown-dark">
-            Memoria
+          <a href="#" className="flex-shrink-0">
+            <Logo size="sm" />
           </a>
 
           {/* Desktop nav */}

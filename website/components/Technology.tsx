@@ -46,7 +46,7 @@ export default function Technology() {
     <section
       id="technologie"
       ref={ref}
-      className="py-24 sm:py-32 relative"
+      className="py-16 sm:py-24 md:py-32 relative"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-white via-cream to-cream" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -54,17 +54,17 @@ export default function Technology() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
             Sous le capot
           </p>
-          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark">
             Une architecture pensée pour la fiabilité
           </h2>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 sm:mb-16">
           {techStack.map((tech, i) => (
             <motion.div
               key={tech.name}
@@ -91,15 +91,15 @@ export default function Technology() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.6 }}
-          className="bg-white rounded-2xl p-8 sm:p-10 shadow-sm"
+          className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 shadow-sm"
         >
           <div className="flex items-center gap-3 mb-6">
             <ShieldCheck size={28} className="text-green-forest" />
-            <h3 className="font-heading text-xl font-bold text-text-dark">
+            <h3 className="font-heading text-lg sm:text-xl font-bold text-text-dark">
               Sécurité &amp; conformité
             </h3>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {security.map((item) => (
               <div key={item} className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-green-forest/15 flex items-center justify-center flex-shrink-0">

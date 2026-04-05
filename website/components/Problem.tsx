@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
 
 const stats = [
   {
@@ -32,7 +33,7 @@ export default function Problem() {
     <section
       id="probleme"
       ref={ref}
-      className="py-24 sm:py-32 relative"
+      className="py-16 sm:py-24 md:py-32 relative"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-soft/5 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -40,7 +41,7 @@ export default function Problem() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
             Un enjeu de société
@@ -50,26 +51,46 @@ export default function Problem() {
           </h2>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.number}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
-              className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow text-center"
-            >
-              <div className="text-5xl sm:text-6xl font-heading font-bold text-brown mb-3">
-                {stat.number}
-              </div>
-              <div className="text-lg font-bold text-text-dark mb-2">
-                {stat.label}
-              </div>
-              <p className="text-text-muted text-sm leading-relaxed">
-                {stat.description}
-              </p>
-            </motion.div>
-          ))}
+        {/* Stats + Image layout */}
+        <div className="grid lg:grid-cols-5 gap-8 mb-16 items-start">
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.number}
+                initial={{ opacity: 0, y: 40 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
+                className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow text-center"
+              >
+                <div className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-brown mb-3">
+                  {stat.number}
+                </div>
+                <div className="text-base sm:text-lg font-bold text-text-dark mb-2">
+                  {stat.label}
+                </div>
+                <p className="text-text-muted text-sm leading-relaxed">
+                  {stat.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Unsplash image — elderly hands */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="hidden lg:block lg:col-span-2 relative h-full min-h-[320px] rounded-2xl overflow-hidden"
+          >
+            <Image
+              src="https://images.unsplash.com/photo-1516307365426-bea591f05011?w=600&q=80"
+              alt="Mains de personne âgée — préserver les souvenirs"
+              fill
+              className="object-cover rounded-2xl"
+              sizes="(max-width: 1024px) 0vw, 40vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-brown-dark/30 to-transparent rounded-2xl" />
+          </motion.div>
         </div>
 
         <motion.blockquote
@@ -79,15 +100,15 @@ export default function Problem() {
           className="max-w-3xl mx-auto text-center"
         >
           <div className="relative">
-            <span className="absolute -top-8 -left-4 text-8xl text-orange-soft/20 font-heading">
-              “
+            <span className="absolute -top-8 -left-4 text-6xl sm:text-8xl text-orange-soft/20 font-heading">
+              &ldquo;
             </span>
-            <p className="font-heading text-xl sm:text-2xl lg:text-3xl text-text-dark italic leading-relaxed px-8">
+            <p className="font-heading text-lg sm:text-xl md:text-2xl lg:text-3xl text-text-dark italic leading-relaxed px-4 sm:px-8">
               Quand ils disparaissent, c'est une bibliothèque qui
               brûle.
             </p>
-            <span className="absolute -bottom-12 -right-4 text-8xl text-orange-soft/20 font-heading">
-              ”
+            <span className="absolute -bottom-12 -right-4 text-6xl sm:text-8xl text-orange-soft/20 font-heading">
+              &rdquo;
             </span>
           </div>
           <footer className="mt-8 text-text-muted text-sm font-semibold">
