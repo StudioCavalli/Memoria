@@ -292,20 +292,63 @@ Voir `.env.example` pour la liste complete. Les principales :
 
 ---
 
+## Tests
+
+### Suite de tests (pytest)
+
+```
+tests/
+  conftest.py                 Fixtures : SQLite in-memory, TestClient, auth, senior_with_sessions,
+                              senior_with_metrics, mock_anthropic
+  test_auth.py                8 tests  : register, login, refresh, me, GDPR consent, duplicates
+  test_seniors.py             6 tests  : CRUD, authorization, access control
+  test_sessions.py            5 tests  : start, message (fallback IA), end, get, ended session
+  test_encryption.py          4 tests  : encrypt/decrypt, nonce unicite, vide, unicode
+  test_question_bank.py       6 tests  : 100+ questions, themes, selection, followup
+  test_health.py              1 test   : health check
+  test_memories.py           12 tests  : CRUD, filtres theme/periode, pagination, themes list
+  test_alerts.py             15 tests  : declin cognitif, inactivite, dedup, evasive, endpoints
+  test_metrics.py            14 tests  : historique, resume, tendances, score vitalite
+  test_gazette.py            12 tests  : generation PDF, narrative LLM mocke, stockage
+  test_gdpr.py               14 tests  : export avec dechiffrement, suppression cascade
+  test_semantic_analysis.py  12 tests  : NLP metrics, detection evasive, regex fallback
+  test_ai_conversation.py    11 tests  : fallback, mock Anthropic, contexte memoire
+```
+
+**Total : 15 fichiers, 120+ tests, 2035 lignes**
+
+Tous les services externes (Anthropic, OpenAI, ElevenLabs) sont mockes dans les tests — les tests tournent sans cle API.
+
+### Scripts de validation
+
+```bash
+# Valider toutes les APIs externes d'un coup
+python3 scripts/validate_apis.py
+
+# Tester le pipeline complet bout-en-bout (necessite les cles API)
+python3 scripts/test_pipeline.py
+```
+
+`validate_apis.py` teste : Anthropic Claude, OpenAI Whisper, ElevenLabs TTS, Azure Speech, SendGrid, PostgreSQL.
+
+---
+
 ## Statistiques du projet
 
 | Metrique | Valeur |
 |----------|--------|
-| Fichiers source backend | 56 fichiers Python |
+| Fichiers source backend | 64 fichiers Python |
 | Fichiers source frontend | 6 fichiers TypeScript |
 | Fichiers source dashboard | 13 fichiers TypeScript |
-| Tests | 8 fichiers, 30 tests |
-| Modeles BDD | 9 tables + 1 table de liaison |
+| Tests | 15 fichiers, 120+ tests, 2035 lignes |
+| Modeles BDD | 9 tables + 1 table de liaison + migration Alembic |
 | Routes API | 14 groupes, ~30 endpoints |
 | Services metier | 13 services |
-| Questions biographiques | 100+ questions en 8 themes |
-| Issues GitHub | 43 creees, 43 fermees |
-| Milestones | 8 completees |
+| Questions biographiques | 145 questions en 8 themes |
+| Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
+| Stockage | S3-compatible + fallback local (uploads/) |
+| Issues GitHub | 55 fermees sur 67 |
+| Milestones | 10 (P1 + P2 termines) |
 
 ---
 
