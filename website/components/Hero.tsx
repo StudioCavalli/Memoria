@@ -37,7 +37,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left: Text */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 bg-cream/80 sm:bg-transparent backdrop-blur-sm sm:backdrop-blur-none rounded-2xl sm:rounded-none p-5 sm:p-0">
             <motion.p
               custom={0}
               variants={fadeUp}

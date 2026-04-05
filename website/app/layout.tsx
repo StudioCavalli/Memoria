@@ -17,6 +17,7 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://memoria-dusky.vercel.app'),
   title: "Memoria — L'IA biographique pour nos aînés",
   description:
     "Memoria est l'IA biographique qui recueille les souvenirs de nos aînés et veille sur leur santé cognitive. Préservez la mémoire, détectez les troubles cognitifs.",
@@ -29,12 +30,22 @@ export const metadata: Metadata = {
     'EHPAD',
     'biographie',
     'intelligence artificielle',
+    'Silver Économie',
+    'Nice',
+    'Foxcase',
   ],
   openGraph: {
     title: "Memoria — L'IA biographique pour nos aînés",
     description:
       "Recueillir les souvenirs, veiller sur la santé cognitive.",
     type: 'website',
+    siteName: 'Memoria',
+    locale: 'fr_FR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Memoria — L'IA biographique pour nos aînés",
+    description: "Recueillir les souvenirs, veiller sur la santé cognitive.",
   },
 }
 

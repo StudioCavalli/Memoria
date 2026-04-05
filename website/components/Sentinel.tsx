@@ -175,8 +175,8 @@ export default function Sentinel() {
               className="relative rounded-2xl overflow-hidden h-[140px] sm:h-[180px] mt-4"
             >
               <Image
-                src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&q=80"
-                alt="Main bienveillante — accompagner avec soin"
+                src="https://images.unsplash.com/photo-1454875392665-2ac2c7395e64?w=1200&q=90&fit=crop"
+                alt="Mains se tenant avec tendresse — accompagnement bienveillant des aînés"
                 fill
                 className="object-cover rounded-2xl"
                 sizes="(max-width: 1024px) 100vw, 50vw"

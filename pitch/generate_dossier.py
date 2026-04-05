@@ -78,17 +78,17 @@ def S():
         textColor=BROWN, leading=16, spaceBefore=14, spaceAfter=4,
         textTransform='uppercase')
 
-    styles['question'] = ParagraphStyle('question', fontName='Helvetica-Bold', fontSize=10.5,
-        textColor=BROWN_DARK, leading=14, spaceBefore=10, spaceAfter=4)
+    styles['question'] = ParagraphStyle('question', fontName='Helvetica-Bold', fontSize=9.5,
+        textColor=BROWN_DARK, leading=13, spaceBefore=6, spaceAfter=2)
 
-    styles['body'] = ParagraphStyle('body', fontName='Helvetica', fontSize=9.5,
-        textColor=TEXT_DARK, leading=13.5, spaceAfter=3, alignment=TA_JUSTIFY)
+    styles['body'] = ParagraphStyle('body', fontName='Helvetica', fontSize=8.5,
+        textColor=TEXT_DARK, leading=12, spaceAfter=2, alignment=TA_JUSTIFY)
 
-    styles['body_bold'] = ParagraphStyle('body_bold', fontName='Helvetica-Bold', fontSize=9.5,
-        textColor=TEXT_DARK, leading=13.5, spaceAfter=3)
+    styles['body_bold'] = ParagraphStyle('body_bold', fontName='Helvetica-Bold', fontSize=8.5,
+        textColor=TEXT_DARK, leading=12, spaceAfter=1)
 
-    styles['bullet'] = ParagraphStyle('bullet', fontName='Helvetica', fontSize=9.5,
-        textColor=TEXT_DARK, leading=13, spaceAfter=2, leftIndent=14,
+    styles['bullet'] = ParagraphStyle('bullet', fontName='Helvetica', fontSize=8.5,
+        textColor=TEXT_DARK, leading=11.5, spaceAfter=1, leftIndent=14,
         bulletIndent=0, alignment=TA_JUSTIFY)
 
     styles['small'] = ParagraphStyle('small', fontName='Helvetica', fontSize=8.5,
@@ -103,8 +103,8 @@ def S():
     styles['footer'] = ParagraphStyle('footer', fontName='Helvetica', fontSize=7.5,
         textColor=BROWN_LIGHT, alignment=TA_CENTER, leading=10)
 
-    styles['sub_heading'] = ParagraphStyle('sub_heading', fontName='Helvetica-Bold', fontSize=9.5,
-        textColor=ORANGE, leading=13, spaceBefore=6, spaceAfter=2)
+    styles['sub_heading'] = ParagraphStyle('sub_heading', fontName='Helvetica-Bold', fontSize=8.5,
+        textColor=ORANGE, leading=11, spaceBefore=4, spaceAfter=1)
 
     return styles
 
@@ -374,100 +374,61 @@ def build():
         "Pour le transformer en entreprise viable, nous avons besoin d'aide sur tout ce qui n'est pas du code.",
         ST['body']))
 
-    needs = [
-        ("<b>1. Financement</b>",
-         "Besoin estimé : 40 000 – 60 000 € sur 12 mois. Infrastructure cloud et APIs IA (~1 500 €/mois), "
-         "20 tablettes + boîtiers Totem pour le pilote, frais de fonctionnement. "
-         "Nous ne nous versons pas de salaire — le financement sert exclusivement au produit et au test terrain."),
+    story.append(Paragraph(
+        "<b>1. Financement :</b> 40 000 – 60 000 € sur 12 mois (infra cloud ~1 500 €/mois, 20 tablettes + Totem, fonctionnement). Pas de salaire versé."
+        " <b>2. Apprentis (besoin critique) :</b> 2-3 apprentis rentrée 2026 — commercial/business dev pour EHPAD/mutuelles/CCAS ; "
+        "communication/marketing digital ; designer UX (optionnel). Aide CCI pour écoles et dispositifs d'embauche."
+        " <b>3. Structuration :</b> choix statut juridique, expert-comptable, dispositifs fiscaux (JEI, CIR/CII)."
+        " <b>4. Réseautage :</b> accès EHPAD/résidences du territoire, collectivités (CCAS, ARS PACA, Département 06), mutuelles (CARSAT, AG2R), French Tech Côte d'Azur."
+        " <b>5. Mentorat :</b> mentor Silver Économie ou commercial B2B/B2G santé.",
+        ST['body']))
 
-        ("<b>2. Apprentis et alternants</b> (besoin le plus critique)",
-         "2-3 apprentis dès la rentrée 2026 : un <b>commercial/business developer</b> pour démarcher EHPAD, mutuelles et CCAS — nous ne savons pas vendre ; "
-         "un <b>chargé de communication/marketing digital</b> pour la présence en ligne, les témoignages et les réseaux sociaux — nous n'avons ni site public ni stratégie com ; "
-         "un <b>designer UX</b> (optionnel) pour les interfaces et les supports imprimés. "
-         "Nous avons besoin de l'aide CCI pour identifier les écoles partenaires et les dispositifs d'aide à l'embauche."),
-
-        ("<b>3. Comptabilité et structuration</b>",
-         "Accompagnement au choix du statut juridique (SAS, SARL ?), accès à un expert-comptable, "
-         "aide à la compréhension des dispositifs fiscaux (JEI, CIR/CII, aides régionales)."),
-
-        ("<b>4. Réseautage et mise en relation</b>",
-         "Accès aux EHPAD et résidences du territoire pour un premier pilote. "
-         "Introduction auprès des collectivités (CCAS Nice, Département 06, ARS PACA). "
-         "Connexion avec les mutuelles et caisses de retraite (CARSAT, AG2R). "
-         "Intégration à l'écosystème local : French Tech Côte d'Azur, incubateurs niçois."),
-
-        ("<b>5. Mentorat</b>",
-         "Accompagnement par un mentor expérimenté en Silver Économie, développement commercial B2B/B2G santé "
-         "ou direction de startup technologique."),
-    ]
-
-    for title, text in needs:
-        story.append(Paragraph(title, ST['body_bold']))
-        story.append(Paragraph(text, ST['body']))
-        story.append(Spacer(1, 2))
-
-    story.append(PageBreak())
-
-    # ════════════════════════════════════════════
-    # PAGE 3 — CONTACT + DOCUMENTS
-    # ════════════════════════════════════════════
+    story.append(Spacer(1, 8))
     story.append(SectionBanner("VOTRE CONTACT", usable))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     contact_data = [
-        [Paragraph("<b>Nom et prénom :</b>", ST['label']),
-         Paragraph("Christopher Cavalli", ST['value'])],
-        [Paragraph("<b>Email :</b>", ST['label']),
-         Paragraph("christopher.cavalli@hotmail.com", ST['value'])],
-        [Paragraph("<b>Téléphone :</b>", ST['label']),
-         Paragraph("+33 6 10 44 98 18", ST['value'])],
+        [Paragraph("<b>Nom :</b> Christopher Cavalli", ST['value']),
+         Paragraph("<b>Email :</b> christopher.cavalli@hotmail.com", ST['value']),
+         Paragraph("<b>Tél :</b> +33 6 10 44 98 18", ST['value'])],
     ]
-    ct = Table(contact_data, colWidths=[90, usable - 100])
+    ct = Table(contact_data, colWidths=[usable / 3] * 3)
     ct.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('BACKGROUND', (0, 0), (-1, -1), WHITE),
         ('ROUNDEDCORNERS', [8, 8, 8, 8]),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING', (0, 0), (-1, -1), 12),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
     story.append(ct)
 
-    story.append(Spacer(1, 16))
-    story.append(SectionBanner("VOS DOCUMENTS COMPLÉMENTAIRES", usable))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
+    story.append(Paragraph(
+        "<b>Documents complémentaires :</b> Extrait KBIS — Pitch deck PDF — Site web : memoria-dusky.vercel.app",
+        ST['body']))
 
-    story.append(Paragraph("À joindre en PDF à ce document, les justificatifs pour les éléments suivants :", ST['body']))
-    story.append(Paragraph("• Extrait KBIS", ST['bullet']))
-    story.append(Paragraph("• En option : tout autre document que vous jugeriez utile de nous transmettre (plaquette commerciale, etc.)", ST['bullet']))
+    story.append(Spacer(1, 12))
 
-    story.append(Spacer(1, 24))
-
-    # Encadré de clôture
     deadline = Table([[Paragraph(
-        "Ce dossier de candidature est à retourner avant le <b>27 avril 2026</b><br/>"
-        "à l'adresse email suivante : <b><font color='#8B6F47'>clara.achache@cote-azur.cci.fr</font></b>",
-        ParagraphStyle('dl', fontName='Helvetica', fontSize=10, textColor=TEXT_DARK,
-                       leading=15, alignment=TA_CENTER))]], colWidths=[usable - 40])
+        "Dossier à retourner avant le <b>27 avril 2026</b> à <b><font color='#8B6F47'>clara.achache@cote-azur.cci.fr</font></b>",
+        ParagraphStyle('dl', fontName='Helvetica', fontSize=9, textColor=TEXT_DARK,
+                       leading=13, alignment=TA_CENTER))]], colWidths=[usable - 40])
     deadline.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), WHITE),
-        ('ROUNDEDCORNERS', [10, 10, 10, 10]),
-        ('TOPPADDING', (0, 0), (-1, -1), 14),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 14),
-        ('LEFTPADDING', (0, 0), (-1, -1), 20),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+        ('ROUNDEDCORNERS', [8, 8, 8, 8]),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('LEFTPADDING', (0, 0), (-1, -1), 16),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 16),
         ('BOX', (0, 0), (-1, -1), 1, ORANGE),
     ]))
     story.append(deadline)
 
-    story.append(Spacer(1, 20))
-
-    # Contact CCI
-    story.append(Paragraph("<b>CONTACT CCI</b>", ST['label']))
+    story.append(Spacer(1, 10))
     story.append(Paragraph(
-        "Clara ACHACHE — Chargée de développement numérique, santé & silver économie<br/>"
-        "clara.achache@cote-azur.cci.fr — 06 20 61 24 14",
+        "<b>Contact CCI :</b> Clara ACHACHE — clara.achache@cote-azur.cci.fr — 06 20 61 24 14",
         ST['small']))
 
     # ── Build ──

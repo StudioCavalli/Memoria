@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import Logo from './Logo'
 
 const footerLinks = [
@@ -116,15 +117,15 @@ export default function Footer() {
             © 2026 Memoria — Foxcase / Christopher Cavalli — Cannes, Côte d'Azur
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs text-text-muted">
-            <a href="#" className="hover:text-brown transition-colors">
+            <Link href="/mentions-legales" className="hover:text-brown transition-colors">
               Mentions légales
-            </a>
-            <a href="#" className="hover:text-brown transition-colors">
+            </Link>
+            <Link href="/politique-de-confidentialite" className="hover:text-brown transition-colors">
               Politique de confidentialité
-            </a>
-            <a href="#" className="hover:text-brown transition-colors">
+            </Link>
+            <Link href="/rgpd" className="hover:text-brown transition-colors">
               RGPD
-            </a>
+            </Link>
           </div>
         </div>
       </div>

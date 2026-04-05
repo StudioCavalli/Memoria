@@ -87,8 +87,8 @@ export default function Solution() {
           className="relative rounded-2xl overflow-hidden h-[200px] sm:h-[260px] mb-12 sm:mb-16"
         >
           <Image
-            src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1200&q=80"
-            alt="Famille réunie — les souvenirs qui nous lient"
+            src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1200&q=90&fit=crop"
+            alt="Grand-parent et petit-enfant partageant un moment chaleureux"
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 80vw"
