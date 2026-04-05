@@ -10,14 +10,14 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   StatusBar,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 import MainButton from "../components/MainButton";
 import WaveAnimation from "../components/WaveAnimation";
@@ -229,7 +229,7 @@ export default function HomeScreen() {
       const tempPath = `${FileSystem.cacheDirectory}memoria_response_${Date.now()}.wav`;
       const base64Audio = arrayBufferToBase64(combined.buffer);
       await FileSystem.writeAsStringAsync(tempPath, base64Audio, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: "base64",
       });
 
       // Jouer le fichier audio
@@ -386,7 +386,7 @@ export default function HomeScreen() {
 
       // Lire le fichier audio enregistré en base64
       const base64Audio = await FileSystem.readAsStringAsync(audioUri, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: "base64",
       });
 
       // Convertir en ArrayBuffer et envoyer via WebSocket
