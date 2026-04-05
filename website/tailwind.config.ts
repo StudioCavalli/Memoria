@@ -11,17 +11,20 @@ const config: Config = {
       colors: {
         cream: '#FFF8F0',
         brown: {
-          DEFAULT: '#8B6F47',
+          DEFAULT: '#7D6340',     // darkened from #8B6F47 for AA on cream (5.34:1)
           dark: '#6B5235',
+          light: '#8B6F47',       // original brown — use for decorative only
         },
         orange: {
-          soft: '#E8A87C',
+          soft: '#E8A87C',        // decorative/bg only
+          text: '#9A6429',        // AA-safe orange for text (4.97:1 on white)
         },
         rose: {
           dusty: '#D4A5A5',
         },
         green: {
-          forest: '#7FB069',
+          forest: '#4A7A35',      // darkened from #7FB069 for AA (5.09:1)
+          light: '#7FB069',       // original green — decorative only
         },
         text: {
           dark: '#3D2C1E',

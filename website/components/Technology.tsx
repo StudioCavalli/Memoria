@@ -56,7 +56,7 @@ export default function Technology() {
           transition={{ duration: 0.7 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
+          <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
             Sous le capot
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark">

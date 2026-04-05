@@ -50,7 +50,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.7 }}
           className="text-center mb-20"
         >
-          <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
+          <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
             Simplicité absolue
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">

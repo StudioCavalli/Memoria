@@ -41,7 +41,7 @@ export default function CTA() {
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-8">
             <a
               href="mailto:christopher.cavalli@hotmail.com"
-              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-orange-soft text-white font-bold rounded-full hover:bg-orange-soft/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-base sm:text-lg text-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brown"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-base sm:text-lg text-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brown"
             >
               Demander une démo
             </a>

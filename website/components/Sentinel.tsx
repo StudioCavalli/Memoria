@@ -92,7 +92,7 @@ function VitalityGauge() {
           <div>
             <div className="flex justify-between text-xs mb-1">
               <span className="text-text-muted">Cohérence</span>
-              <span className="font-bold text-orange-soft">84%</span>
+              <span className="font-bold text-orange-text">84%</span>
             </div>
             <div className="h-2 bg-cream rounded-full overflow-hidden">
               <div className="h-full w-[84%] bg-orange-soft rounded-full" />
@@ -135,7 +135,7 @@ export default function Sentinel() {
           transition={{ duration: 0.7 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
+          <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
             Détection précoce
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
@@ -206,7 +206,7 @@ export default function Sentinel() {
           <div className="bg-gradient-to-r from-brown-dark to-brown rounded-2xl p-6 sm:p-8 md:p-10 text-center">
             <p className="font-heading text-lg sm:text-xl md:text-2xl font-bold text-white leading-relaxed">
               Jusqu'à{' '}
-              <span className="text-orange-soft">6 mois d'avance</span>{' '}
+              <span className="text-orange-text">6 mois d'avance</span>{' '}
               sur un diagnostic clinique
             </p>
             <p className="text-white/70 mt-3 text-xs sm:text-sm max-w-2xl mx-auto">

@@ -43,7 +43,7 @@ export default function Hero() {
               variants={fadeUp}
               initial="hidden"
               animate="visible"
-              className="text-orange-soft font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4"
+              className="text-orange-text font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4"
             >
               L'IA biographique pour nos aînés
             </motion.p>

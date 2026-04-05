@@ -11,7 +11,7 @@ const features = [
     title: 'Un compagnon vocal bienveillant',
     description:
       'Memoria engage la conversation naturellement, comme un ami attentif. Le senior parle, l\'IA écoute avec empathie et relance avec douceur.',
-    color: 'bg-orange-soft/15 text-orange-soft',
+    color: 'bg-orange-soft/15 text-orange-text',
   },
   {
     icon: BookOpen,
@@ -46,7 +46,7 @@ export default function Solution() {
           transition={{ duration: 0.7 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <p className="text-orange-soft font-bold text-sm uppercase tracking-widest mb-3">
+          <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
             Notre réponse
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
@@ -109,7 +109,7 @@ export default function Solution() {
           <div className="inline-block bg-gradient-to-r from-brown/10 via-orange-soft/15 to-brown/10 rounded-2xl px-6 sm:px-8 py-4 sm:py-5">
             <p className="font-heading text-base sm:text-lg md:text-xl font-bold text-brown">
               2 missions en 1 :{' '}
-              <span className="text-orange-soft">
+              <span className="text-orange-text">
                 Préserver la mémoire
               </span>{' '}
               ET{' '}
