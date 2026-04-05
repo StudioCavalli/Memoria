@@ -47,6 +47,8 @@ function VitalityGauge() {
           <svg
             className="w-full h-full -rotate-90"
             viewBox="0 0 120 120"
+            role="img"
+            aria-label={`Score de vitalité : ${score} sur 100`}
           >
             <circle
               cx="60"

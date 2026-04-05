@@ -117,7 +117,7 @@ export default function Pricing() {
 
               <a
                 href="#contact"
-                className={`block w-full text-center py-3.5 rounded-full font-bold text-sm transition-all ${
+                className={`block w-full text-center py-3.5 rounded-full font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 ${
                   plan.highlighted
                     ? 'bg-brown text-white hover:bg-brown-dark shadow-md hover:shadow-lg'
                     : 'border-2 border-brown text-brown hover:bg-brown hover:text-white'

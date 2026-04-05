@@ -47,3 +47,22 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #E8A87C;
   color: #3D2C1E;
 }
+
+/* Focus visibility for keyboard navigation */
+:focus-visible {
+  outline: 2px solid #E8A87C;
+  outline-offset: 2px;
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

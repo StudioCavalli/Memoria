@@ -81,22 +81,22 @@ export default function Hero() {
             >
               <a
                 href="#solution"
-                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-brown text-white font-bold rounded-full hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-center text-sm sm:text-base"
+                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-brown text-white font-bold rounded-full hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-center text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
                 Découvrir Memoria
               </a>
               <a
                 href="#fonctionnement"
-                className="px-6 sm:px-8 py-3 sm:py-3.5 border-2 border-brown text-brown font-bold rounded-full hover:bg-brown hover:text-white transition-all text-center text-sm sm:text-base"
+                className="px-6 sm:px-8 py-3 sm:py-3.5 border-2 border-brown text-brown font-bold rounded-full hover:bg-brown hover:text-white transition-all text-center text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
                 Voir la démo
               </a>
               <a
                 href="/MEMORIA_Pitch.pdf"
                 download
-                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/80 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
+                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/80 transition-all flex items-center justify-center gap-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Pitch Deck PDF
               </a>
             </motion.div>
