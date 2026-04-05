@@ -1,5 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { memoriesService } from '../services/api';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { resolveSeniorId, memoriesService } from '../services/api';
+
+interface Theme {
+  id: string;
+  name: string;
+}
 
 interface Memory {
   id: string;
@@ -7,22 +12,12 @@ interface Memory {
   summary: string;
   period: string;
   themes: string[];
+  theme_names?: string[];
+  session_id?: string | null;
+  created_at?: string;
 }
 
-const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
 const PER_PAGE = 12;
-
-const THEME_OPTIONS = [
-  'Tous',
-  'Enfance',
-  'Famille',
-  'Travail',
-  'Voyages',
-  'Loisirs',
-  'Amitié',
-  'Éducation',
-  'Autre',
-];
 
 const THEME_COLORS: Record<string, string> = {
   Enfance: '#E8A87C',
@@ -30,42 +25,106 @@ const THEME_COLORS: Record<string, string> = {
   Travail: '#7FB069',
   Voyages: '#6BAED6',
   Loisirs: '#E6B333',
-  'Amitié': '#C49BD4',
-  'Éducation': '#8B6F47',
+  Amitié: '#C49BD4',
+  Éducation: '#8B6F47',
   Autre: '#A89279',
 };
+
+const getThemeColor = (name: string): string => {
+  if (THEME_COLORS[name]) return THEME_COLORS[name];
+  // Deterministic color from name hash
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 50%, 45%)`;
+};
+
+const truncate = (text: string, len: number): string =>
+  text.length > len ? text.slice(0, len) + '...' : text;
 
 const MemoriesPage: React.FC = () => {
   const [memories, setMemories] = useState<Memory[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [theme, setTheme] = useState('Tous');
+  const [themeFilter, setThemeFilter] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [seniorId, setSeniorId] = useState<string | null>(null);
+
+  // Load themes once
+  useEffect(() => {
+    memoriesService.themes().then((res) => {
+      const data = res.data;
+      const list: Theme[] = Array.isArray(data) ? data : data.items ?? data.results ?? [];
+      setThemes(list);
+    }).catch(() => {
+      // themes not available, use empty list
+    });
+  }, []);
+
+  // Resolve senior id once
+  useEffect(() => {
+    resolveSeniorId().then(setSeniorId).catch(() => setSeniorId(null));
+  }, []);
 
   const load = useCallback(async () => {
+    if (!seniorId) return;
     setLoading(true);
+    setError(false);
     try {
-      const { data } = await memoriesService.list(SENIOR_ID(), {
-        theme: theme === 'Tous' ? undefined : theme,
-        search: search || undefined,
+      const { data } = await memoriesService.list(seniorId, {
+        theme: themeFilter || undefined,
         page,
         per_page: PER_PAGE,
       });
-      setMemories(data.items || data || []);
-      setTotal(data.total ?? (data.items || data).length);
+      const items: Memory[] = Array.isArray(data) ? data : data.items ?? data.results ?? [];
+      setMemories(items);
+      setTotal(data.total ?? items.length);
     } catch {
       setMemories([]);
+      setTotal(0);
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, [theme, search, page]);
+  }, [seniorId, themeFilter, page]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  // Client-side search filter (backend doesn't support text search)
+  const filtered = useMemo(() => {
+    if (!search.trim()) return memories;
+    const q = search.toLowerCase();
+    return memories.filter(
+      (m) =>
+        (m.title || '').toLowerCase().includes(q) ||
+        (m.summary || '').toLowerCase().includes(q),
+    );
+  }, [memories, search]);
+
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+  // Build theme buttons: "Tous" + real themes from API
+  const themeButtons = useMemo(() => {
+    const items: { id: string; name: string }[] = [{ id: '', name: 'Tous' }];
+    for (const t of themes) {
+      items.push({ id: t.id, name: t.name });
+    }
+    // If no themes from API, add some defaults
+    if (themes.length === 0) {
+      for (const name of ['Enfance', 'Famille', 'Travail', 'Voyages', 'Loisirs']) {
+        items.push({ id: name, name });
+      }
+    }
+    return items;
+  }, [themes]);
 
   return (
     <div>
@@ -80,59 +139,100 @@ const MemoriesPage: React.FC = () => {
           type="text"
           placeholder="Rechercher un souvenir..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
           style={styles.searchInput}
         />
         <div style={styles.themeRow}>
-          {THEME_OPTIONS.map((t) => (
+          {themeButtons.map((t) => (
             <button
-              key={t}
+              key={t.id}
               onClick={() => {
-                setTheme(t);
+                setThemeFilter(t.id);
                 setPage(1);
               }}
               style={{
                 ...styles.themeBtn,
-                ...(theme === t ? styles.themeBtnActive : {}),
+                ...(themeFilter === t.id ? styles.themeBtnActive : {}),
               }}
             >
-              {t}
+              {t.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Cards grid */}
+      {/* Content */}
       {loading ? (
         <p style={{ color: '#7A6555', padding: 20 }}>Chargement...</p>
-      ) : memories.length === 0 ? (
+      ) : error ? (
+        <p style={{ color: '#D14343', padding: 20 }}>
+          Erreur lors du chargement des souvenirs.
+        </p>
+      ) : filtered.length === 0 ? (
         <p style={{ color: '#7A6555', padding: 20 }}>Aucun souvenir trouvé.</p>
       ) : (
         <div style={styles.grid}>
-          {memories.map((m) => (
-            <div key={m.id} style={styles.card}>
-              <h3 style={styles.cardTitle}>{m.title}</h3>
-              <p style={styles.cardPeriod}>{m.period}</p>
-              <p style={styles.cardSummary}>{m.summary}</p>
-              <div style={styles.tags}>
-                {(m.themes || []).map((t) => (
-                  <span
-                    key={t}
-                    style={{
-                      ...styles.tag,
-                      backgroundColor: (THEME_COLORS[t] || '#A89279') + '22',
-                      color: THEME_COLORS[t] || '#A89279',
+          {filtered.map((m) => {
+            const isExpanded = expandedId === m.id;
+            const themeList = m.theme_names ?? m.themes ?? [];
+            return (
+              <div
+                key={m.id}
+                style={styles.card}
+                onClick={() => setExpandedId(isExpanded ? null : m.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setExpandedId(isExpanded ? null : m.id);
+                }}
+              >
+                <h3 style={styles.cardTitle}>{m.title || 'Sans titre'}</h3>
+                {m.period && <p style={styles.cardPeriod}>{m.period}</p>}
+                {m.created_at && (
+                  <p style={styles.cardDate}>
+                    {new Date(m.created_at).toLocaleDateString('fr-FR')}
+                  </p>
+                )}
+                <p style={styles.cardSummary}>
+                  {isExpanded
+                    ? m.summary || 'Aucun résumé.'
+                    : truncate(m.summary || 'Aucun résumé.', 150)}
+                </p>
+                {!isExpanded && m.summary && m.summary.length > 150 && (
+                  <span style={styles.readMore}>Lire la suite</span>
+                )}
+                <div style={styles.tags}>
+                  {themeList.map((t: string) => {
+                    const color = getThemeColor(t);
+                    return (
+                      <span
+                        key={t}
+                        style={{
+                          ...styles.tag,
+                          backgroundColor: color + '22',
+                          color,
+                        }}
+                      >
+                        {t}
+                      </span>
+                    );
+                  })}
+                </div>
+                {m.session_id && (
+                  <button
+                    style={styles.listenBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Future: link to audio playback
+                      alert('La réécoute audio sera bientôt disponible.');
                     }}
                   >
-                    {t}
-                  </span>
-                ))}
+                    Réécouter
+                  </button>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -142,7 +242,11 @@ const MemoriesPage: React.FC = () => {
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            style={styles.pageBtn}
+            style={{
+              ...styles.pageBtn,
+              opacity: page <= 1 ? 0.5 : 1,
+              cursor: page <= 1 ? 'default' : 'pointer',
+            }}
           >
             Précédent
           </button>
@@ -152,7 +256,11 @@ const MemoriesPage: React.FC = () => {
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            style={styles.pageBtn}
+            style={{
+              ...styles.pageBtn,
+              opacity: page >= totalPages ? 0.5 : 1,
+              cursor: page >= totalPages ? 'default' : 'pointer',
+            }}
           >
             Suivant
           </button>
@@ -226,6 +334,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
+    cursor: 'pointer',
+    transition: 'box-shadow 0.2s',
   },
   cardTitle: {
     fontSize: 17,
@@ -237,11 +347,20 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#A89279',
     fontWeight: 600,
   },
+  cardDate: {
+    fontSize: 12,
+    color: '#A89279',
+  },
   cardSummary: {
     fontSize: 14,
     lineHeight: 1.5,
     color: '#5C4A3A',
     flex: 1,
+  },
+  readMore: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: '#8B6F47',
   },
   tags: {
     display: 'flex',
@@ -254,6 +373,19 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     padding: '4px 10px',
     borderRadius: 12,
+  },
+  listenBtn: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    padding: '6px 16px',
+    borderRadius: 8,
+    border: '1px solid #E8A87C',
+    backgroundColor: '#FFF8F0',
+    fontFamily: "'Nunito', sans-serif",
+    fontSize: 13,
+    fontWeight: 600,
+    color: '#8B6F47',
+    cursor: 'pointer',
   },
   pagination: {
     display: 'flex',
@@ -270,7 +402,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "'Nunito', sans-serif",
     fontWeight: 600,
     fontSize: 14,
-    cursor: 'pointer',
     color: '#8B6F47',
   },
   pageInfo: {

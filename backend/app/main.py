@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 from contextlib import asynccontextmanager
 
 from pathlib import Path
@@ -59,9 +60,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://localhost:19006").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:19006"],
+    allow_origins=[o.strip() for o in cors_origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

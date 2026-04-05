@@ -84,7 +84,7 @@ else
     log "Installation des dependances Python..."
     pip install --quiet --upgrade pip 2>/dev/null
     pip install --quiet \
-        fastapi uvicorn sqlalchemy alembic psycopg2-binary \
+        fastapi "uvicorn[standard]" sqlalchemy alembic psycopg2-binary \
         pydantic pydantic-settings python-jose passlib bcrypt==4.0.1 \
         python-multipart httpx cryptography email-validator \
         eval_type_backport \

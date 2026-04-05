@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { alertsService } from '../services/api';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { resolveSeniorId, alertsService, authService } from '../services/api';
 
 interface Alert {
   id: string;
@@ -10,9 +10,10 @@ interface Alert {
   read: boolean;
 }
 
-const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
-
-const SEVERITY_STYLES: Record<string, { bg: string; border: string; label: string; color: string }> = {
+const SEVERITY_STYLES: Record<
+  string,
+  { bg: string; border: string; label: string; color: string }
+> = {
   low: { bg: '#F0FAF0', border: '#7FB069', label: 'Faible', color: '#3D7A28' },
   medium: { bg: '#FFF8EB', border: '#E6B333', label: 'Moyen', color: '#92700C' },
   high: { bg: '#FDE8E8', border: '#D14343', label: 'Élevé', color: '#B91C1C' },
@@ -21,27 +22,84 @@ const SEVERITY_STYLES: Record<string, { bg: string; border: string; label: strin
 const AlertsPage: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [seniorId, setSeniorId] = useState<string | null>(null);
+  const [wsBanner, setWsBanner] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  // Resolve senior id
+  useEffect(() => {
+    resolveSeniorId().then(setSeniorId).catch(() => setSeniorId(null));
+  }, []);
 
   const load = useCallback(async () => {
+    if (!seniorId) return;
     setLoading(true);
+    setError(false);
     try {
-      const { data } = await alertsService.list(SENIOR_ID(), showUnreadOnly);
-      setAlerts(data.items || data || []);
+      const { data } = await alertsService.list(seniorId, showUnreadOnly);
+      const items: Alert[] = Array.isArray(data) ? data : data.items ?? data.results ?? [];
+      setAlerts(items);
     } catch {
       setAlerts([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, [showUnreadOnly]);
+  }, [seniorId, showUnreadOnly]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  // WebSocket for real-time notifications
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+
+    const connect = async () => {
+      try {
+        const meRes = await authService.me();
+        const userId = meRes.data.id;
+        if (!userId) return;
+
+        const wsUrl = `ws://localhost:8000/ws/dashboard/${userId}`;
+        ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'new_alert') {
+              setWsBanner(true);
+            }
+          } catch {
+            // Ignore non-JSON messages
+          }
+        };
+
+        ws.onerror = () => {
+          // WebSocket not available, silently ignore
+        };
+      } catch {
+        // auth/me failed, no WS
+      }
+    };
+
+    connect();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
+
   const handleMarkRead = async (alertId: string) => {
+    if (!seniorId) return;
     try {
-      await alertsService.markRead(SENIOR_ID(), alertId);
+      await alertsService.markRead(seniorId, alertId);
       setAlerts((prev) =>
         prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
       );
@@ -54,6 +112,29 @@ const AlertsPage: React.FC = () => {
 
   return (
     <div>
+      {/* WebSocket banner */}
+      {wsBanner && (
+        <div style={styles.wsBanner}>
+          <span>Nouvelle alerte reçue</span>
+          <button
+            style={styles.wsRefreshBtn}
+            onClick={() => {
+              setWsBanner(false);
+              load();
+            }}
+          >
+            Rafraîchir
+          </button>
+          <button
+            style={styles.wsDismissBtn}
+            onClick={() => setWsBanner(false)}
+            aria-label="Fermer"
+          >
+            x
+          </button>
+        </div>
+      )}
+
       <div style={styles.header}>
         <div>
           <h2 style={styles.pageTitle}>
@@ -79,6 +160,10 @@ const AlertsPage: React.FC = () => {
 
       {loading ? (
         <p style={{ color: '#7A6555', padding: 20 }}>Chargement...</p>
+      ) : error ? (
+        <p style={{ color: '#D14343', padding: 20 }}>
+          Erreur lors du chargement des alertes.
+        </p>
       ) : alerts.length === 0 ? (
         <div style={styles.emptyState}>
           <p>Aucune alerte pour le moment. Tout va bien !</p>
@@ -107,7 +192,17 @@ const AlertsPage: React.FC = () => {
                   >
                     {sev.label}
                   </span>
-                  <span style={styles.date}>{alert.created_at}</span>
+                  <span style={styles.date}>
+                    {alert.created_at
+                      ? new Date(alert.created_at).toLocaleDateString('fr-FR', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : ''}
+                  </span>
                 </div>
                 <h3 style={styles.cardTitle}>{alert.title}</h3>
                 <p style={styles.cardMessage}>{alert.message}</p>
@@ -129,6 +224,41 @@ const AlertsPage: React.FC = () => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
+  wsBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FFF8EB',
+    border: '1px solid #E6B333',
+    borderRadius: 10,
+    padding: '10px 18px',
+    marginBottom: 18,
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#92700C',
+  },
+  wsRefreshBtn: {
+    padding: '4px 14px',
+    borderRadius: 8,
+    border: '1px solid #E6B333',
+    backgroundColor: '#FFFFFF',
+    fontFamily: "'Nunito', sans-serif",
+    fontSize: 13,
+    fontWeight: 700,
+    color: '#8B6F47',
+    cursor: 'pointer',
+  },
+  wsDismissBtn: {
+    marginLeft: 'auto',
+    padding: '2px 8px',
+    borderRadius: 6,
+    border: 'none',
+    backgroundColor: 'transparent',
+    fontSize: 16,
+    fontWeight: 700,
+    color: '#A89279',
+    cursor: 'pointer',
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',

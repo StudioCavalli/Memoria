@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   LineChart,
@@ -8,18 +8,57 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { sessionsService, memoriesService, alertsService, metricsService, gazettesService } from '../services/api';
+import {
+  resolveSeniorId,
+  sessionsService,
+  memoriesService,
+  alertsService,
+  metricsService,
+  gazettesService,
+} from '../services/api';
+
+interface MetricPoint {
+  date: string;
+  unique_words: number;
+}
+
+interface MetricsSummary {
+  vitality_score: number;
+  semantic_richness_trend: string | null;
+  latency_trend: string | null;
+  session_count_7d: number;
+}
 
 interface DashboardData {
   lastSession: { date: string; summary: string } | null;
   memoriesCount: number;
   unreadAlerts: number;
-  metricsHistory: { date: string; score: number }[];
-  vitalityScore: number;
+  metricsHistory: MetricPoint[];
+  summary: MetricsSummary;
   latestGazette: { id: string; title: string; date: string } | null;
 }
 
-const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
+const EMPTY_SUMMARY: MetricsSummary = {
+  vitality_score: 0,
+  semantic_richness_trend: null,
+  latency_trend: null,
+  session_count_7d: 0,
+};
+
+const trendLabel = (trend: string | null): { text: string; color: string } => {
+  if (!trend) return { text: '--', color: '#A89279' };
+  if (trend === 'up' || trend === 'improving')
+    return { text: 'En hausse', color: '#7FB069' };
+  if (trend === 'down' || trend === 'declining')
+    return { text: 'En baisse', color: '#D14343' };
+  return { text: 'Stable', color: '#E6B333' };
+};
+
+const vitalityColor = (score: number): string => {
+  if (score > 70) return '#7FB069';
+  if (score >= 40) return '#D97706';
+  return '#D14343';
+};
 
 const DashboardPage: React.FC = () => {
   const [data, setData] = useState<DashboardData>({
@@ -27,70 +66,118 @@ const DashboardPage: React.FC = () => {
     memoriesCount: 0,
     unreadAlerts: 0,
     metricsHistory: [],
-    vitalityScore: 0,
+    summary: EMPTY_SUMMARY,
     latestGazette: null,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const load = async () => {
+    try {
+      const sid = await resolveSeniorId();
+
+      const [sessionRes, memoriesRes, alertsRes, historyRes, summaryRes, gazettesRes] =
+        await Promise.allSettled([
+          sessionsService.latest(sid),
+          memoriesService.list(sid, { page: 1, per_page: 1 }),
+          alertsService.unreadCount(sid),
+          metricsService.history(sid, 7),
+          metricsService.summary(sid),
+          gazettesService.list(sid, 0, 1),
+        ]);
+
+      // --- Parse metrics history ---
+      let history: MetricPoint[] = [];
+      if (historyRes.status === 'fulfilled') {
+        const raw = historyRes.value.data;
+        const items: unknown[] = Array.isArray(raw) ? raw : raw.history ?? raw.items ?? [];
+        history = items.map((m: any) => ({
+          date: m.date ?? '',
+          unique_words: m.unique_words ?? m.semantic_richness ?? m.score ?? 0,
+        }));
+      }
+
+      // --- Parse metrics summary ---
+      let summary: MetricsSummary = { ...EMPTY_SUMMARY };
+      if (summaryRes.status === 'fulfilled') {
+        const s = summaryRes.value.data;
+        summary = {
+          vitality_score: s.vitality_score ?? 0,
+          semantic_richness_trend: s.semantic_richness_trend ?? null,
+          latency_trend: s.latency_trend ?? null,
+          session_count_7d: s.session_count_7d ?? s.session_count ?? 0,
+        };
+      }
+
+      // --- Parse gazette list ---
+      let latestGazette: DashboardData['latestGazette'] = null;
+      if (gazettesRes.status === 'fulfilled') {
+        const gd = gazettesRes.value.data;
+        const list = Array.isArray(gd) ? gd : gd.items ?? gd.results ?? [];
+        if (list.length > 0) {
+          latestGazette = {
+            id: list[0].id,
+            title: list[0].title ?? 'Gazette',
+            date: list[0].created_at ?? list[0].date ?? '',
+          };
+        }
+      }
+
+      setData({
+        lastSession:
+          sessionRes.status === 'fulfilled' && sessionRes.value.data
+            ? {
+                date: sessionRes.value.data.created_at ?? sessionRes.value.data.date ?? '',
+                summary: sessionRes.value.data.summary ?? '',
+              }
+            : null,
+        memoriesCount:
+          memoriesRes.status === 'fulfilled'
+            ? (() => {
+                const d = memoriesRes.value.data;
+                return d.total ?? (Array.isArray(d) ? d : d.items ?? []).length ?? 0;
+              })()
+            : 0,
+        unreadAlerts:
+          alertsRes.status === 'fulfilled'
+            ? alertsRes.value.data.count ?? 0
+            : 0,
+        metricsHistory: history,
+        summary,
+        latestGazette,
+      });
+      setError(false);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      const sid = SENIOR_ID();
-      try {
-        const [sessionRes, memoriesRes, alertsRes, metricsRes, gazettesRes] =
-          await Promise.allSettled([
-            sessionsService.latest(sid),
-            memoriesService.list(sid, { page: 1, per_page: 1 }),
-            alertsService.unreadCount(sid),
-            metricsService.history(sid, 7),
-            gazettesService.list(sid),
-          ]);
-
-        setData({
-          lastSession:
-            sessionRes.status === 'fulfilled' && sessionRes.value.data
-              ? {
-                  date: sessionRes.value.data.date ?? '',
-                  summary: sessionRes.value.data.summary ?? '',
-                }
-              : null,
-          memoriesCount:
-            memoriesRes.status === 'fulfilled'
-              ? memoriesRes.value.data.total || memoriesRes.value.data.length || 0
-              : 0,
-          unreadAlerts:
-            alertsRes.status === 'fulfilled'
-              ? alertsRes.value.data.count ?? alertsRes.value.data
-              : 0,
-          metricsHistory:
-            metricsRes.status === 'fulfilled'
-              ? (metricsRes.value.data.history || metricsRes.value.data || []).map(
-                  (m: { date: string; semantic_richness?: number; score?: number }) => ({
-                    date: m.date,
-                    score: m.semantic_richness ?? m.score ?? 0,
-                  }),
-                )
-              : [],
-          vitalityScore:
-            metricsRes.status === 'fulfilled'
-              ? metricsRes.value.data.vitality_score ?? 0
-              : 0,
-          latestGazette:
-            gazettesRes.status === 'fulfilled' && gazettesRes.value.data.length > 0
-              ? gazettesRes.value.data[0]
-              : null,
-        });
-      } catch {
-        // fail silently; widgets stay empty
-      } finally {
-        setLoading(false);
-      }
-    };
     load();
+    intervalRef.current = setInterval(load, 60_000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
     return <p style={{ padding: 32, color: '#7A6555' }}>Chargement...</p>;
   }
+
+  if (error) {
+    return (
+      <p style={{ padding: 32, color: '#D14343' }}>
+        Erreur lors du chargement du tableau de bord.
+      </p>
+    );
+  }
+
+  const semTrend = trendLabel(data.summary.semantic_richness_trend);
+  const latTrend = trendLabel(data.summary.latency_trend);
 
   return (
     <div>
@@ -106,14 +193,14 @@ const DashboardPage: React.FC = () => {
           {data.lastSession ? (
             <>
               <p style={styles.cardMeta}>{data.lastSession.date}</p>
-              <p style={styles.cardBody}>{data.lastSession.summary}</p>
+              <p style={styles.cardBody}>{data.lastSession.summary || 'Aucun résumé disponible.'}</p>
             </>
           ) : (
             <p style={styles.cardBody}>Aucune session enregistrée.</p>
           )}
         </div>
 
-        {/* Total memories */}
+        {/* Memories count */}
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Souvenirs</h3>
           <p style={styles.bigNumber}>{data.memoriesCount}</p>
@@ -132,22 +219,42 @@ const DashboardPage: React.FC = () => {
             }}
           >
             {data.unreadAlerts}
-            {data.unreadAlerts > 0 && (
-              <span style={styles.badge}>{data.unreadAlerts}</span>
-            )}
           </p>
           <Link to="/alerts" style={styles.cardLink}>
             Gérer
           </Link>
         </div>
 
-        {/* Mini metrics chart */}
+        {/* Sessions 7 days */}
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Sessions (7 jours)</h3>
+          <p style={styles.bigNumber}>{data.summary.session_count_7d}</p>
+        </div>
+
+        {/* Vitality score */}
+        <div style={styles.card}>
+          <h3 style={styles.cardTitle}>Score de vitalité</h3>
+          <p
+            style={{
+              ...styles.bigNumber,
+              color: vitalityColor(data.summary.vitality_score),
+            }}
+          >
+            {data.summary.vitality_score}
+            <span style={{ fontSize: 18, fontWeight: 400 }}> / 100</span>
+          </p>
+          <Link to="/metrics" style={styles.cardLink}>
+            Détails
+          </Link>
+        </div>
+
+        {/* Semantic richness chart */}
         <div style={{ ...styles.card, gridColumn: 'span 2' }}>
           <h3 style={styles.cardTitle}>
-            Richesse sémantique (7 derniers jours)
+            Richesse sémantique — mots uniques (7 jours)
           </h3>
           {data.metricsHistory.length > 0 ? (
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={180}>
               <LineChart data={data.metricsHistory}>
                 <XAxis
                   dataKey="date"
@@ -163,13 +270,15 @@ const DashboardPage: React.FC = () => {
                     boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
                     fontFamily: "'Nunito', sans-serif",
                   }}
+                  formatter={(value: number) => [`${value}`, 'Mots uniques']}
                 />
                 <Line
                   type="monotone"
-                  dataKey="score"
+                  dataKey="unique_words"
                   stroke="#E8A87C"
                   strokeWidth={2.5}
                   dot={{ fill: '#8B6F47', r: 3 }}
+                  name="Mots uniques"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -178,42 +287,23 @@ const DashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Vitality score */}
+        {/* Trends */}
         <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Score de vitalité</h3>
-          <div style={styles.gauge}>
-            <svg viewBox="0 0 120 70" width="120" height="70">
-              <path
-                d="M10 60 A50 50 0 0 1 110 60"
-                fill="none"
-                stroke="#F5E6D3"
-                strokeWidth="10"
-                strokeLinecap="round"
-              />
-              <path
-                d="M10 60 A50 50 0 0 1 110 60"
-                fill="none"
-                stroke="#E8A87C"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={`${(data.vitalityScore / 100) * 157} 157`}
-              />
-              <text
-                x="60"
-                y="55"
-                textAnchor="middle"
-                fontSize="22"
-                fontWeight="bold"
-                fill="#3D2C1E"
-                fontFamily="Nunito"
-              >
-                {data.vitalityScore}
-              </text>
-            </svg>
+          <h3 style={styles.cardTitle}>Tendances</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <p style={styles.trendLabel}>Richesse sémantique</p>
+              <p style={{ ...styles.trendValue, color: semTrend.color }}>
+                {semTrend.text}
+              </p>
+            </div>
+            <div>
+              <p style={styles.trendLabel}>Latence de réponse</p>
+              <p style={{ ...styles.trendValue, color: latTrend.color }}>
+                {latTrend.text}
+              </p>
+            </div>
           </div>
-          <Link to="/metrics" style={styles.cardLink}>
-            Détails
-          </Link>
         </div>
 
         {/* Latest gazette */}
@@ -283,19 +373,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     color: '#8B6F47',
     lineHeight: 1,
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: -6,
-    marginLeft: 6,
-    backgroundColor: '#D97706',
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 700,
-    borderRadius: 99,
-    padding: '2px 8px',
-    lineHeight: '18px',
   },
   cardLink: {
     marginTop: 'auto',
@@ -305,10 +382,14 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: 'none',
     paddingTop: 8,
   },
-  gauge: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '8px 0',
+  trendLabel: {
+    fontSize: 13,
+    color: '#A89279',
+    marginBottom: 2,
+  },
+  trendValue: {
+    fontSize: 16,
+    fontWeight: 700,
   },
 };
 

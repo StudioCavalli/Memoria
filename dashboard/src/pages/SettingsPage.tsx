@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { settingsService, seniorsService } from '../services/api';
-
-const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
+import {
+  resolveSeniorId,
+  settingsService,
+  seniorsService,
+  gdprService,
+} from '../services/api';
 
 interface Profile {
   first_name: string;
   last_name: string;
   birth_date: string;
+  birth_place: string;
 }
 
 interface Schedule {
@@ -28,10 +32,33 @@ interface FamilyMember {
   role: string;
 }
 
-const DAYS_OF_WEEK = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+type ToastType = 'success' | 'error';
+
+interface Toast {
+  id: number;
+  message: string;
+  type: ToastType;
+}
+
+const DAYS_OF_WEEK = [
+  'Lundi',
+  'Mardi',
+  'Mercredi',
+  'Jeudi',
+  'Vendredi',
+  'Samedi',
+  'Dimanche',
+];
+
+let toastCounter = 0;
 
 const SettingsPage: React.FC = () => {
-  const [profile, setProfile] = useState<Profile>({ first_name: '', last_name: '', birth_date: '' });
+  const [profile, setProfile] = useState<Profile>({
+    first_name: '',
+    last_name: '',
+    birth_date: '',
+    birth_place: '',
+  });
   const [schedule, setSchedule] = useState<Schedule>({
     days: [],
     time: '10:00',
@@ -44,17 +71,41 @@ const SettingsPage: React.FC = () => {
   });
   const [family, setFamily] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saved, setSaved] = useState('');
+  const [error, setError] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [seniorId, setSeniorId] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [savingNotifs, setSavingNotifs] = useState(false);
+
+  const addToast = (message: string, type: ToastType) => {
+    const id = ++toastCounter;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
 
   useEffect(() => {
+    resolveSeniorId().then(setSeniorId).catch(() => {
+      setSeniorId(null);
+      setError(true);
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!seniorId) return;
     const load = async () => {
-      const sid = SENIOR_ID();
+      setLoading(true);
+      setError(false);
       try {
         const [profRes, schedRes, notifRes, famRes] = await Promise.allSettled([
-          seniorsService.get(sid),
-          settingsService.getSchedule(sid),
+          seniorsService.get(seniorId),
+          settingsService.getSchedule(seniorId),
           settingsService.getNotificationPrefs(),
-          settingsService.getFamilyMembers(sid),
+          settingsService.getFamilyMembers(seniorId),
         ]);
         if (profRes.status === 'fulfilled') {
           const d = profRes.value.data;
@@ -62,6 +113,7 @@ const SettingsPage: React.FC = () => {
             first_name: d.first_name || '',
             last_name: d.last_name || '',
             birth_date: d.birth_date || '',
+            birth_place: d.birth_place || '',
           });
         }
         if (schedRes.status === 'fulfilled') {
@@ -81,46 +133,88 @@ const SettingsPage: React.FC = () => {
           });
         }
         if (famRes.status === 'fulfilled') {
-          setFamily(famRes.value.data.items || famRes.value.data || []);
+          const d = famRes.value.data;
+          setFamily(Array.isArray(d) ? d : d.items ?? []);
         }
       } catch {
-        // keep defaults
+        setError(true);
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
-
-  const showSaved = (section: string) => {
-    setSaved(section);
-    setTimeout(() => setSaved(''), 2500);
-  };
+  }, [seniorId]);
 
   const saveProfile = async () => {
+    if (!seniorId) return;
+    setSavingProfile(true);
     try {
-      await seniorsService.update(SENIOR_ID(), profile);
-      showSaved('profile');
+      await settingsService.updateProfile(seniorId, { ...profile });
+      addToast('Profil sauvegardé avec succès.', 'success');
     } catch {
-      alert('Erreur lors de la sauvegarde du profil.');
+      addToast('Erreur lors de la sauvegarde du profil.', 'error');
+    } finally {
+      setSavingProfile(false);
     }
   };
 
   const saveSchedule = async () => {
+    if (!seniorId) return;
+    setSavingSchedule(true);
     try {
-      await settingsService.updateSchedule(SENIOR_ID(), schedule);
-      showSaved('schedule');
+      await settingsService.updateSchedule(seniorId, { ...schedule });
+      addToast('Planning sauvegardé avec succès.', 'success');
     } catch {
-      alert('Erreur lors de la sauvegarde du planning.');
+      addToast('Erreur lors de la sauvegarde du planning.', 'error');
+    } finally {
+      setSavingSchedule(false);
     }
   };
 
   const saveNotifs = async () => {
+    setSavingNotifs(true);
     try {
-      await settingsService.updateNotificationPrefs(notifs);
-      showSaved('notifs');
+      await settingsService.updateNotificationPrefs({ ...notifs });
+      addToast('Préférences de notification sauvegardées.', 'success');
     } catch {
-      alert('Erreur lors de la sauvegarde des notifications.');
+      addToast('Erreur lors de la sauvegarde des notifications.', 'error');
+    } finally {
+      setSavingNotifs(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const res = await gdprService.exportData();
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'memoria-export.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Export téléchargé avec succès.', 'success');
+    } catch {
+      addToast('Erreur lors de l\'export des données.', 'error');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteConfirm) {
+      setDeleteConfirm(true);
+      return;
+    }
+    try {
+      await gdprService.deleteAccount();
+      localStorage.clear();
+      window.location.href = '/login';
+    } catch {
+      addToast('Erreur lors de la suppression du compte.', 'error');
+      setDeleteConfirm(false);
     }
   };
 
@@ -137,8 +231,35 @@ const SettingsPage: React.FC = () => {
     return <p style={{ padding: 32, color: '#7A6555' }}>Chargement...</p>;
   }
 
+  if (error && !seniorId) {
+    return (
+      <p style={{ padding: 32, color: '#D14343' }}>
+        Erreur lors du chargement des paramètres.
+      </p>
+    );
+  }
+
   return (
     <div>
+      {/* Toast container */}
+      {toasts.length > 0 && (
+        <div style={styles.toastContainer}>
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              style={{
+                ...styles.toast,
+                backgroundColor: t.type === 'success' ? '#F0FAF0' : '#FDE8E8',
+                borderColor: t.type === 'success' ? '#7FB069' : '#D14343',
+                color: t.type === 'success' ? '#3D7A28' : '#B91C1C',
+              }}
+            >
+              {t.message}
+            </div>
+          ))}
+        </div>
+      )}
+
       <h2 style={styles.pageTitle}>Paramètres</h2>
       <p style={styles.subtitle}>
         Gérez le profil de votre proche et vos préférences.
@@ -153,7 +274,9 @@ const SettingsPage: React.FC = () => {
             <input
               type="text"
               value={profile.first_name}
-              onChange={(e) => setProfile((p) => ({ ...p, first_name: e.target.value }))}
+              onChange={(e) =>
+                setProfile((p) => ({ ...p, first_name: e.target.value }))
+              }
               style={styles.input}
             />
           </label>
@@ -162,7 +285,9 @@ const SettingsPage: React.FC = () => {
             <input
               type="text"
               value={profile.last_name}
-              onChange={(e) => setProfile((p) => ({ ...p, last_name: e.target.value }))}
+              onChange={(e) =>
+                setProfile((p) => ({ ...p, last_name: e.target.value }))
+              }
               style={styles.input}
             />
           </label>
@@ -177,14 +302,29 @@ const SettingsPage: React.FC = () => {
               style={styles.input}
             />
           </label>
+          <label style={styles.label}>
+            Lieu de naissance
+            <input
+              type="text"
+              value={profile.birth_place}
+              onChange={(e) =>
+                setProfile((p) => ({ ...p, birth_place: e.target.value }))
+              }
+              style={styles.input}
+            />
+          </label>
         </div>
         <div style={styles.btnRow}>
-          <button style={styles.saveBtn} onClick={saveProfile}>
-            Enregistrer
+          <button
+            style={{
+              ...styles.saveBtn,
+              opacity: savingProfile ? 0.6 : 1,
+            }}
+            onClick={saveProfile}
+            disabled={savingProfile}
+          >
+            {savingProfile ? 'Enregistrement...' : 'Enregistrer'}
           </button>
-          {saved === 'profile' && (
-            <span style={styles.savedMsg}>Sauvegardé !</span>
-          )}
         </div>
       </section>
 
@@ -238,12 +378,16 @@ const SettingsPage: React.FC = () => {
           </label>
         </div>
         <div style={styles.btnRow}>
-          <button style={styles.saveBtn} onClick={saveSchedule}>
-            Enregistrer
+          <button
+            style={{
+              ...styles.saveBtn,
+              opacity: savingSchedule ? 0.6 : 1,
+            }}
+            onClick={saveSchedule}
+            disabled={savingSchedule}
+          >
+            {savingSchedule ? 'Enregistrement...' : 'Enregistrer'}
           </button>
-          {saved === 'schedule' && (
-            <span style={styles.savedMsg}>Sauvegardé !</span>
-          )}
         </div>
       </section>
 
@@ -286,12 +430,16 @@ const SettingsPage: React.FC = () => {
           </label>
         </div>
         <div style={styles.btnRow}>
-          <button style={styles.saveBtn} onClick={saveNotifs}>
-            Enregistrer
+          <button
+            style={{
+              ...styles.saveBtn,
+              opacity: savingNotifs ? 0.6 : 1,
+            }}
+            onClick={saveNotifs}
+            disabled={savingNotifs}
+          >
+            {savingNotifs ? 'Enregistrement...' : 'Enregistrer'}
           </button>
-          {saved === 'notifs' && (
-            <span style={styles.savedMsg}>Sauvegardé !</span>
-          )}
         </div>
       </section>
 
@@ -307,16 +455,55 @@ const SettingsPage: React.FC = () => {
             {family.map((m) => (
               <div key={m.id} style={styles.familyCard}>
                 <div style={styles.avatar}>
-                  {m.name.charAt(0).toUpperCase()}
+                  {(m.name || '?').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p style={styles.familyName}>{m.name}</p>
                   <p style={styles.familyEmail}>{m.email}</p>
-                  <p style={styles.familyRole}>{m.role}</p>
+                  {m.role && <p style={styles.familyRole}>{m.role}</p>}
                 </div>
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* GDPR section */}
+      <section style={styles.section}>
+        <h3 style={styles.sectionTitle}>Données personnelles (RGPD)</h3>
+        <p style={styles.hint}>
+          Conformément au RGPD, vous pouvez exporter ou supprimer vos données à tout moment.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>
+          <button style={styles.exportBtn} onClick={handleExportData}>
+            Exporter mes données
+          </button>
+          <button
+            style={{
+              ...styles.deleteBtn,
+              backgroundColor: deleteConfirm ? '#B91C1C' : '#FDE8E8',
+              color: deleteConfirm ? '#FFFFFF' : '#B91C1C',
+            }}
+            onClick={handleDeleteAccount}
+          >
+            {deleteConfirm
+              ? 'Confirmer la suppression définitive'
+              : 'Supprimer mon compte'}
+          </button>
+          {deleteConfirm && (
+            <button
+              style={styles.cancelBtn}
+              onClick={() => setDeleteConfirm(false)}
+            >
+              Annuler
+            </button>
+          )}
+        </div>
+        {deleteConfirm && (
+          <p style={{ color: '#B91C1C', fontSize: 13, marginTop: 8 }}>
+            Attention : cette action est irréversible. Toutes vos données seront
+            définitivement supprimées.
+          </p>
         )}
       </section>
     </div>
@@ -324,6 +511,25 @@ const SettingsPage: React.FC = () => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
+  toastContainer: {
+    position: 'fixed',
+    top: 20,
+    right: 20,
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  toast: {
+    padding: '12px 20px',
+    borderRadius: 10,
+    border: '1px solid',
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: "'Nunito', sans-serif",
+    boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+    animation: 'fadeIn 0.2s ease-in',
+  },
   pageTitle: {
     fontFamily: "'Merriweather', serif",
     fontSize: 28,
@@ -435,10 +641,36 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     cursor: 'pointer',
   },
-  savedMsg: {
-    fontSize: 14,
+  exportBtn: {
+    padding: '10px 24px',
+    borderRadius: 10,
+    border: '1px solid #8B6F47',
+    backgroundColor: '#FFFFFF',
+    color: '#8B6F47',
+    fontFamily: "'Nunito', sans-serif",
     fontWeight: 700,
-    color: '#7FB069',
+    fontSize: 14,
+    cursor: 'pointer',
+  },
+  deleteBtn: {
+    padding: '10px 24px',
+    borderRadius: 10,
+    border: '1px solid #D14343',
+    fontFamily: "'Nunito', sans-serif",
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: 'pointer',
+  },
+  cancelBtn: {
+    padding: '10px 24px',
+    borderRadius: 10,
+    border: '1px solid #F5E6D3',
+    backgroundColor: '#FFFFFF',
+    color: '#7A6555',
+    fontFamily: "'Nunito', sans-serif",
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: 'pointer',
   },
   familyList: {
     display: 'flex',
