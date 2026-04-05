@@ -46,22 +46,22 @@ const GazettesPage: React.FC = () => {
 
   return (
     <div>
-      <h2 style={styles.pageTitle}>Gazettes</h2>
-      <p style={styles.subtitle}>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Gazettes</h2>
+      <p className="mb-6 text-[15px] text-text-muted">
         Les gazettes résument les souvenirs et moments clés de votre proche.
       </p>
 
       {loading ? (
-        <p style={{ color: '#7A6555', padding: 20 }}>Chargement...</p>
+        <p className="p-5 text-text-muted">Chargement...</p>
       ) : gazettes.length === 0 ? (
-        <div style={styles.emptyState}>
+        <div className="rounded-2xl bg-white p-10 text-center text-[15px] text-text-muted shadow-sm">
           <p>Aucune gazette disponible pour le moment.</p>
         </div>
       ) : (
-        <div style={styles.list}>
+        <div className="flex flex-col gap-3.5">
           {gazettes.map((g) => (
-            <div key={g.id} style={styles.card}>
-              <div style={styles.cardIcon}>
+            <div key={g.id} className="flex flex-wrap items-center gap-[18px] rounded-2xl bg-white px-[22px] py-[18px] shadow-sm">
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-cream">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
                   <rect x="4" y="2" width="16" height="20" rx="2" stroke="#8B6F47" strokeWidth="1.5" />
                   <line x1="8" y1="7" x2="16" y2="7" stroke="#E8A87C" strokeWidth="1.5" strokeLinecap="round" />
@@ -69,15 +69,15 @@ const GazettesPage: React.FC = () => {
                   <line x1="8" y1="15" x2="13" y2="15" stroke="#E8A87C" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
-              <div style={styles.cardContent}>
-                <h3 style={styles.cardTitle}>{g.title}</h3>
-                <p style={styles.cardDate}>{g.date}</p>
+              <div className="min-w-[180px] flex-1">
+                <h3 className="mb-0.5 text-base font-bold text-text-dark">{g.title}</h3>
+                <p className="text-[13px] font-semibold text-text-light">{g.date}</p>
                 {g.description && (
-                  <p style={styles.cardDesc}>{g.description}</p>
+                  <p className="mt-1 text-sm leading-snug text-text-dark/80">{g.description}</p>
                 )}
               </div>
               <button
-                style={styles.downloadBtn}
+                className="whitespace-nowrap rounded-[10px] border-none bg-brown-light px-5 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark"
                 onClick={() => handleDownload(g)}
               >
                 Télécharger PDF
@@ -88,87 +88,6 @@ const GazettesPage: React.FC = () => {
       )}
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-    marginBottom: 24,
-  },
-  list: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-  },
-  card: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 18,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: '18px 22px',
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    flexWrap: 'wrap',
-  },
-  cardIcon: {
-    flexShrink: 0,
-    width: 52,
-    height: 52,
-    backgroundColor: '#FFF8F0',
-    borderRadius: 12,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardContent: {
-    flex: 1,
-    minWidth: 180,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: '#3D2C1E',
-    marginBottom: 2,
-  },
-  cardDate: {
-    fontSize: 13,
-    color: '#A89279',
-    fontWeight: 600,
-  },
-  cardDesc: {
-    fontSize: 14,
-    color: '#5C4A3A',
-    marginTop: 4,
-    lineHeight: 1.4,
-  },
-  downloadBtn: {
-    padding: '10px 20px',
-    borderRadius: 10,
-    border: 'none',
-    backgroundColor: '#8B6F47',
-    color: '#FFFFFF',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  },
-  emptyState: {
-    textAlign: 'center',
-    padding: 40,
-    color: '#7A6555',
-    fontSize: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-  },
 };
 
 export default GazettesPage;

@@ -45,19 +45,19 @@ const EMPTY_SUMMARY: MetricsSummary = {
   session_count_7d: 0,
 };
 
-const trendLabel = (trend: string | null): { text: string; color: string } => {
-  if (!trend) return { text: '--', color: '#A89279' };
+const trendLabel = (trend: string | null): { text: string; colorClass: string } => {
+  if (!trend) return { text: '--', colorClass: 'text-text-light' };
   if (trend === 'up' || trend === 'improving')
-    return { text: 'En hausse', color: '#7FB069' };
+    return { text: 'En hausse', colorClass: 'text-green-light' };
   if (trend === 'down' || trend === 'declining')
-    return { text: 'En baisse', color: '#D14343' };
-  return { text: 'Stable', color: '#E6B333' };
+    return { text: 'En baisse', colorClass: 'text-red-500' };
+  return { text: 'Stable', colorClass: 'text-yellow-warm' };
 };
 
-const vitalityColor = (score: number): string => {
-  if (score > 70) return '#7FB069';
-  if (score >= 40) return '#D97706';
-  return '#D14343';
+const vitalityColorClass = (score: number): string => {
+  if (score > 70) return 'text-green-light';
+  if (score >= 40) return 'text-amber-warm';
+  return 'text-red-500';
 };
 
 const DashboardPage: React.FC = () => {
@@ -87,7 +87,6 @@ const DashboardPage: React.FC = () => {
           gazettesService.list(sid, 0, 1),
         ]);
 
-      // --- Parse metrics history ---
       let history: MetricPoint[] = [];
       if (historyRes.status === 'fulfilled') {
         const raw = historyRes.value.data;
@@ -98,7 +97,6 @@ const DashboardPage: React.FC = () => {
         }));
       }
 
-      // --- Parse metrics summary ---
       let summary: MetricsSummary = { ...EMPTY_SUMMARY };
       if (summaryRes.status === 'fulfilled') {
         const s = summaryRes.value.data;
@@ -110,7 +108,6 @@ const DashboardPage: React.FC = () => {
         };
       }
 
-      // --- Parse gazette list ---
       let latestGazette: DashboardData['latestGazette'] = null;
       if (gazettesRes.status === 'fulfilled') {
         const gd = gazettesRes.value.data;
@@ -165,12 +162,12 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <p style={{ padding: 32, color: '#7A6555' }}>Chargement...</p>;
+    return <p className="p-8 text-text-muted">Chargement...</p>;
   }
 
   if (error) {
     return (
-      <p style={{ padding: 32, color: '#D14343' }}>
+      <p className="p-8 text-red-500">
         Erreur lors du chargement du tableau de bord.
       </p>
     );
@@ -181,76 +178,66 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div>
-      <h2 style={styles.pageTitle}>Bonjour !</h2>
-      <p style={styles.subtitle}>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Bonjour !</h2>
+      <p className="mb-7 text-[15px] text-text-muted">
         Voici un aperçu de l'état de votre proche.
       </p>
 
-      <div style={styles.grid}>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
         {/* Last session */}
-        <div style={{ ...styles.card, gridColumn: 'span 2' }}>
-          <h3 style={styles.cardTitle}>Dernière session</h3>
+        <div className="col-span-1 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm sm:col-span-2">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Dernière session</h3>
           {data.lastSession ? (
             <>
-              <p style={styles.cardMeta}>{data.lastSession.date}</p>
-              <p style={styles.cardBody}>{data.lastSession.summary || 'Aucun résumé disponible.'}</p>
+              <p className="text-[13px] text-text-light">{data.lastSession.date}</p>
+              <p className="text-[15px] leading-relaxed text-text-dark">{data.lastSession.summary || 'Aucun résumé disponible.'}</p>
             </>
           ) : (
-            <p style={styles.cardBody}>Aucune session enregistrée.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">Aucune session enregistrée.</p>
           )}
         </div>
 
         {/* Memories count */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Souvenirs</h3>
-          <p style={styles.bigNumber}>{data.memoriesCount}</p>
-          <Link to="/memories" style={styles.cardLink}>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Souvenirs</h3>
+          <p className="text-[42px] font-bold leading-none text-brown-light">{data.memoriesCount}</p>
+          <Link to="/memories" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
             Voir tout
           </Link>
         </div>
 
         {/* Unread alerts */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Alertes non lues</h3>
-          <p
-            style={{
-              ...styles.bigNumber,
-              color: data.unreadAlerts > 0 ? '#D97706' : '#7FB069',
-            }}
-          >
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Alertes non lues</h3>
+          <p className={`text-[42px] font-bold leading-none ${data.unreadAlerts > 0 ? 'text-amber-warm' : 'text-green-light'}`}>
             {data.unreadAlerts}
           </p>
-          <Link to="/alerts" style={styles.cardLink}>
+          <Link to="/alerts" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
             Gérer
           </Link>
         </div>
 
         {/* Sessions 7 days */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Sessions (7 jours)</h3>
-          <p style={styles.bigNumber}>{data.summary.session_count_7d}</p>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Sessions (7 jours)</h3>
+          <p className="text-[42px] font-bold leading-none text-brown-light">{data.summary.session_count_7d}</p>
         </div>
 
         {/* Vitality score */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Score de vitalité</h3>
-          <p
-            style={{
-              ...styles.bigNumber,
-              color: vitalityColor(data.summary.vitality_score),
-            }}
-          >
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Score de vitalité</h3>
+          <p className={`text-[42px] font-bold leading-none ${vitalityColorClass(data.summary.vitality_score)}`}>
             {data.summary.vitality_score}
-            <span style={{ fontSize: 18, fontWeight: 400 }}> / 100</span>
+            <span className="text-lg font-normal"> / 100</span>
           </p>
-          <Link to="/metrics" style={styles.cardLink}>
+          <Link to="/metrics" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
             Détails
           </Link>
         </div>
 
         {/* Semantic richness chart */}
-        <div style={{ ...styles.card, gridColumn: 'span 2' }}>
-          <h3 style={styles.cardTitle}>
+        <div className="col-span-1 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm sm:col-span-2">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">
             Richesse sémantique — mots uniques (7 jours)
           </h3>
           {data.metricsHistory.length > 0 ? (
@@ -283,114 +270,43 @@ const DashboardPage: React.FC = () => {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p style={styles.cardBody}>Pas de données disponibles.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">Pas de données disponibles.</p>
           )}
         </div>
 
         {/* Trends */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Tendances</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Tendances</h3>
+          <div className="flex flex-col gap-3">
             <div>
-              <p style={styles.trendLabel}>Richesse sémantique</p>
-              <p style={{ ...styles.trendValue, color: semTrend.color }}>
-                {semTrend.text}
-              </p>
+              <p className="mb-0.5 text-[13px] text-text-light">Richesse sémantique</p>
+              <p className={`text-base font-bold ${semTrend.colorClass}`}>{semTrend.text}</p>
             </div>
             <div>
-              <p style={styles.trendLabel}>Latence de réponse</p>
-              <p style={{ ...styles.trendValue, color: latTrend.color }}>
-                {latTrend.text}
-              </p>
+              <p className="mb-0.5 text-[13px] text-text-light">Latence de réponse</p>
+              <p className={`text-base font-bold ${latTrend.colorClass}`}>{latTrend.text}</p>
             </div>
           </div>
         </div>
 
         {/* Latest gazette */}
-        <div style={styles.card}>
-          <h3 style={styles.cardTitle}>Dernière gazette</h3>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Dernière gazette</h3>
           {data.latestGazette ? (
             <>
-              <p style={styles.cardBody}>{data.latestGazette.title}</p>
-              <p style={styles.cardMeta}>{data.latestGazette.date}</p>
-              <Link to="/gazettes" style={styles.cardLink}>
+              <p className="text-[15px] leading-relaxed text-text-dark">{data.latestGazette.title}</p>
+              <p className="text-[13px] text-text-light">{data.latestGazette.date}</p>
+              <Link to="/gazettes" className="mt-auto pt-2 text-sm font-bold text-brown-light no-underline hover:underline">
                 Voir les gazettes
               </Link>
             </>
           ) : (
-            <p style={styles.cardBody}>Aucune gazette disponible.</p>
+            <p className="text-[15px] leading-relaxed text-text-dark">Aucune gazette disponible.</p>
           )}
         </div>
       </div>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-    marginBottom: 28,
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: 20,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: '24px',
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: '#7A6555',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  cardMeta: {
-    fontSize: 13,
-    color: '#A89279',
-  },
-  cardBody: {
-    fontSize: 15,
-    lineHeight: 1.5,
-    color: '#3D2C1E',
-  },
-  bigNumber: {
-    fontSize: 42,
-    fontWeight: 700,
-    color: '#8B6F47',
-    lineHeight: 1,
-  },
-  cardLink: {
-    marginTop: 'auto',
-    fontSize: 14,
-    fontWeight: 700,
-    color: '#8B6F47',
-    textDecoration: 'none',
-    paddingTop: 8,
-  },
-  trendLabel: {
-    fontSize: 13,
-    color: '#A89279',
-    marginBottom: 2,
-  },
-  trendValue: {
-    fontSize: 16,
-    fontWeight: 700,
-  },
 };
 
 export default DashboardPage;

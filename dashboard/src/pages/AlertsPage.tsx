@@ -10,13 +10,31 @@ interface Alert {
   read: boolean;
 }
 
-const SEVERITY_STYLES: Record<
+const SEVERITY_MAP: Record<
   string,
-  { bg: string; border: string; label: string; color: string }
+  { bgClass: string; borderColor: string; label: string; badgeBg: string; badgeText: string }
 > = {
-  low: { bg: '#F0FAF0', border: '#7FB069', label: 'Faible', color: '#3D7A28' },
-  medium: { bg: '#FFF8EB', border: '#E6B333', label: 'Moyen', color: '#92700C' },
-  high: { bg: '#FDE8E8', border: '#D14343', label: 'Élevé', color: '#B91C1C' },
+  low: {
+    bgClass: 'bg-success-bg',
+    borderColor: '#7FB069',
+    label: 'Faible',
+    badgeBg: 'bg-green-light/15',
+    badgeText: 'text-green-dark',
+  },
+  medium: {
+    bgClass: 'bg-[#FFF8EB]',
+    borderColor: '#E6B333',
+    label: 'Moyen',
+    badgeBg: 'bg-yellow-warm/15',
+    badgeText: 'text-yellow-dark',
+  },
+  high: {
+    bgClass: 'bg-error-bg',
+    borderColor: '#D14343',
+    label: 'Élevé',
+    badgeBg: 'bg-red-500/15',
+    badgeText: 'text-error-text',
+  },
 };
 
 const AlertsPage: React.FC = () => {
@@ -28,7 +46,6 @@ const AlertsPage: React.FC = () => {
   const [wsBanner, setWsBanner] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
-  // Resolve senior id
   useEffect(() => {
     resolveSeniorId().then(setSeniorId).catch(() => setSeniorId(null));
   }, []);
@@ -53,7 +70,6 @@ const AlertsPage: React.FC = () => {
     load();
   }, [load]);
 
-  // WebSocket for real-time notifications
   useEffect(() => {
     let ws: WebSocket | null = null;
 
@@ -78,9 +94,7 @@ const AlertsPage: React.FC = () => {
           }
         };
 
-        ws.onerror = () => {
-          // WebSocket not available, silently ignore
-        };
+        ws.onerror = () => {};
       } catch {
         // auth/me failed, no WS
       }
@@ -114,10 +128,10 @@ const AlertsPage: React.FC = () => {
     <div>
       {/* WebSocket banner */}
       {wsBanner && (
-        <div style={styles.wsBanner}>
+        <div className="mb-[18px] flex items-center gap-3 rounded-[10px] border border-yellow-warm bg-[#FFF8EB] px-[18px] py-2.5 text-sm font-semibold text-yellow-dark">
           <span>Nouvelle alerte reçue</span>
           <button
-            style={styles.wsRefreshBtn}
+            className="rounded-lg border border-yellow-warm bg-white px-3.5 py-1 font-body text-[13px] font-bold text-brown-light cursor-pointer"
             onClick={() => {
               setWsBanner(false);
               load();
@@ -126,7 +140,7 @@ const AlertsPage: React.FC = () => {
             Rafraîchir
           </button>
           <button
-            style={styles.wsDismissBtn}
+            className="ml-auto rounded-md border-none bg-transparent p-1 text-base font-bold text-text-light cursor-pointer"
             onClick={() => setWsBanner(false)}
             aria-label="Fermer"
           >
@@ -135,64 +149,58 @@ const AlertsPage: React.FC = () => {
         </div>
       )}
 
-      <div style={styles.header}>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 style={styles.pageTitle}>
+          <h2 className="mb-1 flex items-center gap-2.5 font-heading text-[28px] text-text-dark">
             Alertes
             {unreadCount > 0 && (
-              <span style={styles.unreadBadge}>{unreadCount}</span>
+              <span className="rounded-full bg-amber-warm px-2.5 py-0.5 font-body text-[13px] font-bold leading-5 text-white">
+                {unreadCount}
+              </span>
             )}
           </h2>
-          <p style={styles.subtitle}>
+          <p className="text-[15px] text-text-muted">
             Notifications concernant la santé cognitive de votre proche.
           </p>
         </div>
-        <label style={styles.filterLabel}>
+        <label className="flex cursor-pointer items-center gap-2 pt-2 text-sm font-semibold text-text-muted">
           <input
             type="checkbox"
             checked={showUnreadOnly}
             onChange={(e) => setShowUnreadOnly(e.target.checked)}
-            style={styles.checkbox}
+            className="h-4 w-4 accent-brown-light"
           />
           Non lues uniquement
         </label>
       </div>
 
       {loading ? (
-        <p style={{ color: '#7A6555', padding: 20 }}>Chargement...</p>
+        <p className="p-5 text-text-muted">Chargement...</p>
       ) : error ? (
-        <p style={{ color: '#D14343', padding: 20 }}>
+        <p className="p-5 text-red-500">
           Erreur lors du chargement des alertes.
         </p>
       ) : alerts.length === 0 ? (
-        <div style={styles.emptyState}>
+        <div className="rounded-2xl bg-success-bg p-10 text-center text-base font-semibold text-green-light">
           <p>Aucune alerte pour le moment. Tout va bien !</p>
         </div>
       ) : (
-        <div style={styles.list}>
+        <div className="flex flex-col gap-3.5">
           {alerts.map((alert) => {
-            const sev = SEVERITY_STYLES[alert.severity] || SEVERITY_STYLES.low;
+            const sev = SEVERITY_MAP[alert.severity] || SEVERITY_MAP.low;
             return (
               <div
                 key={alert.id}
-                style={{
-                  ...styles.card,
-                  borderLeft: `4px solid ${sev.border}`,
-                  backgroundColor: alert.read ? '#FFFFFF' : sev.bg,
-                  opacity: alert.read ? 0.75 : 1,
-                }}
+                className={`flex flex-col gap-2 rounded-xl border-l-4 px-[22px] py-[18px] shadow-sm ${
+                  alert.read ? 'bg-white opacity-75' : sev.bgClass
+                }`}
+                style={{ borderLeftColor: sev.borderColor }}
               >
-                <div style={styles.cardTop}>
-                  <span
-                    style={{
-                      ...styles.severityBadge,
-                      backgroundColor: sev.border + '22',
-                      color: sev.color,
-                    }}
-                  >
+                <div className="flex items-center justify-between">
+                  <span className={`rounded-[10px] px-2.5 py-[3px] text-xs font-bold ${sev.badgeBg} ${sev.badgeText}`}>
                     {sev.label}
                   </span>
-                  <span style={styles.date}>
+                  <span className="text-[13px] text-text-light">
                     {alert.created_at
                       ? new Date(alert.created_at).toLocaleDateString('fr-FR', {
                           day: 'numeric',
@@ -204,11 +212,11 @@ const AlertsPage: React.FC = () => {
                       : ''}
                   </span>
                 </div>
-                <h3 style={styles.cardTitle}>{alert.title}</h3>
-                <p style={styles.cardMessage}>{alert.message}</p>
+                <h3 className="text-base font-bold text-text-dark">{alert.title}</h3>
+                <p className="text-sm leading-relaxed text-text-dark/80">{alert.message}</p>
                 {!alert.read && (
                   <button
-                    style={styles.markReadBtn}
+                    className="mt-1 self-start rounded-lg border border-beige bg-white px-4 py-1.5 font-body text-[13px] font-semibold text-brown-light cursor-pointer hover:bg-cream"
                     onClick={() => handleMarkRead(alert.id)}
                   >
                     Marquer comme lu
@@ -221,150 +229,6 @@ const AlertsPage: React.FC = () => {
       )}
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  wsBanner: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#FFF8EB',
-    border: '1px solid #E6B333',
-    borderRadius: 10,
-    padding: '10px 18px',
-    marginBottom: 18,
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#92700C',
-  },
-  wsRefreshBtn: {
-    padding: '4px 14px',
-    borderRadius: 8,
-    border: '1px solid #E6B333',
-    backgroundColor: '#FFFFFF',
-    fontFamily: "'Nunito', sans-serif",
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#8B6F47',
-    cursor: 'pointer',
-  },
-  wsDismissBtn: {
-    marginLeft: 'auto',
-    padding: '2px 8px',
-    borderRadius: 6,
-    border: 'none',
-    backgroundColor: 'transparent',
-    fontSize: 16,
-    fontWeight: 700,
-    color: '#A89279',
-    cursor: 'pointer',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-    gap: 16,
-    marginBottom: 24,
-  },
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-  },
-  unreadBadge: {
-    backgroundColor: '#D97706',
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 700,
-    fontFamily: "'Nunito', sans-serif",
-    borderRadius: 99,
-    padding: '2px 10px',
-    lineHeight: '20px',
-  },
-  filterLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#7A6555',
-    cursor: 'pointer',
-    paddingTop: 8,
-  },
-  checkbox: {
-    width: 16,
-    height: 16,
-    accentColor: '#8B6F47',
-  },
-  list: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-  },
-  card: {
-    borderRadius: 12,
-    padding: '18px 22px',
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  },
-  cardTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  severityBadge: {
-    fontSize: 12,
-    fontWeight: 700,
-    padding: '3px 10px',
-    borderRadius: 10,
-  },
-  date: {
-    fontSize: 13,
-    color: '#A89279',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: '#3D2C1E',
-  },
-  cardMessage: {
-    fontSize: 14,
-    lineHeight: 1.5,
-    color: '#5C4A3A',
-  },
-  markReadBtn: {
-    alignSelf: 'flex-start',
-    marginTop: 4,
-    padding: '6px 16px',
-    borderRadius: 8,
-    border: '1px solid #F5E6D3',
-    backgroundColor: '#FFFFFF',
-    fontFamily: "'Nunito', sans-serif",
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#8B6F47',
-    cursor: 'pointer',
-  },
-  emptyState: {
-    textAlign: 'center',
-    padding: 40,
-    color: '#7FB069',
-    fontSize: 16,
-    fontWeight: 600,
-    backgroundColor: '#F0FAF0',
-    borderRadius: 14,
-  },
 };
 
 export default AlertsPage;

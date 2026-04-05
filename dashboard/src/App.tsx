@@ -10,26 +10,6 @@ import GazettesPage from './pages/GazettesPage';
 import MetricsPage from './pages/MetricsPage';
 import SettingsPage from './pages/SettingsPage';
 
-/* ---------- Global reset ---------- */
-if (typeof document !== 'undefined') {
-  const id = 'memoria-global-styles';
-  if (!document.getElementById(id)) {
-    const style = document.createElement('style');
-    style.id = id;
-    style.textContent = `
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        font-family: 'Nunito', sans-serif;
-        background: #FFF8F0;
-        color: #3D2C1E;
-        -webkit-font-smoothing: antialiased;
-      }
-      a { color: inherit; }
-    `;
-    document.head.appendChild(style);
-  }
-}
-
 const Guarded: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ProtectedRoute>
     <Layout>{children}</Layout>

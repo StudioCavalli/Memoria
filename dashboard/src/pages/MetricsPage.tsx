@@ -24,10 +24,10 @@ interface MetricsSummary {
 
 const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
 
-const TREND_LABELS: Record<string, { label: string; color: string; arrow: string }> = {
-  increasing: { label: 'En hausse', color: '#7FB069', arrow: '↑' },
-  stable: { label: 'Stable', color: '#E6B333', arrow: '→' },
-  decreasing: { label: 'En baisse', color: '#D14343', arrow: '↓' },
+const TREND_LABELS: Record<string, { label: string; colorClass: string; arrow: string }> = {
+  increasing: { label: 'En hausse', colorClass: 'text-green-light', arrow: '↑' },
+  stable: { label: 'Stable', colorClass: 'text-yellow-warm', arrow: '→' },
+  decreasing: { label: 'En baisse', colorClass: 'text-red-500', arrow: '↓' },
 };
 
 const MetricsPage: React.FC = () => {
@@ -70,21 +70,21 @@ const MetricsPage: React.FC = () => {
   const latTrend = TREND_LABELS[summary.latency_trend] || TREND_LABELS.stable;
 
   if (loading) {
-    return <p style={{ padding: 32, color: '#7A6555' }}>Chargement...</p>;
+    return <p className="p-8 text-text-muted">Chargement...</p>;
   }
 
   return (
     <div>
-      <h2 style={styles.pageTitle}>Suivi cognitif</h2>
-      <p style={styles.subtitle}>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Suivi cognitif</h2>
+      <p className="mb-7 text-[15px] text-text-muted">
         Évolution des indicateurs cognitifs sur les 30 derniers jours.
       </p>
 
       {/* Vitality gauge + trend cards */}
-      <div style={styles.topRow}>
+      <div className="mb-6 flex flex-wrap gap-[18px]">
         {/* Vitality score */}
-        <div style={{ ...styles.card, alignItems: 'center', minWidth: 200 }}>
-          <h3 style={styles.cardLabel}>Score de vitalité</h3>
+        <div className="flex min-w-[200px] flex-1 flex-col items-center gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Score de vitalité</h3>
           <svg viewBox="0 0 160 95" width="180" height="105">
             <path
               d="M15 80 A65 65 0 0 1 145 80"
@@ -132,35 +132,27 @@ const MetricsPage: React.FC = () => {
         </div>
 
         {/* Semantic trend */}
-        <div style={styles.card}>
-          <h3 style={styles.cardLabel}>Richesse sémantique</h3>
-          <div style={styles.trendRow}>
-            <span style={{ ...styles.trendArrow, color: semTrend.color }}>
-              {semTrend.arrow}
-            </span>
-            <span style={{ ...styles.trendText, color: semTrend.color }}>
-              {semTrend.label}
-            </span>
+        <div className="flex min-w-[160px] flex-1 flex-col gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Richesse sémantique</h3>
+          <div className="flex items-center gap-2.5">
+            <span className={`text-[28px] font-bold ${semTrend.colorClass}`}>{semTrend.arrow}</span>
+            <span className={`text-lg font-bold ${semTrend.colorClass}`}>{semTrend.label}</span>
           </div>
         </div>
 
         {/* Latency trend */}
-        <div style={styles.card}>
-          <h3 style={styles.cardLabel}>Temps de réponse</h3>
-          <div style={styles.trendRow}>
-            <span style={{ ...styles.trendArrow, color: latTrend.color }}>
-              {latTrend.arrow}
-            </span>
-            <span style={{ ...styles.trendText, color: latTrend.color }}>
-              {latTrend.label}
-            </span>
+        <div className="flex min-w-[160px] flex-1 flex-col gap-3 rounded-2xl bg-white p-[22px] shadow-sm">
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-text-muted">Temps de réponse</h3>
+          <div className="flex items-center gap-2.5">
+            <span className={`text-[28px] font-bold ${latTrend.colorClass}`}>{latTrend.arrow}</span>
+            <span className={`text-lg font-bold ${latTrend.colorClass}`}>{latTrend.label}</span>
           </div>
         </div>
       </div>
 
       {/* Semantic richness chart */}
-      <div style={styles.chartCard}>
-        <h3 style={styles.chartTitle}>Richesse sémantique (30 jours)</h3>
+      <div className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-base font-bold text-text-dark">Richesse sémantique (30 jours)</h3>
         {history.length > 0 ? (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={history}>
@@ -196,13 +188,13 @@ const MetricsPage: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p style={styles.noData}>Pas de données disponibles.</p>
+          <p className="p-8 text-center text-text-muted">Pas de données disponibles.</p>
         )}
       </div>
 
       {/* Response latency chart */}
-      <div style={styles.chartCard}>
-        <h3 style={styles.chartTitle}>Temps de réponse (30 jours)</h3>
+      <div className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-base font-bold text-text-dark">Temps de réponse (30 jours)</h3>
         {history.length > 0 ? (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={history}>
@@ -239,80 +231,11 @@ const MetricsPage: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p style={styles.noData}>Pas de données disponibles.</p>
+          <p className="p-8 text-center text-text-muted">Pas de données disponibles.</p>
         )}
       </div>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-    marginBottom: 28,
-  },
-  topRow: {
-    display: 'flex',
-    gap: 18,
-    marginBottom: 24,
-    flexWrap: 'wrap',
-  },
-  card: {
-    flex: 1,
-    minWidth: 160,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 22,
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-  },
-  cardLabel: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#7A6555',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  trendRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-  },
-  trendArrow: {
-    fontSize: 28,
-    fontWeight: 700,
-  },
-  trendText: {
-    fontSize: 18,
-    fontWeight: 700,
-  },
-  chartCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 24,
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    marginBottom: 20,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: '#3D2C1E',
-    marginBottom: 16,
-  },
-  noData: {
-    color: '#7A6555',
-    textAlign: 'center',
-    padding: 32,
-  },
 };
 
 export default MetricsPage;

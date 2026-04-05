@@ -32,7 +32,6 @@ const THEME_COLORS: Record<string, string> = {
 
 const getThemeColor = (name: string): string => {
   if (THEME_COLORS[name]) return THEME_COLORS[name];
-  // Deterministic color from name hash
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -56,18 +55,14 @@ const MemoriesPage: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [seniorId, setSeniorId] = useState<string | null>(null);
 
-  // Load themes once
   useEffect(() => {
     memoriesService.themes().then((res) => {
       const data = res.data;
       const list: Theme[] = Array.isArray(data) ? data : data.items ?? data.results ?? [];
       setThemes(list);
-    }).catch(() => {
-      // themes not available, use empty list
-    });
+    }).catch(() => {});
   }, []);
 
-  // Resolve senior id once
   useEffect(() => {
     resolveSeniorId().then(setSeniorId).catch(() => setSeniorId(null));
   }, []);
@@ -98,7 +93,6 @@ const MemoriesPage: React.FC = () => {
     load();
   }, [load]);
 
-  // Client-side search filter (backend doesn't support text search)
   const filtered = useMemo(() => {
     if (!search.trim()) return memories;
     const q = search.toLowerCase();
@@ -111,13 +105,11 @@ const MemoriesPage: React.FC = () => {
 
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
-  // Build theme buttons: "Tous" + real themes from API
   const themeButtons = useMemo(() => {
     const items: { id: string; name: string }[] = [{ id: '', name: 'Tous' }];
     for (const t of themes) {
       items.push({ id: t.id, name: t.name });
     }
-    // If no themes from API, add some defaults
     if (themes.length === 0) {
       for (const name of ['Enfance', 'Famille', 'Travail', 'Voyages', 'Loisirs']) {
         items.push({ id: name, name });
@@ -128,21 +120,21 @@ const MemoriesPage: React.FC = () => {
 
   return (
     <div>
-      <h2 style={styles.pageTitle}>Souvenirs</h2>
-      <p style={styles.subtitle}>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Souvenirs</h2>
+      <p className="mb-6 text-[15px] text-text-muted">
         Découvrez les souvenirs partagés par votre proche.
       </p>
 
       {/* Filters */}
-      <div style={styles.filters}>
+      <div className="mb-6 flex flex-col gap-3.5">
         <input
           type="text"
           placeholder="Rechercher un souvenir..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={styles.searchInput}
+          className="w-full max-w-[400px] rounded-[10px] border border-beige bg-white px-4 py-3 font-body text-[15px] outline-none focus:border-orange-soft"
         />
-        <div style={styles.themeRow}>
+        <div className="flex flex-wrap gap-2">
           {themeButtons.map((t) => (
             <button
               key={t.id}
@@ -150,10 +142,11 @@ const MemoriesPage: React.FC = () => {
                 setThemeFilter(t.id);
                 setPage(1);
               }}
-              style={{
-                ...styles.themeBtn,
-                ...(themeFilter === t.id ? styles.themeBtnActive : {}),
-              }}
+              className={`rounded-full border px-4 py-2 font-body text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+                themeFilter === t.id
+                  ? 'border-brown-light bg-brown-light text-white'
+                  : 'border-beige bg-white text-text-muted hover:bg-cream'
+              }`}
             >
               {t.name}
             </button>
@@ -163,22 +156,22 @@ const MemoriesPage: React.FC = () => {
 
       {/* Content */}
       {loading ? (
-        <p style={{ color: '#7A6555', padding: 20 }}>Chargement...</p>
+        <p className="p-5 text-text-muted">Chargement...</p>
       ) : error ? (
-        <p style={{ color: '#D14343', padding: 20 }}>
+        <p className="p-5 text-red-500">
           Erreur lors du chargement des souvenirs.
         </p>
       ) : filtered.length === 0 ? (
-        <p style={{ color: '#7A6555', padding: 20 }}>Aucun souvenir trouvé.</p>
+        <p className="p-5 text-text-muted">Aucun souvenir trouvé.</p>
       ) : (
-        <div style={styles.grid}>
+        <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {filtered.map((m) => {
             const isExpanded = expandedId === m.id;
             const themeList = m.theme_names ?? m.themes ?? [];
             return (
               <div
                 key={m.id}
-                style={styles.card}
+                className="flex cursor-pointer flex-col gap-2 rounded-2xl bg-white p-[22px] shadow-sm transition-shadow duration-200 hover:shadow-md"
                 onClick={() => setExpandedId(isExpanded ? null : m.id)}
                 role="button"
                 tabIndex={0}
@@ -186,32 +179,29 @@ const MemoriesPage: React.FC = () => {
                   if (e.key === 'Enter') setExpandedId(isExpanded ? null : m.id);
                 }}
               >
-                <h3 style={styles.cardTitle}>{m.title || 'Sans titre'}</h3>
-                {m.period && <p style={styles.cardPeriod}>{m.period}</p>}
+                <h3 className="text-[17px] font-bold text-text-dark">{m.title || 'Sans titre'}</h3>
+                {m.period && <p className="text-[13px] font-semibold text-text-light">{m.period}</p>}
                 {m.created_at && (
-                  <p style={styles.cardDate}>
+                  <p className="text-xs text-text-light">
                     {new Date(m.created_at).toLocaleDateString('fr-FR')}
                   </p>
                 )}
-                <p style={styles.cardSummary}>
+                <p className="flex-1 text-sm leading-relaxed text-text-dark/80">
                   {isExpanded
                     ? m.summary || 'Aucun résumé.'
                     : truncate(m.summary || 'Aucun résumé.', 150)}
                 </p>
                 {!isExpanded && m.summary && m.summary.length > 150 && (
-                  <span style={styles.readMore}>Lire la suite</span>
+                  <span className="text-[13px] font-bold text-brown-light">Lire la suite</span>
                 )}
-                <div style={styles.tags}>
+                <div className="mt-1 flex flex-wrap gap-1.5">
                   {themeList.map((t: string) => {
                     const color = getThemeColor(t);
                     return (
                       <span
                         key={t}
-                        style={{
-                          ...styles.tag,
-                          backgroundColor: color + '22',
-                          color,
-                        }}
+                        className="rounded-full px-2.5 py-1 text-xs font-bold"
+                        style={{ backgroundColor: color + '22', color }}
                       >
                         {t}
                       </span>
@@ -220,10 +210,9 @@ const MemoriesPage: React.FC = () => {
                 </div>
                 {m.session_id && (
                   <button
-                    style={styles.listenBtn}
+                    className="mt-1.5 self-start rounded-lg border border-orange-soft bg-cream px-4 py-1.5 font-body text-[13px] font-semibold text-brown-light cursor-pointer hover:bg-orange-soft/20"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Future: link to audio playback
                       alert('La réécoute audio sera bientôt disponible.');
                     }}
                   >
@@ -238,29 +227,21 @@ const MemoriesPage: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div style={styles.pagination}>
+        <div className="mt-7 flex items-center justify-center gap-4">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            style={{
-              ...styles.pageBtn,
-              opacity: page <= 1 ? 0.5 : 1,
-              cursor: page <= 1 ? 'default' : 'pointer',
-            }}
+            className="rounded-lg border border-beige bg-white px-[18px] py-2 font-body text-sm font-semibold text-brown-light cursor-pointer disabled:cursor-default disabled:opacity-50"
           >
             Précédent
           </button>
-          <span style={styles.pageInfo}>
+          <span className="text-sm font-semibold text-text-muted">
             Page {page} / {totalPages}
           </span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            style={{
-              ...styles.pageBtn,
-              opacity: page >= totalPages ? 0.5 : 1,
-              cursor: page >= totalPages ? 'default' : 'pointer',
-            }}
+            className="rounded-lg border border-beige bg-white px-[18px] py-2 font-body text-sm font-semibold text-brown-light cursor-pointer disabled:cursor-default disabled:opacity-50"
           >
             Suivant
           </button>
@@ -268,147 +249,6 @@ const MemoriesPage: React.FC = () => {
       )}
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-    marginBottom: 24,
-  },
-  filters: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-    marginBottom: 24,
-  },
-  searchInput: {
-    padding: '12px 16px',
-    borderRadius: 10,
-    border: '1px solid #F5E6D3',
-    fontSize: 15,
-    fontFamily: "'Nunito', sans-serif",
-    backgroundColor: '#FFFFFF',
-    outline: 'none',
-    maxWidth: 400,
-    width: '100%',
-  },
-  themeRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  themeBtn: {
-    padding: '8px 16px',
-    borderRadius: 20,
-    border: '1px solid #F5E6D3',
-    backgroundColor: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 600,
-    fontFamily: "'Nunito', sans-serif",
-    cursor: 'pointer',
-    color: '#7A6555',
-    transition: 'all 0.2s',
-  },
-  themeBtnActive: {
-    backgroundColor: '#8B6F47',
-    color: '#FFFFFF',
-    borderColor: '#8B6F47',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: 18,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 22,
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    cursor: 'pointer',
-    transition: 'box-shadow 0.2s',
-  },
-  cardTitle: {
-    fontSize: 17,
-    fontWeight: 700,
-    color: '#3D2C1E',
-  },
-  cardPeriod: {
-    fontSize: 13,
-    color: '#A89279',
-    fontWeight: 600,
-  },
-  cardDate: {
-    fontSize: 12,
-    color: '#A89279',
-  },
-  cardSummary: {
-    fontSize: 14,
-    lineHeight: 1.5,
-    color: '#5C4A3A',
-    flex: 1,
-  },
-  readMore: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#8B6F47',
-  },
-  tags: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 4,
-  },
-  tag: {
-    fontSize: 12,
-    fontWeight: 700,
-    padding: '4px 10px',
-    borderRadius: 12,
-  },
-  listenBtn: {
-    alignSelf: 'flex-start',
-    marginTop: 6,
-    padding: '6px 16px',
-    borderRadius: 8,
-    border: '1px solid #E8A87C',
-    backgroundColor: '#FFF8F0',
-    fontFamily: "'Nunito', sans-serif",
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#8B6F47',
-    cursor: 'pointer',
-  },
-  pagination: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-    marginTop: 28,
-  },
-  pageBtn: {
-    padding: '8px 18px',
-    borderRadius: 8,
-    border: '1px solid #F5E6D3',
-    backgroundColor: '#FFFFFF',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 600,
-    fontSize: 14,
-    color: '#8B6F47',
-  },
-  pageInfo: {
-    fontSize: 14,
-    color: '#7A6555',
-    fontWeight: 600,
-  },
 };
 
 export default MemoriesPage;

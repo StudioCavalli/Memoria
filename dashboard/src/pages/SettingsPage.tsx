@@ -228,12 +228,12 @@ const SettingsPage: React.FC = () => {
   };
 
   if (loading) {
-    return <p style={{ padding: 32, color: '#7A6555' }}>Chargement...</p>;
+    return <p className="p-8 text-text-muted">Chargement...</p>;
   }
 
   if (error && !seniorId) {
     return (
-      <p style={{ padding: 32, color: '#D14343' }}>
+      <p className="p-8 text-red-500">
         Erreur lors du chargement des paramètres.
       </p>
     );
@@ -243,16 +243,15 @@ const SettingsPage: React.FC = () => {
     <div>
       {/* Toast container */}
       {toasts.length > 0 && (
-        <div style={styles.toastContainer}>
+        <div className="fixed top-5 right-5 z-[9999] flex flex-col gap-2">
           {toasts.map((t) => (
             <div
               key={t.id}
-              style={{
-                ...styles.toast,
-                backgroundColor: t.type === 'success' ? '#F0FAF0' : '#FDE8E8',
-                borderColor: t.type === 'success' ? '#7FB069' : '#D14343',
-                color: t.type === 'success' ? '#3D7A28' : '#B91C1C',
-              }}
+              className={`rounded-[10px] border px-5 py-3 font-body text-sm font-semibold shadow-lg animate-in fade-in ${
+                t.type === 'success'
+                  ? 'border-green-light bg-success-bg text-green-dark'
+                  : 'border-red-500 bg-error-bg text-error-text'
+              }`}
             >
               {t.message}
             </div>
@@ -260,16 +259,16 @@ const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      <h2 style={styles.pageTitle}>Paramètres</h2>
-      <p style={styles.subtitle}>
+      <h2 className="mb-1 font-heading text-[28px] text-text-dark">Paramètres</h2>
+      <p className="mb-7 text-[15px] text-text-muted">
         Gérez le profil de votre proche et vos préférences.
       </p>
 
       {/* Senior profile */}
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Profil du proche</h3>
-        <div style={styles.formGrid}>
-          <label style={styles.label}>
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">Profil du proche</h3>
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Prénom
             <input
               type="text"
@@ -277,10 +276,10 @@ const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 setProfile((p) => ({ ...p, first_name: e.target.value }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
-          <label style={styles.label}>
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Nom de famille
             <input
               type="text"
@@ -288,10 +287,10 @@ const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 setProfile((p) => ({ ...p, last_name: e.target.value }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
-          <label style={styles.label}>
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Date de naissance
             <input
               type="date"
@@ -299,10 +298,10 @@ const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 setProfile((p) => ({ ...p, birth_date: e.target.value }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
-          <label style={styles.label}>
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Lieu de naissance
             <input
               type="text"
@@ -310,16 +309,13 @@ const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 setProfile((p) => ({ ...p, birth_place: e.target.value }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
         </div>
-        <div style={styles.btnRow}>
+        <div className="flex items-center gap-3.5">
           <button
-            style={{
-              ...styles.saveBtn,
-              opacity: savingProfile ? 0.6 : 1,
-            }}
+            className="rounded-[10px] border-none bg-brown-light px-6 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark disabled:opacity-60"
             onClick={saveProfile}
             disabled={savingProfile}
           >
@@ -329,27 +325,28 @@ const SettingsPage: React.FC = () => {
       </section>
 
       {/* Session schedule */}
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Planning des sessions</h3>
-        <p style={styles.hint}>
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">Planning des sessions</h3>
+        <p className="mb-3 text-sm text-text-muted">
           Choisissez les jours et l'heure des sessions de réminiscence.
         </p>
-        <div style={styles.daysRow}>
+        <div className="mb-4 flex flex-wrap gap-2">
           {DAYS_OF_WEEK.map((day) => (
             <button
               key={day}
               onClick={() => toggleDay(day)}
-              style={{
-                ...styles.dayBtn,
-                ...(schedule.days.includes(day) ? styles.dayBtnActive : {}),
-              }}
+              className={`rounded-full border px-3.5 py-2 font-body text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+                schedule.days.includes(day)
+                  ? 'border-brown-light bg-brown-light text-white'
+                  : 'border-beige bg-white text-text-muted hover:bg-cream'
+              }`}
             >
               {day.slice(0, 3)}
             </button>
           ))}
         </div>
-        <div style={styles.formGrid}>
-          <label style={styles.label}>
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Heure
             <input
               type="time"
@@ -357,10 +354,10 @@ const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 setSchedule((s) => ({ ...s, time: e.target.value }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
-          <label style={styles.label}>
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
             Durée (minutes)
             <input
               type="number"
@@ -373,16 +370,13 @@ const SettingsPage: React.FC = () => {
                   duration_minutes: parseInt(e.target.value) || 30,
                 }))
               }
-              style={styles.input}
+              className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
             />
           </label>
         </div>
-        <div style={styles.btnRow}>
+        <div className="flex items-center gap-3.5">
           <button
-            style={{
-              ...styles.saveBtn,
-              opacity: savingSchedule ? 0.6 : 1,
-            }}
+            className="rounded-[10px] border-none bg-brown-light px-6 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark disabled:opacity-60"
             onClick={saveSchedule}
             disabled={savingSchedule}
           >
@@ -392,49 +386,46 @@ const SettingsPage: React.FC = () => {
       </section>
 
       {/* Notification preferences */}
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Notifications</h3>
-        <div style={styles.checkGroup}>
-          <label style={styles.checkLabel}>
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">Notifications</h3>
+        <div className="mb-4 flex flex-col gap-3">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
               type="checkbox"
               checked={notifs.email_alerts}
               onChange={(e) =>
                 setNotifs((n) => ({ ...n, email_alerts: e.target.checked }))
               }
-              style={styles.checkbox}
+              className="h-[18px] w-[18px] accent-brown-light"
             />
             Recevoir les alertes par e-mail
           </label>
-          <label style={styles.checkLabel}>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
               type="checkbox"
               checked={notifs.email_gazette}
               onChange={(e) =>
                 setNotifs((n) => ({ ...n, email_gazette: e.target.checked }))
               }
-              style={styles.checkbox}
+              className="h-[18px] w-[18px] accent-brown-light"
             />
             Recevoir les gazettes par e-mail
           </label>
-          <label style={styles.checkLabel}>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text-dark">
             <input
               type="checkbox"
               checked={notifs.push_enabled}
               onChange={(e) =>
                 setNotifs((n) => ({ ...n, push_enabled: e.target.checked }))
               }
-              style={styles.checkbox}
+              className="h-[18px] w-[18px] accent-brown-light"
             />
             Notifications push (navigateur)
           </label>
         </div>
-        <div style={styles.btnRow}>
+        <div className="flex items-center gap-3.5">
           <button
-            style={{
-              ...styles.saveBtn,
-              opacity: savingNotifs ? 0.6 : 1,
-            }}
+            className="rounded-[10px] border-none bg-brown-light px-6 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark disabled:opacity-60"
             onClick={saveNotifs}
             disabled={savingNotifs}
           >
@@ -444,23 +435,23 @@ const SettingsPage: React.FC = () => {
       </section>
 
       {/* Family members */}
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Membres de la famille</h3>
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">Membres de la famille</h3>
         {family.length === 0 ? (
-          <p style={{ color: '#7A6555', fontSize: 14 }}>
+          <p className="text-sm text-text-muted">
             Aucun membre ajouté pour l'instant.
           </p>
         ) : (
-          <div style={styles.familyList}>
+          <div className="flex flex-col gap-3">
             {family.map((m) => (
-              <div key={m.id} style={styles.familyCard}>
-                <div style={styles.avatar}>
+              <div key={m.id} className="flex items-center gap-3.5 rounded-[10px] bg-cream px-4 py-3">
+                <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-orange-soft text-lg font-bold text-white">
                   {(m.name || '?').charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p style={styles.familyName}>{m.name}</p>
-                  <p style={styles.familyEmail}>{m.email}</p>
-                  {m.role && <p style={styles.familyRole}>{m.role}</p>}
+                  <p className="text-[15px] font-bold text-text-dark">{m.name}</p>
+                  <p className="text-[13px] text-text-muted">{m.email}</p>
+                  {m.role && <p className="text-xs font-semibold text-text-light">{m.role}</p>}
                 </div>
               </div>
             ))}
@@ -469,21 +460,24 @@ const SettingsPage: React.FC = () => {
       </section>
 
       {/* GDPR section */}
-      <section style={styles.section}>
-        <h3 style={styles.sectionTitle}>Données personnelles (RGPD)</h3>
-        <p style={styles.hint}>
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">Données personnelles (RGPD)</h3>
+        <p className="mb-3 text-sm text-text-muted">
           Conformément au RGPD, vous pouvez exporter ou supprimer vos données à tout moment.
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>
-          <button style={styles.exportBtn} onClick={handleExportData}>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <button
+            className="rounded-[10px] border border-brown-light bg-white px-6 py-2.5 font-body text-sm font-bold text-brown-light cursor-pointer hover:bg-cream"
+            onClick={handleExportData}
+          >
             Exporter mes données
           </button>
           <button
-            style={{
-              ...styles.deleteBtn,
-              backgroundColor: deleteConfirm ? '#B91C1C' : '#FDE8E8',
-              color: deleteConfirm ? '#FFFFFF' : '#B91C1C',
-            }}
+            className={`rounded-[10px] border border-red-500 px-6 py-2.5 font-body text-sm font-bold cursor-pointer transition-colors duration-200 ${
+              deleteConfirm
+                ? 'bg-error-text text-white'
+                : 'bg-error-bg text-error-text'
+            }`}
             onClick={handleDeleteAccount}
           >
             {deleteConfirm
@@ -492,7 +486,7 @@ const SettingsPage: React.FC = () => {
           </button>
           {deleteConfirm && (
             <button
-              style={styles.cancelBtn}
+              className="rounded-[10px] border border-beige bg-white px-6 py-2.5 font-body text-sm font-semibold text-text-muted cursor-pointer hover:bg-cream"
               onClick={() => setDeleteConfirm(false)}
             >
               Annuler
@@ -500,7 +494,7 @@ const SettingsPage: React.FC = () => {
           )}
         </div>
         {deleteConfirm && (
-          <p style={{ color: '#B91C1C', fontSize: 13, marginTop: 8 }}>
+          <p className="mt-2 text-[13px] text-error-text">
             Attention : cette action est irréversible. Toutes vos données seront
             définitivement supprimées.
           </p>
@@ -508,210 +502,6 @@ const SettingsPage: React.FC = () => {
       </section>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  toastContainer: {
-    position: 'fixed',
-    top: 20,
-    right: 20,
-    zIndex: 9999,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  },
-  toast: {
-    padding: '12px 20px',
-    borderRadius: 10,
-    border: '1px solid',
-    fontSize: 14,
-    fontWeight: 600,
-    fontFamily: "'Nunito', sans-serif",
-    boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-    animation: 'fadeIn 0.2s ease-in',
-  },
-  pageTitle: {
-    fontFamily: "'Merriweather', serif",
-    fontSize: 28,
-    color: '#3D2C1E',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#7A6555',
-    fontSize: 15,
-    marginBottom: 28,
-  },
-  section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 24,
-    boxShadow: '0 2px 12px rgba(139,111,71,0.06)',
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: '#3D2C1E',
-    marginBottom: 16,
-  },
-  hint: {
-    fontSize: 14,
-    color: '#7A6555',
-    marginBottom: 12,
-  },
-  formGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: 16,
-    marginBottom: 16,
-  },
-  label: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 6,
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#3D2C1E',
-  },
-  input: {
-    padding: '10px 14px',
-    borderRadius: 10,
-    border: '1px solid #F5E6D3',
-    fontSize: 15,
-    fontFamily: "'Nunito', sans-serif",
-    outline: 'none',
-    backgroundColor: '#FFF8F0',
-  },
-  daysRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  dayBtn: {
-    padding: '8px 14px',
-    borderRadius: 20,
-    border: '1px solid #F5E6D3',
-    backgroundColor: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 600,
-    fontFamily: "'Nunito', sans-serif",
-    cursor: 'pointer',
-    color: '#7A6555',
-    transition: 'all 0.2s',
-  },
-  dayBtnActive: {
-    backgroundColor: '#8B6F47',
-    color: '#FFFFFF',
-    borderColor: '#8B6F47',
-  },
-  checkGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    marginBottom: 16,
-  },
-  checkLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#3D2C1E',
-    cursor: 'pointer',
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    accentColor: '#8B6F47',
-  },
-  btnRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 14,
-  },
-  saveBtn: {
-    padding: '10px 24px',
-    borderRadius: 10,
-    border: 'none',
-    backgroundColor: '#8B6F47',
-    color: '#FFFFFF',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: 'pointer',
-  },
-  exportBtn: {
-    padding: '10px 24px',
-    borderRadius: 10,
-    border: '1px solid #8B6F47',
-    backgroundColor: '#FFFFFF',
-    color: '#8B6F47',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: 'pointer',
-  },
-  deleteBtn: {
-    padding: '10px 24px',
-    borderRadius: 10,
-    border: '1px solid #D14343',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: 'pointer',
-  },
-  cancelBtn: {
-    padding: '10px 24px',
-    borderRadius: 10,
-    border: '1px solid #F5E6D3',
-    backgroundColor: '#FFFFFF',
-    color: '#7A6555',
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 600,
-    fontSize: 14,
-    cursor: 'pointer',
-  },
-  familyList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-  },
-  familyCard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 14,
-    padding: '12px 16px',
-    backgroundColor: '#FFF8F0',
-    borderRadius: 10,
-  },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: '50%',
-    backgroundColor: '#E8A87C',
-    color: '#FFFFFF',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 18,
-    fontWeight: 700,
-    flexShrink: 0,
-  },
-  familyName: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: '#3D2C1E',
-  },
-  familyEmail: {
-    fontSize: 13,
-    color: '#7A6555',
-  },
-  familyRole: {
-    fontSize: 12,
-    color: '#A89279',
-    fontWeight: 600,
-  },
 };
 
 export default SettingsPage;
