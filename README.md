@@ -131,31 +131,60 @@ Audio <── Haut-parleur <── WebSocket <── TTS (ElevenLabs) <── LL
 
 ```
 app/src/
-  screens/HomeScreen.tsx    Écran unique : bouton central, horloge, salutations contextuelles
-  components/MainButton.tsx Bouton 160x160, 4 états (idle/listening/thinking/speaking), haptic
-  components/WaveAnimation.tsx  Onde sonore réactive, points pulsants, 60fps (Reanimated)
-  services/api.ts           REST + WebSocket VoicePipeline client
-  services/audio.ts         Capture micro (expo-av), lecture TTS, permissions
-  constants/theme.ts        Palette WCAG AAA, polices 24-64pt, espacements
+  screens/SetupScreen.tsx     Configuration initiale : PIN → login → sélection senior
+  screens/HomeScreen.tsx      Écran principal : bouton, horloge, salutation personnalisée
+  components/MainButton.tsx   Bouton 160x160, 4 états visuels, retour haptique
+  components/WaveAnimation.tsx  Onde sonore réactive 60fps (Reanimated)
+  services/api.ts             REST + WebSocket VoicePipeline client
+  services/audio.ts           Capture micro (expo-av), lecture TTS, permissions
+  services/storage.ts         AsyncStorage : pairing tablette ↔ senior
+  constants/theme.ts          Palette Memoria (même que le site via NativeWind)
+```
+
+**Pairing tablette ↔ senior (premier lancement) :**
+1. L'app demande un **code PIN** (1234) — seul le proche/aidant le connaît
+2. Le proche entre ses **identifiants Memoria** (email + mot de passe)
+3. L'app se connecte au backend (`POST /api/auth/login`) et récupère la liste des seniors
+4. Sélection du senior → `senior_id`, `senior_name`, `api_token`, `api_url` sauvés dans **AsyncStorage**
+5. Les lancements suivants vont directement au HomeScreen avec "Bonjour Jeanne"
+
+**Paramètres cachés :** appui long (3s) sur l'horloge → PIN → panneau settings (changer senior, URL serveur, réinitialiser)
+
+**Lien tablette ↔ dashboard :**
+```
+Même compte famille (demo@memoria.fr)
+        │
+   ┌────┴────┐
+   ▼         ▼
+TABLETTE   DASHBOARD
+(senior_id=1)
+   │         │
+   └────┬────┘
+        ▼
+  JEANNE MARTIN
+  (sessions, souvenirs, métriques, alertes)
 ```
 
 **Pipeline vocal (WebSocket) :**
 - Appui sur le bouton → enregistrement audio (expo-av)
-- Relâchement → lecture du fichier audio (expo-file-system) → envoi en ArrayBuffer via WebSocket `VoicePipeline`
-- Réception des events : `status` (listening/thinking/speaking), `response_text`, `silence_detected`
-- Réception audio binaire TTS → écriture fichier temp → lecture via expo-av
+- Relâchement → lecture fichier audio (expo-file-system) → envoi ArrayBuffer via WebSocket
+- Réception events : `status` (listening/thinking/speaking), `response_text`, `silence_detected`
+- Réception audio TTS binaire → écriture fichier temp → lecture via expo-av
 - Interruption : appuyer pendant que l'IA parle coupe la réponse
 - Appui long : fin de session
-- Reconnexion automatique en cas de perte WebSocket
-- Mode dégradé : message bienveillant si l'API est injoignable
+- Reconnexion automatique + mode dégradé si API injoignable
+
+**Design (NativeWind — même palette Tailwind que le site) :**
+- Fond cream `#FFF8F0`, bouton brown `#7D6340`, écoute orange `#E8A87C`, parole green `#4A7A35`
+- Classes partagées : `bg-cream`, `text-brown`, `rounded-2xl` — identiques au site web
 
 **Principes UX :**
 - **Zéro friction** : un seul bouton, pas de menu, pas de navigation
-- **Accessibilité 80+** : police 28pt minimum, contraste 7:1 (WCAG AAA), zone tactile 64x64dp
-- **Mode kiosque** : app toujours au premier plan, démarrage automatique au boot
-- **Feedback visuel** : animation d'onde quand l'IA écoute, points quand elle réfléchit, onde différente quand elle parle
+- **Accessibilité 80+** : police 28pt minimum, contraste WCAG AAA, zone tactile 64dp
+- **Mode kiosque** : app toujours au premier plan, keep-awake activé
+- **Feedback visuel** : onde quand l'IA écoute, points quand elle réfléchit
 - **Retour haptique** : vibration douce à chaque interaction
-- **Salutations contextuelles** : "Bonjour" / "Bon après-midi" / "Bonsoir" selon l'heure
+- **Salutations contextuelles** : "Bonjour Jeanne" / "Bon après-midi Jeanne" selon l'heure
 
 ---
 
@@ -350,8 +379,8 @@ python3 scripts/test_pipeline.py
 | Métrique | Valeur |
 |----------|--------|
 | Fichiers source backend | 64 fichiers Python |
-| Fichiers source frontend | 6 fichiers TypeScript |
-| Fichiers source dashboard | 13 fichiers TypeScript |
+| Fichiers source app tablette | 10 fichiers TypeScript (NativeWind) |
+| Fichiers source website + dashboard | 30+ fichiers TypeScript (Next.js) |
 | Tests | 15 fichiers, 120+ tests, 2035 lignes |
 | Modèles BDD | 9 tables + 1 table de liaison + migration Alembic |
 | Routes API | 14 groupes, ~30 endpoints |
@@ -360,8 +389,8 @@ python3 scripts/test_pipeline.py
 | Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
 | Stockage | S3-compatible + fallback local (uploads/) |
 | Données de démo | 18 sessions, 30 souvenirs, 3 alertes, 3 gazettes (30 jours) |
-| Issues GitHub | 65 fermées sur 67 |
-| Milestones | 12 (P1 + P2 + P3 terminés, P4 en cours) |
+| Issues GitHub | 67/67 fermées |
+| Milestones | 12 terminés |
 
 ---
 
