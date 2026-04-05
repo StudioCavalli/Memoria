@@ -18,6 +18,7 @@ import SetupScreen from "./src/screens/SetupScreen";
 import { getPairing } from "./src/services/storage";
 import { setBaseURL, setWsURL } from "./src/services/api";
 import { Colors } from "./src/constants/theme";
+import { I18nProvider } from "./src/i18n";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -68,15 +69,17 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <View className="flex-1 bg-cream">
-        <StatusBar style="dark" />
-        {isPaired ? (
-          <HomeScreen onRequestSetup={handleUnpaired} />
-        ) : (
-          <SetupScreen onSetupComplete={handleSetupComplete} />
-        )}
-      </View>
-    </SafeAreaProvider>
+    <I18nProvider>
+      <SafeAreaProvider>
+        <View className="flex-1 bg-cream">
+          <StatusBar style="dark" />
+          {isPaired ? (
+            <HomeScreen onRequestSetup={handleUnpaired} />
+          ) : (
+            <SetupScreen onSetupComplete={handleSetupComplete} />
+          )}
+        </View>
+      </SafeAreaProvider>
+    </I18nProvider>
   );
 }

@@ -31,6 +31,8 @@ import { startSession, VoicePipeline } from "../services/api";
 import type { VoicePipelineEvent } from "../services/api";
 import { getPairing, clearPairing, type PairingData } from "../services/storage";
 import { Colors } from "../constants/theme";
+import { useI18n, LOCALE_LABELS, LOCALE_DATE_CODES } from "../i18n";
+import type { Locale } from "../i18n";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -47,6 +49,7 @@ interface HomeScreenProps {
 // ---------------------------------------------------------------------------
 
 const SETTINGS_PIN = "1234";
+const LOCALES: Locale[] = ['fr', 'en', 'es', 'it'];
 
 /** Delai avant de reconnecter le WebSocket en cas de coupure (ms) */
 const RECONNECT_DELAY_MS = 2000;
@@ -55,22 +58,22 @@ const RECONNECT_DELAY_MS = 2000;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getGreeting(): string {
+function getGreeting(t: (key: string) => string): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Bonjour";
-  if (hour < 18) return "Bon apr\u00e8s-midi";
-  return "Bonsoir";
+  if (hour < 12) return t('home.greeting.morning');
+  if (hour < 18) return t('home.greeting.afternoon');
+  return t('home.greeting.evening');
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("fr-FR", {
+function formatTime(date: Date, locale: Locale): string {
+  return date.toLocaleTimeString(LOCALE_DATE_CODES[locale], {
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("fr-FR", {
+function formatDate(date: Date, locale: Locale): string {
+  return date.toLocaleDateString(LOCALE_DATE_CODES[locale], {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -104,10 +107,47 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 // ---------------------------------------------------------------------------
+// Language Picker (reused in settings modal)
+// ---------------------------------------------------------------------------
+
+function LanguagePicker() {
+  const { locale, setLocale, t } = useI18n();
+
+  return (
+    <View className="mt-4 mb-2">
+      <Text className="text-2xl font-semibold text-text-muted mb-3">{t('lang.title')}</Text>
+      <View className="flex-row justify-center items-center gap-2">
+        {LOCALES.map((loc) => (
+          <Pressable
+            key={loc}
+            onPress={() => setLocale(loc)}
+            className="px-4 py-2 rounded-lg"
+            style={[
+              locale === loc
+                ? { backgroundColor: Colors.brown }
+                : { backgroundColor: Colors.cream, borderWidth: 1, borderColor: Colors.brown + '33' },
+            ]}
+          >
+            <Text
+              className="text-lg font-bold"
+              style={{ color: locale === loc ? Colors.white : Colors.brown }}
+            >
+              {LOCALE_LABELS[loc]}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
+  const { t, locale } = useI18n();
+
   const [appState, setAppState] = useState<AppState>("idle");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [responseText, setResponseText] = useState<string>("");
@@ -199,7 +239,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         break;
 
       case "silence_detected":
-        setResponseText("Je suis toujours l\u00e0. Prenez votre temps.");
+        setResponseText(t('home.silence'));
         break;
 
       case "latency":
@@ -213,11 +253,11 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       case "error":
         console.error("[Pipeline] Erreur:", event.message);
         setAppState("idle");
-        setResponseText("Je reviens dans un instant. R\u00e9essayez bient\u00f4t.");
+        setResponseText(t('home.reconnecting'));
         scheduleReconnect();
         break;
     }
-  }, []);
+  }, [t]);
 
   const handlePipelineAudio = useCallback(async (audioData: ArrayBuffer) => {
     if (!isMountedRef.current) return;
@@ -333,14 +373,11 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       return sessionId;
     } catch (error) {
       console.error("[HomeScreen] Impossible de joindre le serveur:", error);
-      setResponseText(
-        "Je ne suis pas disponible pour le moment. " +
-        "V\u00e9rifiez la connexion internet et r\u00e9essayez dans quelques instants."
-      );
+      setResponseText(t('home.error.server'));
       setAppState("idle");
       throw error;
     }
-  }, [connectPipeline, seniorId]);
+  }, [connectPipeline, seniorId, t]);
 
   // -------------------------------------------------------------------------
   // Conversation flow
@@ -373,9 +410,9 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
     } catch (error) {
       console.error("[HomeScreen] \u00c9chec du d\u00e9marrage de l'enregistrement:", error);
       setAppState("idle");
-      setResponseText("D\u00e9sol\u00e9e, je n'ai pas pu activer le microphone.");
+      setResponseText(t('home.error.mic'));
     }
-  }, [appState, ensureSession]);
+  }, [appState, ensureSession, t]);
 
   const handleStopListening = useCallback(async () => {
     try {
@@ -385,7 +422,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
 
       if (!audioUri) {
         setAppState("idle");
-        setResponseText("Je n'ai rien entendu. R\u00e9essayez.");
+        setResponseText(t('home.noaudio'));
         return;
       }
 
@@ -406,11 +443,9 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
     } catch (error) {
       console.error("[HomeScreen] Erreur de conversation:", error);
       setAppState("idle");
-      setResponseText(
-        "D\u00e9sol\u00e9e, il y a eu un petit probl\u00e8me. R\u00e9essayez dans un moment."
-      );
+      setResponseText(t('home.error.generic'));
     }
-  }, []);
+  }, [t]);
 
   // -------------------------------------------------------------------------
   // Watch for state transitions to play accumulated audio
@@ -450,8 +485,8 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
 
     cleanupPipeline();
     setAppState("idle");
-    setResponseText("\u00c0 bient\u00f4t !");
-  }, [cleanupPipeline]);
+    setResponseText(t('home.goodbye'));
+  }, [cleanupPipeline, t]);
 
   // -------------------------------------------------------------------------
   // Hidden settings — long press 3s on clock
@@ -470,10 +505,10 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       setPinError("");
       setShowSettings(true);
     } else {
-      setPinError("Code PIN incorrect");
+      setPinError(t('settings.pin.error'));
       setPinInput("");
     }
-  }, [pinInput]);
+  }, [pinInput, t]);
 
   const handleChangeSenior = useCallback(async () => {
     setShowSettings(false);
@@ -493,9 +528,9 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
   // Render
   // -------------------------------------------------------------------------
 
-  const greeting = getGreeting();
-  const timeString = formatTime(currentTime);
-  const dateString = formatDate(currentTime);
+  const greeting = getGreeting(t);
+  const timeString = formatTime(currentTime, locale);
+  const dateString = formatDate(currentTime, locale);
   const greetingText = seniorFirstName
     ? `${greeting} ${seniorFirstName}`
     : greeting;
@@ -530,7 +565,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
           <View className="mt-6 px-8">
             <Text className="text-2xl text-text-muted text-center">
               {appState === "idle"
-                ? "Appuyez sur le bouton pour me parler"
+                ? t('home.hint')
                 : ""}
             </Text>
           </View>
@@ -545,7 +580,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
           onLongPress={handleEndSession}
           disabled={appState === "thinking"}
         />
-        <Text className="mt-4 text-3xl font-semibold text-brown">Parler \u00e0 Memoria</Text>
+        <Text className="mt-4 text-3xl font-semibold text-brown">{t('button.label')}</Text>
       </View>
 
       {/* ---- PIN Modal ---- */}
@@ -565,15 +600,15 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
             style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 16, elevation: 8 }}
             onPress={() => {}}
           >
-            <Text className="text-3xl font-bold text-brown text-center mb-3">Param\u00e8tres</Text>
+            <Text className="text-3xl font-bold text-brown text-center mb-3">{t('settings.title')}</Text>
             <Text className="text-2xl text-text-muted text-center mb-6">
-              Entrez le code PIN pour acc\u00e9der aux param\u00e8tres
+              {t('settings.pin.subtitle')}
             </Text>
             <TextInput
               className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-3xl text-text-dark text-center tracking-widest"
               value={pinInput}
               onChangeText={setPinInput}
-              placeholder="Code PIN"
+              placeholder={t('settings.pin.placeholder')}
               placeholderTextColor={Colors.textMuted}
               keyboardType="number-pad"
               secureTextEntry
@@ -589,14 +624,14 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
                 className="flex-1 py-3 rounded-xl border-2 border-brown items-center"
                 onPress={() => setShowPinModal(false)}
               >
-                <Text className="text-2xl font-semibold text-brown">Annuler</Text>
+                <Text className="text-2xl font-semibold text-brown">{t('settings.pin.cancel')}</Text>
               </Pressable>
               <Pressable
                 className="flex-1 py-3 rounded-xl bg-brown items-center"
                 style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
                 onPress={handlePinSubmit}
               >
-                <Text className="text-2xl font-bold text-white">Valider</Text>
+                <Text className="text-2xl font-bold text-white">{t('settings.pin.submit')}</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -620,18 +655,19 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
             style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 16, elevation: 8 }}
             onPress={() => {}}
           >
-            <Text className="text-3xl font-bold text-brown text-center mb-3">Param\u00e8tres</Text>
+            <Text className="text-3xl font-bold text-brown text-center mb-3">{t('settings.title')}</Text>
 
             {pairing && (
               <View className="bg-cream rounded-xl p-6 mt-6 mb-6">
-                <Text className="text-2xl font-semibold text-text-muted mt-2">Senior actuel</Text>
+                <Text className="text-2xl font-semibold text-text-muted mt-2">{t('settings.current.senior')}</Text>
                 <Text className="text-3xl font-semibold text-text-dark mb-3">
                   {pairing.senior_name}
                 </Text>
-                <Text className="text-2xl font-semibold text-text-muted mt-2">Serveur</Text>
+                <Text className="text-2xl font-semibold text-text-muted mt-2">{t('settings.current.server')}</Text>
                 <Text className="text-3xl font-semibold text-text-dark mb-3">
                   {pairing.api_url}
                 </Text>
+                <LanguagePicker />
               </View>
             )}
 
@@ -641,7 +677,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
               onPress={handleChangeSenior}
             >
               <Text className="text-2xl font-bold text-white">
-                Changer de senior
+                {t('settings.change.senior')}
               </Text>
             </Pressable>
 
@@ -650,7 +686,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
               onPress={handleResetPairing}
             >
               <Text className="text-2xl font-bold text-red-700">
-                R\u00e9initialiser le jumelage
+                {t('settings.reset')}
               </Text>
             </Pressable>
 
@@ -658,7 +694,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
               className="mt-6 py-3 items-center"
               onPress={() => setShowSettings(false)}
             >
-              <Text className="text-2xl font-semibold text-text-muted">Fermer</Text>
+              <Text className="text-2xl font-semibold text-text-muted">{t('settings.close')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>

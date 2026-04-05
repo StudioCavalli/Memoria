@@ -22,6 +22,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { Colors } from "../constants/theme";
+import { useI18n } from "../i18n";
 
 type ButtonState = "idle" | "listening" | "thinking" | "speaking";
 
@@ -45,11 +46,11 @@ const BG_COLORS: Record<ButtonState, string> = {
   speaking: Colors.buttonSpeaking,   // greenForest #4A7A35
 };
 
-const LABELS: Record<ButtonState, string> = {
-  idle: "Parler",
-  listening: "J'\u00e9coute\u2026",
-  thinking: "Je r\u00e9fl\u00e9chis\u2026",
-  speaking: "Je parle\u2026",
+const LABEL_KEYS: Record<ButtonState, string> = {
+  idle: "button.talk",
+  listening: "button.listening",
+  thinking: "button.thinking",
+  speaking: "button.speaking",
 };
 
 const ICONS: Record<ButtonState, string> = {
@@ -71,6 +72,7 @@ export default function MainButton({
   onLongPress,
   disabled = false,
 }: MainButtonProps) {
+  const { t } = useI18n();
   const scale = useSharedValue(1);
   const pulseScale = useSharedValue(1);
 
@@ -118,7 +120,7 @@ export default function MainButton({
   };
 
   const backgroundColor = BG_COLORS[state];
-  const label = LABELS[state];
+  const label = t(LABEL_KEYS[state]);
   const icon = ICONS[state];
 
   return (
@@ -161,8 +163,8 @@ export default function MainButton({
           animatedStyle,
         ]}
         accessibilityRole="button"
-        accessibilityLabel={`Parler \u00e0 Memoria. \u00c9tat actuel: ${label}`}
-        accessibilityHint="Appuyez pour commencer \u00e0 parler. Appui long pour terminer la session."
+        accessibilityLabel={`${t('button.a11y.label')} ${label}`}
+        accessibilityHint={t('button.a11y.hint')}
       >
         <Text style={{ fontSize: 40, marginBottom: 6 }}>{icon}</Text>
         <Text className="text-white text-2xl font-bold text-center">{label}</Text>

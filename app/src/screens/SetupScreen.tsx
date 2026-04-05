@@ -23,6 +23,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
 import { savePairing } from "../services/storage";
 import { setBaseURL, setWsURL } from "../services/api";
+import { useI18n, LOCALE_LABELS } from "../i18n";
+import type { Locale } from "../i18n";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,6 +50,39 @@ interface SetupScreenProps {
 
 const SETUP_PIN = "1234";
 const DEFAULT_API_URL = "http://localhost:8000";
+const LOCALES: Locale[] = ['fr', 'en', 'es', 'it'];
+
+// ---------------------------------------------------------------------------
+// Language Picker
+// ---------------------------------------------------------------------------
+
+function LanguagePicker() {
+  const { locale, setLocale } = useI18n();
+
+  return (
+    <View className="flex-row justify-center items-center mb-6 gap-2">
+      {LOCALES.map((loc) => (
+        <Pressable
+          key={loc}
+          onPress={() => setLocale(loc)}
+          className="px-4 py-2 rounded-lg"
+          style={[
+            locale === loc
+              ? { backgroundColor: Colors.brown }
+              : { backgroundColor: Colors.cream, borderWidth: 1, borderColor: Colors.brown + '33' },
+          ]}
+        >
+          <Text
+            className="text-lg font-bold"
+            style={{ color: locale === loc ? Colors.white : Colors.brown }}
+          >
+            {LOCALE_LABELS[loc]}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -58,6 +93,8 @@ export default function SetupScreen({
   settingsMode = false,
   initialApiUrl,
 }: SetupScreenProps) {
+  const { t } = useI18n();
+
   // Steps: pin -> login -> select -> done
   const [step, setStep] = useState<"pin" | "login" | "select">(
     settingsMode ? "login" : "pin"
@@ -87,7 +124,7 @@ export default function SetupScreen({
       setPinError("");
       setStep("login");
     } else {
-      setPinError("Code PIN incorrect");
+      setPinError(t('setup.pin.error'));
       setPin("");
     }
   };
@@ -98,7 +135,7 @@ export default function SetupScreen({
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setLoginError("Veuillez remplir tous les champs");
+      setLoginError(t('setup.login.error.empty'));
       return;
     }
 
@@ -118,16 +155,16 @@ export default function SetupScreen({
       if (!loginResponse.ok) {
         const errorText = await loginResponse.text().catch(() => "");
         if (loginResponse.status === 401) {
-          throw new Error("Email ou mot de passe incorrect");
+          throw new Error(t('setup.login.error.credentials'));
         }
-        throw new Error(`Erreur serveur (${loginResponse.status}): ${errorText}`);
+        throw new Error(`${t('setup.login.error.server')} (${loginResponse.status}): ${errorText}`);
       }
 
       const loginData = await loginResponse.json();
       const jwt = loginData.token || loginData.access_token || loginData.jwt;
 
       if (!jwt) {
-        throw new Error("Impossible de r\u00e9cup\u00e9rer le token d'authentification");
+        throw new Error(t('setup.login.error.token'));
       }
 
       setToken(jwt);
@@ -141,13 +178,13 @@ export default function SetupScreen({
       });
 
       if (!seniorsResponse.ok) {
-        throw new Error("Impossible de r\u00e9cup\u00e9rer la liste des seniors");
+        throw new Error(t('setup.login.error.seniors'));
       }
 
       const seniorsData: Senior[] = await seniorsResponse.json();
 
       if (!seniorsData || seniorsData.length === 0) {
-        throw new Error("Aucun senior trouv\u00e9 dans ce compte");
+        throw new Error(t('setup.login.error.noseniors'));
       }
 
       // Si un seul senior, selection automatique
@@ -159,7 +196,7 @@ export default function SetupScreen({
       setSeniors(seniorsData);
       setStep("select");
     } catch (error: any) {
-      setLoginError(error.message || "Erreur de connexion");
+      setLoginError(error.message || t('setup.login.error.connection'));
     } finally {
       setLoading(false);
     }
@@ -190,7 +227,7 @@ export default function SetupScreen({
 
       onSetupComplete();
     } catch (error: any) {
-      setLoginError(error.message || "Erreur lors de la sauvegarde");
+      setLoginError(error.message || t('setup.login.error.save'));
     } finally {
       setLoading(false);
     }
@@ -212,13 +249,13 @@ export default function SetupScreen({
         >
           {/* Header */}
           <View className="items-center mb-8">
-            <Text className="text-6xl font-bold text-brown mb-3">Memoria</Text>
+            <Text className="text-6xl font-bold text-brown mb-3">{t('setup.title')}</Text>
             <Text className="text-3xl text-text-muted text-center">
               {step === "pin"
-                ? "Configuration de la tablette"
+                ? t('setup.subtitle')
                 : step === "login"
-                ? "Connexion \u00e0 votre compte"
-                : "S\u00e9lection du senior"}
+                ? t('setup.login.subtitle')
+                : t('setup.select.subtitle')}
             </Text>
           </View>
 
@@ -230,12 +267,13 @@ export default function SetupScreen({
             {/* ---- PIN Step ---- */}
             {step === "pin" && (
               <>
-                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Code PIN de configuration</Text>
+                <LanguagePicker />
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.pin.title')}</Text>
                 <TextInput
                   className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={pin}
                   onChangeText={setPin}
-                  placeholder="Entrez le code PIN"
+                  placeholder={t('setup.pin.placeholder')}
                   placeholderTextColor={Colors.textMuted}
                   keyboardType="number-pad"
                   secureTextEntry
@@ -251,7 +289,7 @@ export default function SetupScreen({
                   style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
                   onPress={handlePinSubmit}
                 >
-                  <Text className="text-3xl font-bold text-white">Valider</Text>
+                  <Text className="text-3xl font-bold text-white">{t('setup.pin.submit')}</Text>
                 </Pressable>
               </>
             )}
@@ -259,7 +297,7 @@ export default function SetupScreen({
             {/* ---- Login Step ---- */}
             {step === "login" && (
               <>
-                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Adresse du serveur</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.server')}</Text>
                 <TextInput
                   className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={apiUrl}
@@ -271,7 +309,7 @@ export default function SetupScreen({
                   autoCorrect={false}
                 />
 
-                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Adresse email</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.email')}</Text>
                 <TextInput
                   className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={email}
@@ -283,12 +321,12 @@ export default function SetupScreen({
                   autoCorrect={false}
                 />
 
-                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Mot de passe</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">{t('setup.login.password')}</Text>
                 <TextInput
                   className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Votre mot de passe"
+                  placeholder={t('setup.login.password.placeholder')}
                   placeholderTextColor={Colors.textMuted}
                   secureTextEntry
                   onSubmitEditing={handleLogin}
@@ -310,7 +348,7 @@ export default function SetupScreen({
                   {loading ? (
                     <ActivityIndicator color={Colors.white} size="small" />
                   ) : (
-                    <Text className="text-3xl font-bold text-white">Se connecter</Text>
+                    <Text className="text-3xl font-bold text-white">{t('setup.login.submit')}</Text>
                   )}
                 </Pressable>
               </>
@@ -320,7 +358,7 @@ export default function SetupScreen({
             {step === "select" && (
               <>
                 <Text className="text-2xl font-semibold text-brown mb-2 mt-4">
-                  Choisissez le senior pour cette tablette
+                  {t('setup.select.title')}
                 </Text>
                 {seniors.map((senior) => (
                   <Pressable
