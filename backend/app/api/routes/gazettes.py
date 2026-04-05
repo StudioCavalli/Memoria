@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -9,6 +11,8 @@ from app.models.gazette import Gazette
 from app.schemas.gazette import GazetteResponse
 
 router = APIRouter(prefix="/gazettes", tags=["gazettes"])
+
+UPLOADS_DIR = Path(__file__).parent.parent.parent.parent / "uploads"
 
 
 @router.get("/", response_model=list[GazetteResponse])
@@ -41,4 +45,17 @@ def download_gazette_pdf(gazette_id: int, db: Session = Depends(get_db)):
     gazette = db.query(Gazette).filter(Gazette.id == gazette_id).first()
     if not gazette:
         raise HTTPException(status_code=404, detail="Gazette introuvable")
+
+    # Si c'est un fichier local (uploads/), servir directement
+    if gazette.pdf_url.startswith("/uploads/"):
+        local_path = UPLOADS_DIR / gazette.pdf_url.replace("/uploads/", "", 1)
+        if local_path.exists():
+            return FileResponse(
+                path=str(local_path),
+                media_type="application/pdf",
+                filename=f"{gazette.title}.pdf",
+            )
+        raise HTTPException(status_code=404, detail="Fichier PDF introuvable")
+
+    # Sinon redirect vers l'URL externe (S3, etc.)
     return RedirectResponse(url=gazette.pdf_url)

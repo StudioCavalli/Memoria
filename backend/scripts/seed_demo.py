@@ -14,6 +14,7 @@ import json
 import random
 import sys
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 
 from sqlalchemy import text as sa_text
 
@@ -503,6 +504,84 @@ EXTRA_MEMORIES = [
 ]
 
 # ---------------------------------------------------------------------------
+# Gazette PDF generator (simple version for demo)
+# ---------------------------------------------------------------------------
+def _generate_gazette_pdf(path: Path, title: str, week_start: date, week_end: date, senior) -> None:
+    """Generate a simple but warm gazette PDF for demo purposes."""
+    import io
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+
+    CREAM = colors.HexColor("#FFF8F0")
+    BROWN = colors.HexColor("#7D6340")
+    ORANGE = colors.HexColor("#E8A87C")
+    TEXT = colors.HexColor("#3D2C1E")
+    MUTED = colors.HexColor("#7A6555")
+
+    def page_bg(canvas, doc):
+        canvas.saveState()
+        canvas.setFillColor(CREAM)
+        canvas.rect(0, 0, A4[0], A4[1], fill=1, stroke=0)
+        canvas.setFillColor(BROWN)
+        canvas.rect(0, A4[1] - 6, A4[0], 6, fill=1, stroke=0)
+        canvas.setFillColor(ORANGE)
+        canvas.rect(0, 0, A4[0], 3, fill=1, stroke=0)
+        canvas.restoreState()
+
+    doc = SimpleDocTemplate(str(path), pagesize=A4,
+                            topMargin=2*cm, bottomMargin=2*cm,
+                            leftMargin=2.5*cm, rightMargin=2.5*cm)
+
+    title_style = ParagraphStyle('title', fontName='Helvetica-Bold', fontSize=22,
+                                  textColor=BROWN, alignment=TA_CENTER, leading=28, spaceAfter=8)
+    sub_style = ParagraphStyle('sub', fontName='Helvetica', fontSize=11,
+                                textColor=MUTED, alignment=TA_CENTER, leading=15, spaceAfter=20)
+    heading_style = ParagraphStyle('h', fontName='Helvetica-Bold', fontSize=14,
+                                    textColor=BROWN, leading=20, spaceBefore=16, spaceAfter=8)
+    body_style = ParagraphStyle('b', fontName='Helvetica', fontSize=11,
+                                 textColor=TEXT, leading=16, spaceAfter=6, alignment=TA_JUSTIFY)
+    footer_style = ParagraphStyle('f', fontName='Helvetica', fontSize=8,
+                                   textColor=MUTED, alignment=TA_CENTER, spaceBefore=30)
+
+    story = []
+    story.append(Spacer(1, 40))
+    story.append(Paragraph(title, title_style))
+    story.append(Paragraph(
+        f"Du {week_start.strftime('%d/%m/%Y')} au {week_end.strftime('%d/%m/%Y')}", sub_style))
+    story.append(Spacer(1, 10))
+
+    # Sample narrative content matching the demo data themes
+    narratives = [
+        ("Les souvenirs de la semaine",
+         f"Cette semaine, {senior.first_name} nous a emmen\u00e9s dans ses souvenirs "
+         f"d'enfance \u00e0 Nice. Elle a \u00e9voqu\u00e9 les promenades sur la Coulée Verte avec sa m\u00e8re Marie, "
+         f"les parties de cache-cache dans le Vieux-Nice avec ses amis, et l'odeur du pain chaud "
+         f"de la boulangerie Rosetti au coin de la rue."),
+        ("Un moment fort",
+         f"{senior.first_name} s'est souvenue avec \u00e9motion de son mariage avec Pierre en 1962 "
+         f"\u00e0 l'\u00e9glise du Suquet \u00e0 Cannes. Elle a d\u00e9crit sa robe blanche, les fleurs d'oranger, "
+         f"et la r\u00e9ception sur la terrasse de l'h\u00f4tel Martinez avec vue sur la Croisi\u00e8re."),
+        ("La p\u00e9pite de la semaine",
+         f"\"Mon p\u00e8re Jacques rentrait du port avec du poisson frais. Ma m\u00e8re pr\u00e9parait "
+         f"la bouillabaisse dans la grande casserole en cuivre. Toute la rue sentait bon. "
+         f"Les voisins venaient frapper \u00e0 la porte en disant : 'Ça sent bon chez les Martin !'\""),
+    ]
+
+    for heading, text in narratives:
+        story.append(Paragraph(heading, heading_style))
+        story.append(Paragraph(text, body_style))
+
+    story.append(Paragraph(
+        f"G\u00e9n\u00e9r\u00e9 avec amour par Memoria — Syst\u00e8me d'IA Biographique", footer_style))
+
+    doc.build(story, onFirstPage=page_bg, onLaterPages=page_bg)
+
+
+# ---------------------------------------------------------------------------
 # Main seed logic
 # ---------------------------------------------------------------------------
 def main() -> None:
@@ -847,19 +926,29 @@ def main() -> None:
             we = ws + timedelta(days=6)  # Sunday
             week_num = ws.isocalendar()[1]
             gazette_data.append({
-                "title": f"La Gazette de Jeanne – Semaine {week_num}",
-                "pdf_url": f"/gazettes/jeanne-martin/semaine-{week_num}-{ws.year}.pdf",
+                "title": f"La Gazette de Jeanne \u2013 Semaine {week_num}",
                 "week_start": ws,
                 "week_end": we,
-                "email_sent": week_ago > 1,  # Most recent one not yet sent
-                "created_at": dt(we + timedelta(days=1), 8, 0),  # Generated Monday morning
+                "week_num": week_num,
+                "email_sent": week_ago > 1,
+                "created_at": dt(we + timedelta(days=1), 8, 0),
             })
 
+        # Generate real PDFs in uploads/
+        uploads_dir = Path(__file__).parent.parent / "uploads" / "gazettes"
+        uploads_dir.mkdir(parents=True, exist_ok=True)
+
         for gdata in gazette_data:
+            # Build a simple gazette PDF
+            pdf_filename = f"gazette-jeanne-s{gdata['week_num']}-{gdata['week_start'].year}.pdf"
+            pdf_path = uploads_dir / pdf_filename
+            _generate_gazette_pdf(pdf_path, gdata["title"], gdata["week_start"], gdata["week_end"], senior)
+            pdf_url = f"/uploads/gazettes/{pdf_filename}"
+
             gaz = Gazette(
                 senior_id=senior.id,
                 title=gdata["title"],
-                pdf_url=gdata["pdf_url"],
+                pdf_url=pdf_url,
                 week_start=gdata["week_start"],
                 week_end=gdata["week_end"],
                 email_sent=gdata["email_sent"],
@@ -867,7 +956,7 @@ def main() -> None:
             )
             db.add(gaz)
         db.flush()
-        p(f"Created {len(gazette_data)} gazettes")
+        p(f"Created {len(gazette_data)} gazettes (PDFs in uploads/gazettes/)")
 
         # ------------------------------------------------------------------
         # 8. Commit
