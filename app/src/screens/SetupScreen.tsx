@@ -49,7 +49,7 @@ interface SetupScreenProps {
 // ---------------------------------------------------------------------------
 
 const SETUP_PIN = "1234";
-const DEFAULT_API_URL = "http://localhost:8000";
+const DEFAULT_API_URL = "https://memoria-production-aeec.up.railway.app";
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'it'];
 
 // ---------------------------------------------------------------------------

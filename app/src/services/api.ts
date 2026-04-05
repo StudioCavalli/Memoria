@@ -4,8 +4,8 @@
  * REST + WebSocket communication with the Memoria backend.
  */
 
-const DEFAULT_BASE_URL = "http://localhost:8000/api";
-const DEFAULT_WS_URL = "ws://localhost:8000";
+const DEFAULT_BASE_URL = "https://memoria-production-aeec.up.railway.app/api";
+const DEFAULT_WS_URL = "wss://memoria-production-aeec.up.railway.app";
 
 let baseURL = DEFAULT_BASE_URL;
 let wsURL = DEFAULT_WS_URL;
