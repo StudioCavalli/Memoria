@@ -2,35 +2,34 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import { useI18n } from '@/lib/i18n'
 
-
-const stats = [
-  {
-    number: '2M',
-    label: 'de seniors isolés',
-    description:
-      'Près de 2 millions de personnes âgées sont isolées des cercles familiaux et amicaux en France.',
-    source: 'Petits Frères des Pauvres, Baromètre 2025',
-  },
-  {
-    number: '1,4M',
-    label: 'atteints d\'Alzheimer',
-    description:
-      '1,4 million de Français vivent avec la maladie d\'Alzheimer ou une maladie apparentée.',
-    source: 'France Alzheimer, 2025',
-  },
-  {
-    number: '225K',
-    label: 'nouveaux cas par an',
-    description:
-      'Chaque année, 225 000 nouveaux cas de troubles neurodégénératifs sont diagnostiqués en France.',
-    source: 'Fondation Alzheimer',
-  },
-]
 
 export default function Problem() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
+
+  const stats = [
+    {
+      number: '2M',
+      labelKey: 'problem.stat1.label',
+      descKey: 'problem.stat1.desc',
+      sourceKey: 'problem.stat1.source',
+    },
+    {
+      number: '1,4M',
+      labelKey: 'problem.stat2.label',
+      descKey: 'problem.stat2.desc',
+      sourceKey: 'problem.stat2.source',
+    },
+    {
+      number: '225K',
+      labelKey: 'problem.stat3.label',
+      descKey: 'problem.stat3.desc',
+      sourceKey: 'problem.stat3.source',
+    },
+  ]
 
   return (
     <section
@@ -47,10 +46,10 @@ export default function Problem() {
           className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
-            Un enjeu de société
+            {t('problem.tag')}
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-text-dark">
-            Le constat
+            {t('problem.title')}
           </h2>
         </motion.div>
 
@@ -69,16 +68,14 @@ export default function Problem() {
                   {stat.number}
                 </div>
                 <div className="text-base sm:text-lg font-bold text-text-dark mb-2">
-                  {stat.label}
+                  {t(stat.labelKey)}
                 </div>
                 <p className="text-text-muted text-sm leading-relaxed">
-                  {stat.description}
+                  {t(stat.descKey)}
                 </p>
-                {'source' in stat && (
-                  <p className="text-text-muted/60 text-[10px] mt-2 italic">
-                    Source : {stat.source}
-                  </p>
-                )}
+                <p className="text-text-muted/60 text-[10px] mt-2 italic">
+                  Source : {t(stat.sourceKey)}
+                </p>
               </motion.div>
             ))}
           </div>

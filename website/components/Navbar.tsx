@@ -4,17 +4,20 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Logo from './Logo'
-
-const navLinks = [
-  { href: '#solution', label: 'La Solution' },
-  { href: '#sentinelle', label: 'Sentinelle' },
-  { href: '#tarifs', label: 'Tarifs' },
-  { href: '#roadmap', label: 'Roadmap' },
-]
+import LanguageSwitcher from './LanguageSwitcher'
+import { useI18n } from '@/lib/i18n'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { t } = useI18n()
+
+  const navLinks = [
+    { href: '#solution', labelKey: 'nav.solution' },
+    { href: '#sentinelle', labelKey: 'nav.sentinel' },
+    { href: '#tarifs', labelKey: 'nav.pricing' },
+    { href: '#roadmap', labelKey: 'nav.roadmap' },
+  ]
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -55,20 +58,21 @@ export default function Navbar() {
                 href={link.href}
                 className="text-sm font-semibold text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
               >
-                {link.label}
+                {t(link.labelKey)}
               </a>
             ))}
             <a
               href="/login"
               className="text-sm font-semibold text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
             >
-              Se connecter
+              {t('nav.login')}
             </a>
+            <LanguageSwitcher />
             <a
               href="#contact"
               className="ml-2 px-5 py-2.5 bg-brown text-white text-sm font-bold rounded-full hover:bg-brown-dark transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
             >
-              Demander une démo
+              {t('nav.demo')}
             </a>
           </div>
 
@@ -103,7 +107,7 @@ export default function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="block text-base font-semibold text-text-dark hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </a>
               ))}
               <a
@@ -111,14 +115,17 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="block text-base font-semibold text-text-dark hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
               >
-                Se connecter
+                {t('nav.login')}
               </a>
+              <div className="pt-2">
+                <LanguageSwitcher />
+              </div>
               <a
                 href="#contact"
                 onClick={() => setMobileOpen(false)}
                 className="block w-full text-center px-5 py-3 bg-brown text-white font-bold rounded-full focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
-                Demander une démo
+                {t('nav.demo')}
               </a>
             </div>
           </motion.div>

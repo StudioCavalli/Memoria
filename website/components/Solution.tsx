@@ -3,35 +3,34 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Mic, BookOpen, Shield } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
-
-const features = [
-  {
-    icon: Mic,
-    title: 'Un compagnon vocal bienveillant',
-    description:
-      'Memoria engage la conversation naturellement, comme un ami attentif. Le senior parle, l\'IA écoute avec empathie et relance avec douceur.',
-    color: 'bg-orange-soft/15 text-orange-text',
-  },
-  {
-    icon: BookOpen,
-    title: 'Un journal de vie automatique',
-    description:
-      'Chaque souvenir est transcrit, daté, classé et enrichi. Les familles reçoivent une « Gazette » mensuelle illustrée, un véritable trésor familial.',
-    color: 'bg-green-forest/15 text-green-forest',
-  },
-  {
-    icon: Shield,
-    title: 'Une sentinelle cognitive',
-    description:
-      'Grâce à l\'analyse du langage en temps réel, Memoria détecte les premiers signes de déclin cognitif — jusqu\'à 6 mois avant un diagnostic clinique.',
-    color: 'bg-rose-dusty/20 text-rose-dusty',
-  },
-]
 
 export default function Solution() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
+
+  const features = [
+    {
+      icon: Mic,
+      titleKey: 'solution.feature1.title',
+      descKey: 'solution.feature1.desc',
+      color: 'bg-orange-soft/15 text-orange-text',
+    },
+    {
+      icon: BookOpen,
+      titleKey: 'solution.feature2.title',
+      descKey: 'solution.feature2.desc',
+      color: 'bg-green-forest/15 text-green-forest',
+    },
+    {
+      icon: Shield,
+      titleKey: 'solution.feature3.title',
+      descKey: 'solution.feature3.desc',
+      color: 'bg-rose-dusty/20 text-rose-dusty',
+    },
+  ]
 
   return (
     <section
@@ -47,10 +46,10 @@ export default function Solution() {
           className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
-            Notre réponse
+            {t('solution.tag')}
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
-            Memoria, le biographe IA qui prend soin de nos aînés
+            {t('solution.title')}
           </h2>
         </motion.div>
 
@@ -58,7 +57,7 @@ export default function Solution() {
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
           {features.map((feature, i) => (
             <motion.div
-              key={feature.title}
+              key={feature.titleKey}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
@@ -70,10 +69,10 @@ export default function Solution() {
                 <feature.icon size={28} />
               </div>
               <h3 className="font-heading text-lg sm:text-xl font-bold text-text-dark mb-3">
-                {feature.title}
+                {t(feature.titleKey)}
               </h3>
               <p className="text-text-muted leading-relaxed text-sm">
-                {feature.description}
+                {t(feature.descKey)}
               </p>
             </motion.div>
           ))}
@@ -108,13 +107,13 @@ export default function Solution() {
         >
           <div className="inline-block bg-gradient-to-r from-brown/10 via-orange-soft/15 to-brown/10 rounded-2xl px-6 sm:px-8 py-4 sm:py-5">
             <p className="font-heading text-base sm:text-lg md:text-xl font-bold text-brown">
-              2 missions en 1 :{' '}
+              {t('solution.mission')}{' '}
               <span className="text-orange-text">
-                Préserver la mémoire
+                {t('solution.mission.memory')}
               </span>{' '}
               ET{' '}
               <span className="text-green-forest">
-                prévenir les troubles cognitifs
+                {t('solution.mission.prevent')}
               </span>
             </p>
           </div>

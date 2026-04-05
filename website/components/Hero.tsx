@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Scene3D from './Scene3D'
+import { useI18n } from '@/lib/i18n'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -12,13 +13,15 @@ const fadeUp = {
   }),
 }
 
-const stats = [
-  { value: '2M', label: 'seniors isolés en France' },
-  { value: '1,4M', label: 'atteints d\'Alzheimer' },
-  { value: '<1,5s', label: 'de latence IA' },
-]
-
 export default function Hero() {
+  const { t } = useI18n()
+
+  const stats = [
+    { value: '2M', labelKey: 'hero.stat.isolated' },
+    { value: '1,4M', labelKey: 'hero.stat.alzheimer' },
+    { value: '<1,5s', labelKey: 'hero.stat.latency' },
+  ]
+
   return (
     <section className="relative min-h-screen lg:min-h-[110vh] flex items-center pt-20 sm:pt-24 pb-12 sm:pb-16 overflow-hidden">
       {/* Subtle background decorations */}
@@ -36,7 +39,7 @@ export default function Hero() {
               animate="visible"
               className="text-orange-text font-bold text-xs sm:text-sm uppercase tracking-widest mb-3 sm:mb-4"
             >
-              L'IA biographique pour nos aînés
+              {t('hero.tag')}
             </motion.p>
 
             <motion.h1
@@ -46,10 +49,8 @@ export default function Hero() {
               animate="visible"
               className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-text-dark mb-4 sm:mb-6"
             >
-              Chaque souvenir{' '}
-              <br className="hidden sm:block" />
-              mérite d'être{' '}
-              <span className="text-brown">préservé</span>
+              {t('hero.title')}{' '}
+              <span className="text-brown">{t('hero.title.accent')}</span>
             </motion.h1>
 
             <motion.p
@@ -59,8 +60,7 @@ export default function Hero() {
               animate="visible"
               className="text-base sm:text-lg md:text-xl text-text-muted leading-relaxed mb-6 sm:mb-8 max-w-xl"
             >
-              Memoria, l'IA biographique qui recueille les souvenirs de
-              nos aînés et veille sur leur santé cognitive.
+              {t('hero.subtitle')}
             </motion.p>
 
             <motion.div
@@ -74,13 +74,13 @@ export default function Hero() {
                 href="#solution"
                 className="px-6 sm:px-8 py-3 sm:py-3.5 bg-brown text-white font-bold rounded-full hover:bg-brown-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-center text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
-                Découvrir Memoria
+                {t('hero.cta.discover')}
               </a>
               <a
                 href="#fonctionnement"
                 className="px-6 sm:px-8 py-3 sm:py-3.5 border-2 border-brown text-brown font-bold rounded-full hover:bg-brown hover:text-white transition-all text-center text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
-                Voir la démo
+                {t('hero.cta.demo')}
               </a>
               <a
                 href="/MEMORIA_Pitch.pdf"
@@ -88,7 +88,7 @@ export default function Hero() {
                 className="px-6 sm:px-8 py-3 sm:py-3.5 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/80 transition-all flex items-center justify-center gap-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
               >
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                Pitch Deck PDF
+                {t('hero.cta.pitch')}
               </a>
             </motion.div>
 
@@ -106,7 +106,7 @@ export default function Hero() {
                     {stat.value}
                   </div>
                   <div className="text-[10px] sm:text-xs text-text-muted mt-1">
-                    {stat.label}
+                    {t(stat.labelKey)}
                   </div>
                 </div>
               ))}

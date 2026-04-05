@@ -3,10 +3,12 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Mail } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 export default function CTA() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
 
   return (
     <section
@@ -26,16 +28,14 @@ export default function CTA() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 sm:mb-6">
-            Donnons une voix à ceux qui ont tant à raconter.{' '}
+            {t('cta.title')}{' '}
             <span className="text-orange-soft">
-              Avant qu'il ne soit trop tard.
+              {t('cta.accent')}
             </span>
           </h2>
 
           <p className="text-white/70 text-base sm:text-lg max-w-2xl mx-auto mb-8 sm:mb-10">
-            Rejoignez les familles et établissements qui font confiance
-            à Memoria pour préserver la mémoire et protéger
-            la santé cognitive de leurs proches.
+            {t('cta.subtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-8">
@@ -43,7 +43,7 @@ export default function CTA() {
               href="mailto:christopher.cavalli@hotmail.com"
               className="px-6 sm:px-8 py-3.5 sm:py-4 bg-orange-soft text-brown-dark font-bold rounded-full hover:bg-orange-soft/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-base sm:text-lg text-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-brown"
             >
-              Demander une démo
+              {t('cta.demo')}
             </a>
             <a
               href="mailto:christopher.cavalli@hotmail.com"

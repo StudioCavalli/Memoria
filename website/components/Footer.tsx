@@ -2,19 +2,22 @@
 
 import Link from 'next/link'
 import Logo from './Logo'
+import { useI18n } from '@/lib/i18n'
 
 const footerLinks = [
-  { href: '#probleme', label: 'Le Problème' },
-  { href: '#solution', label: 'La Solution' },
-  { href: '#fonctionnement', label: 'Comment ça marche' },
-  { href: '#sentinelle', label: 'Sentinelle' },
+  { href: '#probleme', labelKey: 'problem.title' },
+  { href: '#solution', labelKey: 'nav.solution' },
+  { href: '#fonctionnement', labelKey: 'how.tag' },
+  { href: '#sentinelle', labelKey: 'nav.sentinel' },
   { href: '#technologie', label: 'Technologie' },
-  { href: '#tarifs', label: 'Tarifs' },
-  { href: '#roadmap', label: 'Roadmap' },
+  { href: '#tarifs', labelKey: 'nav.pricing' },
+  { href: '#roadmap', labelKey: 'nav.roadmap' },
   { href: '/docs', label: 'API Docs' },
 ]
 
 export default function Footer() {
+  const { t } = useI18n()
+
   return (
     <footer role="contentinfo" aria-label="Pied de page" className="bg-cream border-t border-brown/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
@@ -25,8 +28,7 @@ export default function Footer() {
               <Logo size="md" />
             </a>
             <p className="text-text-muted text-sm mt-3 max-w-xs leading-relaxed">
-              L'IA biographique qui recueille les souvenirs de nos
-              aînés et veille sur leur santé cognitive.
+              {t('footer.desc')}
             </p>
             <a
               href="/MEMORIA_Pitch.pdf"
@@ -34,14 +36,14 @@ export default function Footer() {
               className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-orange-soft/20 text-brown-dark font-bold text-sm rounded-full hover:bg-orange-soft/40 transition-all focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
             >
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-              Télécharger le pitch
+              {t('footer.download')}
             </a>
           </div>
 
           {/* Navigation */}
           <div>
             <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
-              Navigation
+              {t('footer.nav')}
             </h4>
             <ul className="space-y-2">
               {footerLinks.map((link) => (
@@ -50,7 +52,7 @@ export default function Footer() {
                     href={link.href}
                     className="text-sm text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
                   >
-                    {link.label}
+                    {'labelKey' in link && link.labelKey ? t(link.labelKey) : link.label}
                   </a>
                 </li>
               ))}
@@ -59,7 +61,7 @@ export default function Footer() {
                   href="/dashboard"
                   className="text-sm text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
                 >
-                  Dashboard famille
+                  {t('footer.dashboard')}
                 </Link>
               </li>
             </ul>
@@ -68,7 +70,7 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
-              Contact
+              {t('footer.contact')}
             </h4>
             <ul className="space-y-2 text-sm text-text-muted">
               <li>
@@ -92,7 +94,7 @@ export default function Footer() {
           {/* Social */}
           <div>
             <h4 className="font-heading text-sm font-bold text-text-dark mb-4">
-              Suivez-nous
+              {t('footer.follow')}
             </h4>
             <div className="flex gap-3">
               {['LinkedIn', 'Twitter', 'Instagram'].map((social) => (
@@ -112,7 +114,7 @@ export default function Footer() {
         {/* Legal info */}
         <div className="mt-10 pt-6 border-t border-brown/10">
           <div className="bg-white/60 rounded-xl px-4 sm:px-6 py-4 text-xs text-text-muted leading-relaxed">
-            <p className="font-bold text-text-dark mb-1">Informations légales</p>
+            <p className="font-bold text-text-dark mb-1">{t('footer.legal.title')}</p>
             <p>
               Foxcase — Entrepreneur individuel — Christopher Cavalli<br />
               SIREN 834 802 407 — SIRET 834 802 407 00033<br />
@@ -128,13 +130,13 @@ export default function Footer() {
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs text-text-muted">
             <Link href="/mentions-legales" className="hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md">
-              Mentions légales
+              {t('footer.legal.mentions')}
             </Link>
             <Link href="/politique-de-confidentialite" className="hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md">
-              Politique de confidentialité
+              {t('footer.legal.privacy')}
             </Link>
             <Link href="/rgpd" className="hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md">
-              RGPD
+              {t('footer.legal.gdpr')}
             </Link>
           </div>
         </div>

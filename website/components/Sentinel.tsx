@@ -3,6 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Activity, Clock, Bell } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 
 const features = [
@@ -121,6 +122,7 @@ function VitalityGauge() {
 export default function Sentinel() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const { t } = useI18n()
 
   return (
     <section
@@ -136,11 +138,10 @@ export default function Sentinel() {
           className="text-center mb-12 sm:mb-16"
         >
           <p className="text-orange-text font-bold text-sm uppercase tracking-widest mb-3">
-            Détection précoce
+            {t('sentinel.tag')}
           </p>
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-dark max-w-4xl mx-auto leading-tight">
-            Le Module Sentinelle : détecter avant qu'il ne soit
-            trop tard
+            {t('sentinel.title')}
           </h2>
         </motion.div>
 
@@ -212,7 +213,7 @@ export default function Sentinel() {
             <p className="text-white/70 mt-3 text-xs sm:text-sm max-w-2xl mx-auto">
               Grâce à l'analyse linguistique continue, Memoria
               repère des marqueurs subtils invisibles à
-              l'œil nu.
+              l'oeil nu.
             </p>
           </div>
         </motion.div>

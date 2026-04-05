@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Merriweather, Nunito } from 'next/font/google'
 import './globals.css'
+import Providers from '@/components/Providers'
 
 const merriweather = Merriweather({
   subsets: ['latin'],
@@ -99,7 +100,7 @@ export default function RootLayout({
       className={`${merriweather.variable} ${nunito.variable}`}
     >
       <body className="font-body bg-cream text-text-dark antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

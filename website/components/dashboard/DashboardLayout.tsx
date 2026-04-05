@@ -4,24 +4,26 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
+import { useI18n } from '@/lib/i18n'
 
 interface Props {
   children: React.ReactNode
 }
 
-const navItems = [
-  { href: '/dashboard', label: 'Accueil', icon: '⌂' },
-  { href: '/dashboard/memories', label: 'Souvenirs', icon: '♡' },
-  { href: '/dashboard/alerts', label: 'Alertes', icon: '⚠' },
-  { href: '/dashboard/gazettes', label: 'Gazettes', icon: '✉' },
-  { href: '/dashboard/metrics', label: 'Suivi cognitif', icon: '↗' },
-  { href: '/dashboard/settings', label: 'Paramètres', icon: '⚙' },
-]
-
 export default function DashboardLayout({ children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useI18n()
+
+  const navItems = [
+    { href: '/dashboard', labelKey: 'dash.home', icon: '\u2302' },
+    { href: '/dashboard/memories', labelKey: 'dash.memories', icon: '\u2661' },
+    { href: '/dashboard/alerts', labelKey: 'dash.alerts', icon: '\u26A0' },
+    { href: '/dashboard/gazettes', labelKey: 'dash.gazettes', icon: '\u2709' },
+    { href: '/dashboard/metrics', labelKey: 'dash.metrics', icon: '\u2197' },
+    { href: '/dashboard/settings', labelKey: 'dash.settings', icon: '\u2699' },
+  ]
 
   const handleLogout = () => {
     localStorage.removeItem('memoria_token')
@@ -38,7 +40,7 @@ export default function DashboardLayout({ children }: Props) {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-label="Menu"
         >
-          {sidebarOpen ? '✕' : '☰'}
+          {sidebarOpen ? '\u2715' : '\u2630'}
         </button>
         <Logo size="sm" />
       </header>
@@ -62,7 +64,7 @@ export default function DashboardLayout({ children }: Props) {
       >
         <div className="mb-8 flex flex-col items-center gap-1">
           <Logo size="md" />
-          <p className="mt-1 text-[13px] text-text-muted">Préserver les souvenirs</p>
+          <p className="mt-1 text-[13px] text-text-muted">{t('dash.tagline')}</p>
         </div>
 
         <nav className="flex flex-1 flex-col gap-1">
@@ -83,7 +85,7 @@ export default function DashboardLayout({ children }: Props) {
                 }`}
               >
                 <span className="w-6 text-center text-lg">{item.icon}</span>
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             )
           })}
@@ -93,7 +95,7 @@ export default function DashboardLayout({ children }: Props) {
           className="mt-4 rounded-lg border border-beige bg-transparent px-4 py-2.5 font-body text-sm font-semibold text-text-muted transition-colors duration-200 cursor-pointer hover:bg-beige/50"
           onClick={handleLogout}
         >
-          Déconnexion
+          {t('dash.logout')}
         </button>
       </aside>
 

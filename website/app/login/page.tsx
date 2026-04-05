@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/lib/dashboard-api'
+import { useI18n } from '@/lib/i18n'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { t } = useI18n()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +28,7 @@ export default function LoginPage() {
       }
       router.push('/dashboard')
     } catch {
-      setError('Identifiants incorrects. Veuillez réessayer.')
+      setError(t('login.error'))
     } finally {
       setLoading(false)
     }
@@ -39,7 +41,7 @@ export default function LoginPage() {
           Memoria
         </h1>
         <p className="mb-7 text-center text-[15px] text-text-muted">
-          Tableau de bord familial
+          {t('login.dashboard')}
         </p>
 
         {error && (
@@ -50,7 +52,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Adresse e-mail
+            {t('login.email')}
             <input
               type="email"
               value={email}
@@ -62,7 +64,7 @@ export default function LoginPage() {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
-            Mot de passe
+            {t('login.password')}
             <input
               type="password"
               value={password}
@@ -78,14 +80,14 @@ export default function LoginPage() {
             disabled={loading}
             className="mt-2 rounded-[10px] border-none bg-brown-light px-4 py-3.5 font-body text-base font-bold text-white transition-colors duration-200 cursor-pointer hover:bg-brown-dark disabled:opacity-60"
           >
-            {loading ? 'Connexion...' : 'Se connecter'}
+            {loading ? t('login.loading') : t('login.submit')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-[13px] text-text-muted">
-          Pas encore de compte ?{' '}
+          {t('login.no.account')}{' '}
           <a href="#" className="font-bold text-brown-light underline">
-            Contactez l{"'"}équipe Memoria
+            {t('login.contact')}
           </a>
         </p>
       </div>
