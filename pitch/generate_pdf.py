@@ -612,7 +612,7 @@ def build():
     impact_stats = [
         [StatBox("+40%", "Bien-\u00eatre senior (\u00e9tudes r\u00e9miniscence)", GREEN, 200, 85),
          StatBox("6 mois", "D\u00e9tection pr\u00e9coce avant diagnostic", BROWN, 200, 85),
-         StatBox("Pour\ntoujours", "Souvenirs pr\u00e9serv\u00e9s pour les g\u00e9n\u00e9rations", ORANGE, 200, 85)],
+         StatBox("\u221e", "Souvenirs pr\u00e9serv\u00e9s pour les g\u00e9n\u00e9rations", ORANGE, 200, 85)],
     ]
     ist = Table(impact_stats, colWidths=[210, 210, 210])
     ist.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('ALIGN', (0, 0), (-1, -1), 'CENTER')]))
