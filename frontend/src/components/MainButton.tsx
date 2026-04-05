@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -21,7 +21,7 @@ import Animated, {
   cancelAnimation,
   Easing,
 } from "react-native-reanimated";
-import { Colors, FontSizes, Shadows } from "../constants/theme";
+import { Colors } from "../constants/theme";
 
 type ButtonState = "idle" | "listening" | "thinking" | "speaking";
 
@@ -122,13 +122,18 @@ export default function MainButton({
   const icon = ICONS[state];
 
   return (
-    <View style={styles.wrapper}>
-      {/* Outer glow ring — color matches current state */}
+    <View className="items-center justify-center" style={{ width: BUTTON_SIZE + 24, height: BUTTON_SIZE + 24 }}>
+      {/* Outer glow ring -- color matches current state */}
       <View
-        style={[
-          styles.glowRing,
-          { borderColor: backgroundColor, opacity: 0.15 },
-        ]}
+        className="absolute rounded-full"
+        style={{
+          width: BUTTON_SIZE + 24,
+          height: BUTTON_SIZE + 24,
+          borderRadius: (BUTTON_SIZE + 24) / 2,
+          borderWidth: 4,
+          borderColor: backgroundColor,
+          opacity: 0.15,
+        }}
       />
 
       <AnimatedPressable
@@ -143,52 +148,25 @@ export default function MainButton({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled}
-        style={[styles.button, { backgroundColor }, animatedStyle]}
+        className="w-40 h-40 rounded-full justify-center items-center"
+        style={[
+          {
+            backgroundColor,
+            shadowColor: '#7D6340',
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.18,
+            shadowRadius: 16,
+            elevation: 8,
+          },
+          animatedStyle,
+        ]}
         accessibilityRole="button"
         accessibilityLabel={`Parler \u00e0 Memoria. \u00c9tat actuel: ${label}`}
         accessibilityHint="Appuyez pour commencer \u00e0 parler. Appui long pour terminer la session."
       >
-        <Text style={styles.icon}>{icon}</Text>
-        <Text style={styles.label}>{label}</Text>
+        <Text style={{ fontSize: 40, marginBottom: 6 }}>{icon}</Text>
+        <Text className="text-white text-2xl font-bold text-center">{label}</Text>
       </AnimatedPressable>
     </View>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  wrapper: {
-    width: BUTTON_SIZE + 24,
-    height: BUTTON_SIZE + 24,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  glowRing: {
-    position: "absolute",
-    width: BUTTON_SIZE + 24,
-    height: BUTTON_SIZE + 24,
-    borderRadius: (BUTTON_SIZE + 24) / 2,
-    borderWidth: 4,
-  },
-  button: {
-    width: BUTTON_SIZE,
-    height: BUTTON_SIZE,
-    borderRadius: BUTTON_SIZE / 2,
-    justifyContent: "center",
-    alignItems: "center",
-    ...Shadows.strong,
-  },
-  icon: {
-    fontSize: 40,
-    marginBottom: 6,
-  },
-  label: {
-    color: Colors.buttonText,
-    fontSize: FontSizes.body,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-});

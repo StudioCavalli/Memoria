@@ -3,9 +3,9 @@
  *
  * The main screen of Memoria.
  * Shows a greeting with the senior's name, a large clock, and the
- * single "Parler à Memoria" button.
+ * single "Parler a Memoria" button.
  *
- * Hidden settings: long press (3s) on the clock → PIN modal → settings panel.
+ * Hidden settings: long press (3s) on the clock -> PIN modal -> settings panel.
  *
  * Uses the WebSocket VoicePipeline for real-time voice conversation.
  * Redesigned to match the Memoria website palette (cream/brown/orange).
@@ -13,7 +13,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  StyleSheet,
   Text,
   View,
   StatusBar,
@@ -31,7 +30,7 @@ import AudioManager from "../services/audio";
 import { startSession, VoicePipeline } from "../services/api";
 import type { VoicePipelineEvent } from "../services/api";
 import { getPairing, clearPairing, type PairingData } from "../services/storage";
-import { Colors, FontSizes, Spacing, BorderRadius, Shadows } from "../constants/theme";
+import { Colors } from "../constants/theme";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,7 +48,7 @@ interface HomeScreenProps {
 
 const SETTINGS_PIN = "1234";
 
-/** Délai avant de reconnecter le WebSocket en cas de coupure (ms) */
+/** Delai avant de reconnecter le WebSocket en cas de coupure (ms) */
 const RECONNECT_DELAY_MS = 2000;
 
 // ---------------------------------------------------------------------------
@@ -59,7 +58,7 @@ const RECONNECT_DELAY_MS = 2000;
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Bonjour";
-  if (hour < 18) return "Bon après-midi";
+  if (hour < 18) return "Bon apr\u00e8s-midi";
   return "Bonsoir";
 }
 
@@ -80,7 +79,7 @@ function formatDate(date: Date): string {
 }
 
 /**
- * Convertit une chaîne base64 en ArrayBuffer.
+ * Convertit une chaine base64 en ArrayBuffer.
  */
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const binaryString = atob(base64);
@@ -93,7 +92,7 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 }
 
 /**
- * Convertit un ArrayBuffer en chaîne base64.
+ * Convertit un ArrayBuffer en chaine base64.
  */
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -190,7 +189,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         break;
 
       case "transcription":
-        // Le texte transcrit de l'utilisateur — on garde l'écran épuré
+        // Le texte transcrit de l'utilisateur — on garde l'ecran epure
         break;
 
       case "response_text":
@@ -200,13 +199,13 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         break;
 
       case "silence_detected":
-        setResponseText("Je suis toujours là. Prenez votre temps.");
+        setResponseText("Je suis toujours l\u00e0. Prenez votre temps.");
         break;
 
       case "latency":
         if (__DEV__) {
           console.log(
-            `[Pipeline] Latence — STT: ${event.stt_ms}ms, LLM: ${event.llm_ms}ms, TTS: ${event.tts_ms}ms, Total: ${event.total_ms}ms`
+            `[Pipeline] Latence \u2014 STT: ${event.stt_ms}ms, LLM: ${event.llm_ms}ms, TTS: ${event.tts_ms}ms, Total: ${event.total_ms}ms`
           );
         }
         break;
@@ -214,7 +213,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       case "error":
         console.error("[Pipeline] Erreur:", event.message);
         setAppState("idle");
-        setResponseText("Je reviens dans un instant. Réessayez bientôt.");
+        setResponseText("Je reviens dans un instant. R\u00e9essayez bient\u00f4t.");
         scheduleReconnect();
         break;
     }
@@ -309,7 +308,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         try {
           await connectPipeline(sessionId);
         } catch (error) {
-          console.error("[HomeScreen] Échec de la reconnexion:", error);
+          console.error("[HomeScreen] \u00c9chec de la reconnexion:", error);
         }
       }
     }, RECONNECT_DELAY_MS);
@@ -336,7 +335,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       console.error("[HomeScreen] Impossible de joindre le serveur:", error);
       setResponseText(
         "Je ne suis pas disponible pour le moment. " +
-        "Vérifiez la connexion internet et réessayez dans quelques instants."
+        "V\u00e9rifiez la connexion internet et r\u00e9essayez dans quelques instants."
       );
       setAppState("idle");
       throw error;
@@ -372,9 +371,9 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       setAppState("listening");
       await AudioManager.startRecording();
     } catch (error) {
-      console.error("[HomeScreen] Échec du démarrage de l'enregistrement:", error);
+      console.error("[HomeScreen] \u00c9chec du d\u00e9marrage de l'enregistrement:", error);
       setAppState("idle");
-      setResponseText("Désolée, je n'ai pas pu activer le microphone.");
+      setResponseText("D\u00e9sol\u00e9e, je n'ai pas pu activer le microphone.");
     }
   }, [appState, ensureSession]);
 
@@ -386,7 +385,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
 
       if (!audioUri) {
         setAppState("idle");
-        setResponseText("Je n'ai rien entendu. Réessayez.");
+        setResponseText("Je n'ai rien entendu. R\u00e9essayez.");
         return;
       }
 
@@ -400,7 +399,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         pipelineRef.current.sendAudioChunk(audioBuffer);
         pipelineRef.current.endTurn();
       } else {
-        throw new Error("Pipeline non connecté");
+        throw new Error("Pipeline non connect\u00e9");
       }
 
       FileSystem.deleteAsync(audioUri, { idempotent: true }).catch(() => {});
@@ -408,7 +407,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       console.error("[HomeScreen] Erreur de conversation:", error);
       setAppState("idle");
       setResponseText(
-        "Désolée, il y a eu un petit problème. Réessayez dans un moment."
+        "D\u00e9sol\u00e9e, il y a eu un petit probl\u00e8me. R\u00e9essayez dans un moment."
       );
     }
   }, []);
@@ -451,7 +450,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
 
     cleanupPipeline();
     setAppState("idle");
-    setResponseText("À bientôt !");
+    setResponseText("\u00c0 bient\u00f4t !");
   }, [cleanupPipeline]);
 
   // -------------------------------------------------------------------------
@@ -502,33 +501,34 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
     : greeting;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-cream">
       <StatusBar barStyle="dark-content" backgroundColor={Colors.cream} />
 
       {/* Top section: greeting and clock */}
-      <View style={styles.topSection}>
-        <Text style={styles.greeting}>{greetingText}</Text>
+      <View className="items-center pt-12 px-6">
+        <Text className="text-4xl font-bold text-brown mb-3">{greetingText}</Text>
         <Pressable
           onLongPress={handleClockLongPress}
           delayLongPress={3000}
           accessibilityLabel="Horloge"
         >
-          <Text style={styles.clock}>{timeString}</Text>
+          <Text className="text-7xl font-bold text-brown tracking-wide">{timeString}</Text>
         </Pressable>
-        <Text style={styles.date}>{dateString}</Text>
+        <Text className="text-2xl text-text-muted mt-2 capitalize">{dateString}</Text>
       </View>
 
       {/* Middle section: animation and response */}
-      <View style={styles.middleSection}>
+      <View className="flex-1 justify-center items-center px-8">
         <WaveAnimation state={appState} />
 
         {responseText ? (
-          <View style={styles.responseContainer}>
-            <Text style={styles.responseText}>{responseText}</Text>
+          <View className="mt-6 px-8 py-6 bg-cream rounded-2xl max-w-[600px] w-full border border-brown/10"
+                style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}>
+            <Text className="text-3xl text-text-dark leading-10 text-center">{responseText}</Text>
           </View>
         ) : (
-          <View style={styles.hintContainer}>
-            <Text style={styles.hintText}>
+          <View className="mt-6 px-8">
+            <Text className="text-2xl text-text-muted text-center">
               {appState === "idle"
                 ? "Appuyez sur le bouton pour me parler"
                 : ""}
@@ -538,14 +538,14 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       </View>
 
       {/* Bottom section: main button */}
-      <View style={styles.bottomSection}>
+      <View className="items-center pb-16">
         <MainButton
           state={appState}
           onPress={handleButtonPress}
           onLongPress={handleEndSession}
           disabled={appState === "thinking"}
         />
-        <Text style={styles.buttonLabel}>Parler à Memoria</Text>
+        <Text className="mt-4 text-3xl font-semibold text-brown">Parler \u00e0 Memoria</Text>
       </View>
 
       {/* ---- PIN Modal ---- */}
@@ -556,16 +556,21 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         onRequestClose={() => setShowPinModal(false)}
       >
         <Pressable
-          style={styles.modalOverlay}
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: Colors.overlay }}
           onPress={() => setShowPinModal(false)}
         >
-          <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Paramètres</Text>
-            <Text style={styles.modalSubtitle}>
-              Entrez le code PIN pour accéder aux paramètres
+          <Pressable
+            className="bg-white rounded-3xl px-8 py-12 w-[85%] max-w-[420px]"
+            style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 16, elevation: 8 }}
+            onPress={() => {}}
+          >
+            <Text className="text-3xl font-bold text-brown text-center mb-3">Param\u00e8tres</Text>
+            <Text className="text-2xl text-text-muted text-center mb-6">
+              Entrez le code PIN pour acc\u00e9der aux param\u00e8tres
             </Text>
             <TextInput
-              style={styles.modalInput}
+              className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-3xl text-text-dark text-center tracking-widest"
               value={pinInput}
               onChangeText={setPinInput}
               placeholder="Code PIN"
@@ -577,20 +582,21 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
               onSubmitEditing={handlePinSubmit}
             />
             {pinError ? (
-              <Text style={styles.modalError}>{pinError}</Text>
+              <Text className="text-2xl text-red-700 text-center mt-3">{pinError}</Text>
             ) : null}
-            <View style={styles.modalButtons}>
+            <View className="flex-row justify-between mt-8 gap-4">
               <Pressable
-                style={styles.modalSecondaryButton}
+                className="flex-1 py-3 rounded-xl border-2 border-brown items-center"
                 onPress={() => setShowPinModal(false)}
               >
-                <Text style={styles.modalSecondaryButtonText}>Annuler</Text>
+                <Text className="text-2xl font-semibold text-brown">Annuler</Text>
               </Pressable>
               <Pressable
-                style={styles.modalPrimaryButton}
+                className="flex-1 py-3 rounded-xl bg-brown items-center"
+                style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
                 onPress={handlePinSubmit}
               >
-                <Text style={styles.modalPrimaryButtonText}>Valider</Text>
+                <Text className="text-2xl font-bold text-white">Valider</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -605,48 +611,54 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
         onRequestClose={() => setShowSettings(false)}
       >
         <Pressable
-          style={styles.modalOverlay}
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: Colors.overlay }}
           onPress={() => setShowSettings(false)}
         >
-          <Pressable style={styles.settingsCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Paramètres</Text>
+          <Pressable
+            className="bg-white rounded-3xl px-8 py-12 w-[85%] max-w-[460px]"
+            style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 16, elevation: 8 }}
+            onPress={() => {}}
+          >
+            <Text className="text-3xl font-bold text-brown text-center mb-3">Param\u00e8tres</Text>
 
             {pairing && (
-              <View style={styles.settingsInfo}>
-                <Text style={styles.settingsInfoLabel}>Senior actuel</Text>
-                <Text style={styles.settingsInfoValue}>
+              <View className="bg-cream rounded-xl p-6 mt-6 mb-6">
+                <Text className="text-2xl font-semibold text-text-muted mt-2">Senior actuel</Text>
+                <Text className="text-3xl font-semibold text-text-dark mb-3">
                   {pairing.senior_name}
                 </Text>
-                <Text style={styles.settingsInfoLabel}>Serveur</Text>
-                <Text style={styles.settingsInfoValue}>
+                <Text className="text-2xl font-semibold text-text-muted mt-2">Serveur</Text>
+                <Text className="text-3xl font-semibold text-text-dark mb-3">
                   {pairing.api_url}
                 </Text>
               </View>
             )}
 
             <Pressable
-              style={styles.settingsButton}
+              className="bg-brown rounded-xl py-4 items-center mt-3"
+              style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
               onPress={handleChangeSenior}
             >
-              <Text style={styles.settingsButtonText}>
+              <Text className="text-2xl font-bold text-white">
                 Changer de senior
               </Text>
             </Pressable>
 
             <Pressable
-              style={[styles.settingsButton, styles.settingsButtonDanger]}
+              className="bg-cream rounded-xl py-4 items-center mt-3 border-2 border-red-700"
               onPress={handleResetPairing}
             >
-              <Text style={[styles.settingsButtonText, styles.settingsButtonDangerText]}>
-                Réinitialiser le jumelage
+              <Text className="text-2xl font-bold text-red-700">
+                R\u00e9initialiser le jumelage
               </Text>
             </Pressable>
 
             <Pressable
-              style={styles.settingsCloseButton}
+              className="mt-6 py-3 items-center"
               onPress={() => setShowSettings(false)}
             >
-              <Text style={styles.settingsCloseButtonText}>Fermer</Text>
+              <Text className="text-2xl font-semibold text-text-muted">Fermer</Text>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -654,221 +666,3 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
     </SafeAreaView>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.cream,
-  },
-  topSection: {
-    alignItems: "center",
-    paddingTop: Spacing.xxl,
-    paddingHorizontal: Spacing.lg,
-  },
-  greeting: {
-    fontSize: FontSizes.heading2,
-    fontWeight: "700",
-    color: Colors.brown,
-    marginBottom: Spacing.sm,
-  },
-  clock: {
-    fontSize: FontSizes.hero,
-    fontWeight: "700",
-    color: Colors.brown,
-    letterSpacing: 2,
-  },
-  date: {
-    fontSize: FontSizes.body,
-    color: Colors.textMuted,
-    marginTop: Spacing.xs,
-    textTransform: "capitalize",
-  },
-  middleSection: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: Spacing.xl,
-  },
-  responseContainer: {
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.lg,
-    backgroundColor: Colors.cream,
-    borderRadius: BorderRadius.lg,
-    maxWidth: 600,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: Colors.divider,
-    ...Shadows.soft,
-  },
-  responseText: {
-    fontSize: FontSizes.bodyLarge,
-    color: Colors.textDark,
-    lineHeight: FontSizes.bodyLarge * 1.5,
-    textAlign: "center",
-  },
-  hintContainer: {
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.xl,
-  },
-  hintText: {
-    fontSize: FontSizes.body,
-    color: Colors.textMuted,
-    textAlign: "center",
-  },
-  bottomSection: {
-    alignItems: "center",
-    paddingBottom: Spacing.xxxl,
-  },
-  buttonLabel: {
-    marginTop: Spacing.md,
-    fontSize: FontSizes.bodyLarge,
-    fontWeight: "600",
-    color: Colors.brown,
-  },
-
-  // ---- Modals ----
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: Colors.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalCard: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xxl,
-    width: "85%",
-    maxWidth: 420,
-    ...Shadows.strong,
-  },
-  modalTitle: {
-    fontSize: FontSizes.heading3,
-    fontWeight: "700",
-    color: Colors.brown,
-    textAlign: "center",
-    marginBottom: Spacing.sm,
-  },
-  modalSubtitle: {
-    fontSize: FontSizes.body,
-    color: Colors.textMuted,
-    textAlign: "center",
-    marginBottom: Spacing.lg,
-  },
-  modalInput: {
-    backgroundColor: Colors.cream,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.divider,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    fontSize: FontSizes.bodyLarge,
-    color: Colors.textDark,
-    textAlign: "center",
-    letterSpacing: 8,
-  },
-  modalError: {
-    fontSize: FontSizes.body,
-    color: Colors.error,
-    textAlign: "center",
-    marginTop: Spacing.sm,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: Spacing.xl,
-    gap: Spacing.md,
-  },
-  modalSecondaryButton: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.brown,
-    alignItems: "center",
-  },
-  modalSecondaryButtonText: {
-    fontSize: FontSizes.body,
-    fontWeight: "600",
-    color: Colors.brown,
-  },
-  modalPrimaryButton: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.brown,
-    alignItems: "center",
-    ...Shadows.soft,
-  },
-  modalPrimaryButtonText: {
-    fontSize: FontSizes.body,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-
-  // ---- Settings Panel ----
-  settingsCard: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xxl,
-    width: "85%",
-    maxWidth: 460,
-    ...Shadows.strong,
-  },
-  settingsInfo: {
-    backgroundColor: Colors.cream,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.lg,
-  },
-  settingsInfoLabel: {
-    fontSize: FontSizes.body,
-    fontWeight: "600",
-    color: Colors.textMuted,
-    marginTop: Spacing.xs,
-  },
-  settingsInfoValue: {
-    fontSize: FontSizes.bodyLarge,
-    fontWeight: "600",
-    color: Colors.textDark,
-    marginBottom: Spacing.sm,
-  },
-  settingsButton: {
-    backgroundColor: Colors.brown,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-    marginTop: Spacing.sm,
-    ...Shadows.soft,
-  },
-  settingsButtonText: {
-    fontSize: FontSizes.body,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-  settingsButtonDanger: {
-    backgroundColor: Colors.cream,
-    borderWidth: 1.5,
-    borderColor: Colors.error,
-  },
-  settingsButtonDangerText: {
-    color: Colors.error,
-  },
-  settingsCloseButton: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    alignItems: "center",
-  },
-  settingsCloseButtonText: {
-    fontSize: FontSizes.body,
-    fontWeight: "600",
-    color: Colors.textMuted,
-  },
-});

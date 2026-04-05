@@ -11,7 +11,7 @@
  */
 
 import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -84,9 +84,9 @@ function ListeningBar({ index, color }: { index: number; color: string }) {
 
   return (
     <Animated.View
+      className="rounded-full"
       style={[
-        styles.bar,
-        { backgroundColor: color, width: BAR_WIDTH },
+        { backgroundColor: color, width: BAR_WIDTH, borderRadius: BAR_WIDTH / 2 },
         animatedStyle,
       ]}
     />
@@ -95,7 +95,7 @@ function ListeningBar({ index, color }: { index: number; color: string }) {
 
 function ListeningWave({ color }: { color: string }) {
   return (
-    <View style={styles.barsContainer}>
+    <View className="flex-row items-center justify-center h-16" style={{ gap: BAR_GAP }}>
       {Array.from({ length: BAR_COUNT }).map((_, i) => (
         <ListeningBar key={i} index={i} color={color} />
       ))}
@@ -149,8 +149,8 @@ function ThinkingDot({ index, color }: { index: number; color: string }) {
 
   return (
     <Animated.View
+      className="rounded-full"
       style={[
-        styles.dot,
         {
           backgroundColor: color,
           width: DOT_SIZE,
@@ -165,7 +165,7 @@ function ThinkingDot({ index, color }: { index: number; color: string }) {
 
 function ThinkingDots({ color }: { color: string }) {
   return (
-    <View style={styles.dotsContainer}>
+    <View className="flex-row items-center justify-center h-16" style={{ gap: DOT_GAP }}>
       {Array.from({ length: DOT_COUNT }).map((_, i) => (
         <ThinkingDot key={i} index={i} color={color} />
       ))}
@@ -208,8 +208,8 @@ function SpeakingBar({ index, color }: { index: number; color: string }) {
 
   return (
     <Animated.View
+      className="rounded-full"
       style={[
-        styles.bar,
         {
           backgroundColor: color,
           width: BAR_WIDTH + 2,
@@ -223,7 +223,7 @@ function SpeakingBar({ index, color }: { index: number; color: string }) {
 
 function SpeakingWave({ color }: { color: string }) {
   return (
-    <View style={styles.barsContainer}>
+    <View className="flex-row items-center justify-center h-16" style={{ gap: BAR_GAP }}>
       {Array.from({ length: BAR_COUNT + 2 }).map((_, i) => (
         <SpeakingBar key={i} index={i} color={color} />
       ))}
@@ -239,44 +239,14 @@ export default function WaveAnimation({ state }: WaveAnimationProps) {
   const color = COLORS_BY_STATE[state];
 
   if (state === "idle") {
-    return <View style={styles.container} />;
+    return <View className="h-16 justify-center items-center" />;
   }
 
   return (
-    <View style={styles.container}>
+    <View className="h-16 justify-center items-center">
       {state === "listening" && <ListeningWave color={color} />}
       {state === "thinking" && <ThinkingDots color={color} />}
       {state === "speaking" && <SpeakingWave color={color} />}
     </View>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  container: {
-    height: 64,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  barsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: BAR_GAP,
-    height: 64,
-  },
-  bar: {
-    borderRadius: BAR_WIDTH / 2,
-  },
-  dotsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: DOT_GAP,
-    height: 64,
-  },
-  dot: {},
-});

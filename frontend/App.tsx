@@ -3,12 +3,14 @@
  *
  * Main entry point.
  * Checks AsyncStorage for tablet pairing data:
- * - If paired → HomeScreen
- * - If not paired → SetupScreen
+ * - If paired -> HomeScreen
+ * - If not paired -> SetupScreen
  */
 
+import './global.css';
+
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
+import { View, ActivityIndicator, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import HomeScreen from "./src/screens/HomeScreen";
@@ -25,7 +27,7 @@ export default function App() {
     try {
       const pairing = await getPairing();
       if (pairing) {
-        // Configurer les URLs de l'API depuis le jumelage sauvegardé
+        // Configurer les URLs de l'API depuis le jumelage sauvegarde
         const cleanUrl = pairing.api_url.replace(/\/+$/, "");
         setBaseURL(`${cleanUrl}/api`);
         setWsURL(cleanUrl.replace(/^http/, "ws"));
@@ -34,7 +36,7 @@ export default function App() {
         setIsPaired(false);
       }
     } catch (error) {
-      console.error("[App] Erreur de vérification du jumelage:", error);
+      console.error("[App] Erreur de verification du jumelage:", error);
       setIsPaired(false);
     } finally {
       setIsLoading(false);
@@ -56,9 +58,9 @@ export default function App() {
   if (isLoading) {
     return (
       <SafeAreaProvider>
-        <View style={styles.loadingRoot}>
+        <View className="flex-1 bg-cream justify-center items-center">
           <StatusBar style="dark" />
-          <Text style={styles.loadingTitle}>Memoria</Text>
+          <Text className="text-5xl font-bold text-brown mb-6">Memoria</Text>
           <ActivityIndicator size="large" color={Colors.brown} />
         </View>
       </SafeAreaProvider>
@@ -67,7 +69,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={styles.root}>
+      <View className="flex-1 bg-cream">
         <StatusBar style="dark" />
         {isPaired ? (
           <HomeScreen onRequestSetup={handleUnpaired} />
@@ -78,22 +80,3 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.backgroundPrimary,
-  },
-  loadingRoot: {
-    flex: 1,
-    backgroundColor: Colors.backgroundPrimary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingTitle: {
-    fontSize: 48,
-    fontWeight: "700",
-    color: Colors.brown,
-    marginBottom: 24,
-  },
-});

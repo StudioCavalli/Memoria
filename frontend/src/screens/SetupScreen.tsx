@@ -1,16 +1,15 @@
 /**
  * SetupScreen
  *
- * Écran de configuration initiale — jumelage de la tablette à un senior.
- * Protégé par un code PIN (1234).
+ * Ecran de configuration initiale -- jumelage de la tablette a un senior.
+ * Protege par un code PIN (1234).
  *
  * Flux :
- * 1. Saisie du PIN → 2. Connexion (email/mot de passe) → 3. Sélection du senior → 4. Sauvegarde
+ * 1. Saisie du PIN -> 2. Connexion (email/mot de passe) -> 3. Selection du senior -> 4. Sauvegarde
  */
 
 import React, { useState } from "react";
 import {
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -21,7 +20,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, FontSizes, Spacing, BorderRadius, Shadows } from "../constants/theme";
+import { Colors } from "../constants/theme";
 import { savePairing } from "../services/storage";
 import { setBaseURL, setWsURL } from "../services/api";
 
@@ -37,9 +36,9 @@ interface Senior {
 
 interface SetupScreenProps {
   onSetupComplete: () => void;
-  /** Si true, on est en mode « paramètres » (skip le PIN) */
+  /** Si true, on est en mode "parametres" (skip le PIN) */
   settingsMode?: boolean;
-  /** URL de l'API pré-remplie */
+  /** URL de l'API pre-remplie */
   initialApiUrl?: string;
 }
 
@@ -59,7 +58,7 @@ export default function SetupScreen({
   settingsMode = false,
   initialApiUrl,
 }: SetupScreenProps) {
-  // Steps: pin → login → select → done
+  // Steps: pin -> login -> select -> done
   const [step, setStep] = useState<"pin" | "login" | "select">(
     settingsMode ? "login" : "pin"
   );
@@ -128,12 +127,12 @@ export default function SetupScreen({
       const jwt = loginData.token || loginData.access_token || loginData.jwt;
 
       if (!jwt) {
-        throw new Error("Impossible de récupérer le token d'authentification");
+        throw new Error("Impossible de r\u00e9cup\u00e9rer le token d'authentification");
       }
 
       setToken(jwt);
 
-      // Récupérer la liste des seniors
+      // Recuperer la liste des seniors
       const seniorsResponse = await fetch(`${cleanUrl}/api/seniors/`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
@@ -142,16 +141,16 @@ export default function SetupScreen({
       });
 
       if (!seniorsResponse.ok) {
-        throw new Error("Impossible de récupérer la liste des seniors");
+        throw new Error("Impossible de r\u00e9cup\u00e9rer la liste des seniors");
       }
 
       const seniorsData: Senior[] = await seniorsResponse.json();
 
       if (!seniorsData || seniorsData.length === 0) {
-        throw new Error("Aucun senior trouvé dans ce compte");
+        throw new Error("Aucun senior trouv\u00e9 dans ce compte");
       }
 
-      // Si un seul senior, sélection automatique
+      // Si un seul senior, selection automatique
       if (seniorsData.length === 1) {
         await selectSenior(seniorsData[0], jwt, cleanUrl);
         return;
@@ -202,35 +201,38 @@ export default function SetupScreen({
   // -------------------------------------------------------------------------
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-cream">
       <KeyboardAvoidingView
-        style={styles.flex}
+        className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 32, paddingVertical: 48 }}
           keyboardShouldPersistTaps="handled"
         >
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Memoria</Text>
-            <Text style={styles.subtitle}>
+          <View className="items-center mb-8">
+            <Text className="text-6xl font-bold text-brown mb-3">Memoria</Text>
+            <Text className="text-3xl text-text-muted text-center">
               {step === "pin"
                 ? "Configuration de la tablette"
                 : step === "login"
-                ? "Connexion à votre compte"
-                : "Sélection du senior"}
+                ? "Connexion \u00e0 votre compte"
+                : "S\u00e9lection du senior"}
             </Text>
           </View>
 
           {/* Card */}
-          <View style={styles.card}>
+          <View
+            className="bg-white rounded-3xl px-8 py-12 w-full max-w-[500px]"
+            style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 5 }}
+          >
             {/* ---- PIN Step ---- */}
             {step === "pin" && (
               <>
-                <Text style={styles.label}>Code PIN de configuration</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Code PIN de configuration</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={pin}
                   onChangeText={setPin}
                   placeholder="Entrez le code PIN"
@@ -242,10 +244,14 @@ export default function SetupScreen({
                   onSubmitEditing={handlePinSubmit}
                 />
                 {pinError ? (
-                  <Text style={styles.errorText}>{pinError}</Text>
+                  <Text className="text-2xl text-red-700 text-center mt-2 mb-3">{pinError}</Text>
                 ) : null}
-                <Pressable style={styles.primaryButton} onPress={handlePinSubmit}>
-                  <Text style={styles.primaryButtonText}>Valider</Text>
+                <Pressable
+                  className="bg-brown rounded-xl py-4 items-center mt-6"
+                  style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
+                  onPress={handlePinSubmit}
+                >
+                  <Text className="text-3xl font-bold text-white">Valider</Text>
                 </Pressable>
               </>
             )}
@@ -253,9 +259,9 @@ export default function SetupScreen({
             {/* ---- Login Step ---- */}
             {step === "login" && (
               <>
-                <Text style={styles.label}>Adresse du serveur</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Adresse du serveur</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={apiUrl}
                   onChangeText={setApiUrl}
                   placeholder="http://192.168.1.x:8000"
@@ -265,9 +271,9 @@ export default function SetupScreen({
                   autoCorrect={false}
                 />
 
-                <Text style={styles.label}>Adresse email</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Adresse email</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={email}
                   onChangeText={setEmail}
                   placeholder="votre@email.com"
@@ -277,9 +283,9 @@ export default function SetupScreen({
                   autoCorrect={false}
                 />
 
-                <Text style={styles.label}>Mot de passe</Text>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">Mot de passe</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-cream rounded-xl border border-brown/20 px-4 py-3 text-2xl text-text-dark mb-3"
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Votre mot de passe"
@@ -289,18 +295,22 @@ export default function SetupScreen({
                 />
 
                 {loginError ? (
-                  <Text style={styles.errorText}>{loginError}</Text>
+                  <Text className="text-2xl text-red-700 text-center mt-2 mb-3">{loginError}</Text>
                 ) : null}
 
                 <Pressable
-                  style={[styles.primaryButton, loading && styles.buttonDisabled]}
+                  className="bg-brown rounded-xl py-4 items-center mt-6"
+                  style={[
+                    { shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+                    loading ? { opacity: 0.6 } : {},
+                  ]}
                   onPress={handleLogin}
                   disabled={loading}
                 >
                   {loading ? (
                     <ActivityIndicator color={Colors.white} size="small" />
                   ) : (
-                    <Text style={styles.primaryButtonText}>Se connecter</Text>
+                    <Text className="text-3xl font-bold text-white">Se connecter</Text>
                   )}
                 </Pressable>
               </>
@@ -309,26 +319,26 @@ export default function SetupScreen({
             {/* ---- Senior Selection Step ---- */}
             {step === "select" && (
               <>
-                <Text style={styles.label}>
+                <Text className="text-2xl font-semibold text-brown mb-2 mt-4">
                   Choisissez le senior pour cette tablette
                 </Text>
                 {seniors.map((senior) => (
                   <Pressable
                     key={senior.id}
-                    style={styles.seniorItem}
+                    className="flex-row items-center justify-between bg-cream rounded-xl px-6 py-4 mt-4 border-2 border-orange-soft"
                     onPress={() => selectSenior(senior)}
                   >
-                    <Text style={styles.seniorName}>
+                    <Text className="text-3xl font-semibold text-text-dark">
                       {senior.first_name} {senior.last_name}
                     </Text>
-                    <Text style={styles.seniorArrow}>→</Text>
+                    <Text className="text-4xl text-orange-soft">{"\u2192"}</Text>
                   </Pressable>
                 ))}
                 {loading && (
                   <ActivityIndicator
                     color={Colors.brown}
                     size="large"
-                    style={{ marginTop: Spacing.lg }}
+                    style={{ marginTop: 24 }}
                   />
                 )}
               </>
@@ -339,110 +349,3 @@ export default function SetupScreen({
     </SafeAreaView>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.cream,
-  },
-  flex: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xxl,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: Spacing.xl,
-  },
-  title: {
-    fontSize: FontSizes.hero,
-    fontWeight: "700",
-    color: Colors.brown,
-    marginBottom: Spacing.sm,
-  },
-  subtitle: {
-    fontSize: FontSizes.bodyLarge,
-    color: Colors.textMuted,
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xxl,
-    width: "100%",
-    maxWidth: 500,
-    ...Shadows.medium,
-  },
-  label: {
-    fontSize: FontSizes.body,
-    fontWeight: "600",
-    color: Colors.brown,
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.md,
-  },
-  input: {
-    backgroundColor: Colors.cream,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: Colors.divider,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    fontSize: FontSizes.body,
-    color: Colors.textDark,
-    marginBottom: Spacing.sm,
-  },
-  errorText: {
-    fontSize: FontSizes.body,
-    color: Colors.error,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.sm,
-    textAlign: "center",
-  },
-  primaryButton: {
-    backgroundColor: Colors.brown,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-    marginTop: Spacing.lg,
-    ...Shadows.soft,
-  },
-  primaryButtonText: {
-    color: Colors.white,
-    fontSize: FontSizes.bodyLarge,
-    fontWeight: "700",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  seniorItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: Colors.cream,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    marginTop: Spacing.md,
-    borderWidth: 1.5,
-    borderColor: Colors.orangeSoft,
-  },
-  seniorName: {
-    fontSize: FontSizes.bodyLarge,
-    fontWeight: "600",
-    color: Colors.textDark,
-  },
-  seniorArrow: {
-    fontSize: FontSizes.heading2,
-    color: Colors.orangeSoft,
-  },
-});
