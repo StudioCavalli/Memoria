@@ -62,6 +62,12 @@ export default function Navbar() {
               </a>
             ))}
             <a
+              href="/login"
+              className="text-sm font-semibold text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
+            >
+              Se connecter
+            </a>
+            <a
               href="#contact"
               className="ml-2 px-5 py-2.5 bg-brown text-white text-sm font-bold rounded-full hover:bg-brown-dark transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2"
             >
@@ -103,6 +109,13 @@ export default function Navbar() {
                   {link.label}
                 </a>
               ))}
+              <a
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="block text-base font-semibold text-text-dark hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
+              >
+                Se connecter
+              </a>
               <a
                 href="#contact"
                 onClick={() => setMobileOpen(false)}

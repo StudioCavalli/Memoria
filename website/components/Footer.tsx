@@ -53,6 +53,14 @@ export default function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-text-muted hover:text-brown transition-colors focus:outline-none focus:ring-2 focus:ring-orange-soft focus:ring-offset-2 rounded-md"
+                >
+                  Dashboard famille
+                </Link>
+              </li>
             </ul>
           </div>
 
