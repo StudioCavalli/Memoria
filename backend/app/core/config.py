@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     @property
     def sqlalchemy_database_url(self) -> str:
         """Convert postgres:// to postgresql:// for SQLAlchemy compatibility."""
-        url = self.database_url
+        url = self.database_url.strip()
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         return url
