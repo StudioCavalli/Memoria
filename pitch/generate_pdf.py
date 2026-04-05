@@ -582,9 +582,9 @@ def build():
     story.append(road)
     story.append(Spacer(1, 20))
     story.append(Paragraph(
-        "<font color='#7FB069'><b>D\u00e9veloppement termin\u00e9</b></font> \u2014 "
-        "67 issues livr\u00e9es, 120+ tests, 64 fichiers Python, 30 jours de donn\u00e9es de d\u00e9mo. "
-        "Le produit <b>est pr\u00eat</b>.",
+        "<font color='#7FB069'><b>V1 livr\u00e9e</b></font> \u2014 "
+        "67 issues, 120+ tests, 64 fichiers Python, 30 jours de donn\u00e9es de d\u00e9mo. "
+        "La premi\u00e8re version <b>est pr\u00eate pour le terrain</b>.",
         ST['bodyc']
     ))
     story.append(PageBreak())

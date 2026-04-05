@@ -99,7 +99,7 @@ export default function Roadmap() {
             Ce qui arrive
           </h2>
           <p className="text-text-muted mt-4 max-w-2xl mx-auto text-lg">
-            Le développement de Memoria est terminé. Voici comment nous allons le déployer et le faire grandir.
+            La v1 de Memoria est prête. Voici les prochaines étapes pour le déployer et le faire grandir.
           </p>
         </motion.div>
 
@@ -194,7 +194,7 @@ export default function Roadmap() {
         >
           <div className="inline-block bg-gradient-to-r from-brown/10 via-orange-soft/15 to-brown/10 rounded-2xl px-8 py-5">
             <p className="font-heading text-lg font-bold text-brown">
-              Le produit <span className="text-orange-text">est terminé</span> — 67 issues livrées, 120+ tests, démo fonctionnelle avec 30 jours de données.
+              La <span className="text-orange-text">première version</span> est livrée — 67 issues, 120+ tests, démo fonctionnelle. Prêts pour le terrain.
             </p>
             <p className="text-text-muted text-sm mt-2">
               Nous cherchons des partenaires pour le déployer à grande échelle sur la Côte d'Azur.
