@@ -1,11 +1,11 @@
 # Guide d'installation
 
-## Prerequis
+## Prérequis
 - Docker & Docker Compose
-- Node.js 20+ (pour le dev frontend/dashboard)
+- Node.js 20+ (pour le dev website/dashboard/app)
 - Python 3.11+ (pour le dev backend local)
 
-## Demarrage rapide
+## Démarrage rapide
 
 ```bash
 # 1. Cloner le repo
@@ -14,24 +14,19 @@ cd Memoria
 
 # 2. Configurer l'environnement
 cp .env.example .env
-# Editer .env avec vos cles API (Anthropic, ElevenLabs, etc.)
+# Éditer .env avec vos clés API (Anthropic, ElevenLabs, etc.)
 
-# 3. Lancer les services
-make dev
-
-# 4. Lancer les migrations BDD
-make db-migrate
-
-# 5. Seed des donnees de base
-make db-seed
+# 3. Tout lancer
+chmod +x start.sh
+./start.sh
 ```
 
 ## URLs
 - Backend API : http://localhost:8000
 - Documentation API (Swagger) : http://localhost:8000/docs
-- Dashboard Famille : http://localhost:3000
+- Site + Dashboard : http://localhost:3000
 
-## Developpement local (sans Docker)
+## Développement local (sans Docker)
 
 ### Backend
 ```bash
@@ -42,16 +37,26 @@ pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
-### Dashboard
+### Site + Dashboard (Next.js)
 ```bash
-cd dashboard
-npm install
-npm run dev
+cd website
+npm install --legacy-peer-deps
+NEXT_PUBLIC_API_URL=http://localhost:8000/api npm run dev
 ```
 
-### App tablette
+### App tablette (React Native)
 ```bash
-cd frontend
+cd app
 npm install
 npx expo start
+```
+
+## Structure du repo
+
+```
+backend/       API Python/FastAPI
+app/           App tablette senior — React Native (Expo) + NativeWind
+website/       Site vitrine + Dashboard famille — Next.js 15 + Tailwind v4
+database/      Scripts SQL, seed des thèmes
+docs/          Documentation technique
 ```

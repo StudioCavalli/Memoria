@@ -19,7 +19,7 @@ Memoria est un compagnon vocal bienveillant qui recueille les souvenirs de vie d
 
 ```
 backend/       API Python/FastAPI — moteur IA, STT/TTS, analyse cognitive, alertes
-frontend/      App React Native (Expo) — tablette senior, mode kiosque
+app/           App tablette senior — React Native (Expo) + NativeWind (Tailwind)
 website/       Site vitrine + Dashboard famille — Next.js 15 + Tailwind v4
 database/      Scripts SQL, seed des thèmes
 docs/          Documentation technique (architecture, setup, API, scénario démo)
@@ -127,10 +127,10 @@ Audio <── Haut-parleur <── WebSocket <── TTS (ElevenLabs) <── LL
 
 ---
 
-## Frontend — App tablette senior (React Native / Expo)
+## App tablette senior (React Native / Expo / NativeWind)
 
 ```
-frontend/src/
+app/src/
   screens/HomeScreen.tsx    Écran unique : bouton central, horloge, salutations contextuelles
   components/MainButton.tsx Bouton 160x160, 4 états (idle/listening/thinking/speaking), haptic
   components/WaveAnimation.tsx  Onde sonore réactive, points pulsants, 60fps (Reanimated)
