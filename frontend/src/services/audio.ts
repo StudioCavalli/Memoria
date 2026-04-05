@@ -2,81 +2,61 @@
  * Memoria Audio Manager
  *
  * Simple API for recording microphone input and playing back audio.
- * Uses expo-av for all audio operations.
+ * Uses expo-audio for all audio operations.
  */
 
-import { Audio } from "expo-av";
+import {
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  createAudioPlayer,
+  AudioModule,
+  RecordingPresets,
+} from "expo-audio";
 
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
 
-let recording: Audio.Recording | null = null;
-let currentPlayback: Audio.Sound | null = null;
+let recorder: InstanceType<typeof AudioModule.AudioRecorder> | null = null;
+let currentPlayer: ReturnType<typeof createAudioPlayer> | null = null;
 
 // ---------------------------------------------------------------------------
 // Permissions
 // ---------------------------------------------------------------------------
 
-/**
- * Request microphone permissions. Call once at app startup.
- * Returns true if granted.
- */
 export async function requestPermissions(): Promise<boolean> {
-  const { status } = await Audio.requestPermissionsAsync();
-  return status === "granted";
+  const { granted } = await requestRecordingPermissionsAsync();
+  return granted;
 }
 
 // ---------------------------------------------------------------------------
 // Recording
 // ---------------------------------------------------------------------------
 
-/**
- * Start recording from the microphone.
- * Configures audio mode for recording on iOS/Android.
- */
 export async function startRecording(): Promise<void> {
-  // Stop any existing recording first
-  if (recording) {
+  if (recorder) {
     await stopRecording();
   }
 
-  // Configure audio session for recording
-  await Audio.setAudioModeAsync({
-    allowsRecordingIOS: true,
-    playsInSilentModeIOS: true,
-  });
+  await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
 
-  const { recording: newRecording } = await Audio.Recording.createAsync(
-    Audio.RecordingOptionsPresets.HIGH_QUALITY
-  );
-
-  recording = newRecording;
+  recorder = new AudioModule.AudioRecorder(RecordingPresets.HIGH_QUALITY);
+  await recorder.prepareToRecordAsync();
+  recorder.record();
 }
 
-/**
- * Stop the current recording and return the local file URI.
- * Returns null if no recording was active.
- */
 export async function stopRecording(): Promise<string | null> {
-  if (!recording) {
+  if (!recorder) {
     return null;
   }
 
   try {
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    recording = null;
-
-    // Restore audio mode for playback
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-    });
-
+    await recorder.stop();
+    const uri = recorder.uri;
+    recorder = null;
     return uri ?? null;
   } catch (error) {
-    recording = null;
+    recorder = null;
     console.error("[AudioManager] Error stopping recording:", error);
     return null;
   }
@@ -86,58 +66,44 @@ export async function stopRecording(): Promise<string | null> {
 // Playback
 // ---------------------------------------------------------------------------
 
-/**
- * Play audio from a URI (local file or remote URL).
- * Returns a promise that resolves when playback finishes.
- */
 export async function playAudio(uri: string): Promise<void> {
-  // Stop any currently playing audio
   await stopPlayback();
 
-  const { sound } = await Audio.Sound.createAsync(
-    { uri },
-    { shouldPlay: true, volume: 1.0 }
-  );
-
-  currentPlayback = sound;
+  const player = createAudioPlayer({ uri });
+  currentPlayer = player;
 
   return new Promise<void>((resolve) => {
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
+    player.addListener("playbackStatusUpdate", (status) => {
+      if (status.didJustFinish) {
         stopPlayback();
         resolve();
       }
     });
+    player.play();
   });
 }
 
-/**
- * Stop any currently playing audio and release resources.
- */
 export async function stopPlayback(): Promise<void> {
-  if (currentPlayback) {
+  if (currentPlayer) {
     try {
-      await currentPlayback.stopAsync();
-      await currentPlayback.unloadAsync();
+      currentPlayer.remove();
     } catch {
-      // Sound may already be unloaded
+      // already released
     }
-    currentPlayback = null;
+    currentPlayer = null;
   }
 }
 
-/**
- * Check if audio is currently being recorded.
- */
+// ---------------------------------------------------------------------------
+// Utils
+// ---------------------------------------------------------------------------
+
 export function isRecording(): boolean {
-  return recording !== null;
+  return recorder !== null;
 }
 
-/**
- * Check if audio is currently playing.
- */
 export function isPlaying(): boolean {
-  return currentPlayback !== null;
+  return currentPlayer !== null;
 }
 
 const AudioManager = {

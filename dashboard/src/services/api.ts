@@ -1,69 +1,111 @@
-import axios from 'axios';
-
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-const api = axios.create({
-  baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
-});
+// ---------------------------------------------------------------------------
+// Core fetch wrapper
+// ---------------------------------------------------------------------------
 
-// ---------------------------------------------------------------------------
-// JWT interceptor
-// ---------------------------------------------------------------------------
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('memoria_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+async function refreshTokens(): Promise<string | null> {
+  const refreshToken = localStorage.getItem('memoria_refresh');
+  if (!refreshToken) return null;
+
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!res.ok) {
+    localStorage.removeItem('memoria_token');
+    localStorage.removeItem('memoria_refresh');
+    window.location.href = '/login';
+    return null;
   }
-  return config;
-});
 
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    if (error.response?.status === 401) {
-      const refreshToken = localStorage.getItem('memoria_refresh');
-      if (refreshToken) {
-        try {
-          const { data } = await axios.post(`${API_BASE}/auth/refresh`, {
-            refresh_token: refreshToken,
-          });
-          localStorage.setItem('memoria_token', data.access_token);
-          localStorage.setItem('memoria_refresh', data.refresh_token);
-          error.config.headers.Authorization = `Bearer ${data.access_token}`;
-          return api(error.config);
-        } catch {
-          localStorage.removeItem('memoria_token');
-          localStorage.removeItem('memoria_refresh');
-          window.location.href = '/login';
-        }
-      } else {
-        localStorage.removeItem('memoria_token');
-        window.location.href = '/login';
-      }
+  const data = await res.json();
+  localStorage.setItem('memoria_token', data.access_token);
+  localStorage.setItem('memoria_refresh', data.refresh_token);
+  return data.access_token;
+}
+
+async function request<T = unknown>(
+  method: string,
+  path: string,
+  body?: unknown,
+  params?: Record<string, unknown>,
+  responseType?: 'blob',
+): Promise<{ data: T }> {
+  const url = new URL(`${API_BASE}${path}`);
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
     }
-    return Promise.reject(error);
-  },
-);
+  }
+
+  const token = localStorage.getItem('memoria_token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  let res = await fetch(url.toString(), {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  // Auto-refresh on 401
+  if (res.status === 401) {
+    const newToken = await refreshTokens();
+    if (newToken) {
+      headers['Authorization'] = `Bearer ${newToken}`;
+      res = await fetch(url.toString(), {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      });
+    } else {
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+  }
+
+  if (!res.ok) {
+    throw new Error(`API Error ${res.status}: ${res.statusText}`);
+  }
+
+  if (responseType === 'blob') {
+    return { data: (await res.blob()) as T };
+  }
+
+  const text = await res.text();
+  return { data: text ? JSON.parse(text) : null };
+}
+
+const api = {
+  get: <T = unknown>(path: string, opts?: { params?: Record<string, unknown>; responseType?: 'blob' }) =>
+    request<T>('GET', path, undefined, opts?.params, opts?.responseType),
+  post: <T = unknown>(path: string, body?: unknown) =>
+    request<T>('POST', path, body),
+  put: <T = unknown>(path: string, body?: unknown) =>
+    request<T>('PUT', path, body),
+  delete: <T = unknown>(path: string) =>
+    request<T>('DELETE', path),
+};
 
 // ---------------------------------------------------------------------------
 // Helpers – résolution du senior_id
 // ---------------------------------------------------------------------------
 
-/**
- * Récupère le senior_id depuis localStorage.
- * Si absent, interroge GET /seniors/ et utilise le premier résultat.
- */
 export async function resolveSeniorId(): Promise<string> {
   const stored = localStorage.getItem('memoria_senior_id');
   if (stored) return stored;
 
-  const { data } = await api.get('/seniors/');
-  const list = Array.isArray(data) ? data : data.items ?? data.results ?? [];
+  const { data } = await api.get<unknown[]>('/seniors/');
+  const list = Array.isArray(data) ? data : (data as Record<string, unknown[]>).items ?? (data as Record<string, unknown[]>).results ?? [];
   if (list.length > 0) {
-    const id = list[0].id;
-    localStorage.setItem('memoria_senior_id', id);
-    return id;
+    const id = (list[0] as Record<string, unknown>).id as string;
+    localStorage.setItem('memoria_senior_id', String(id));
+    return String(id);
   }
   throw new Error('Aucun senior trouvé.');
 }
@@ -122,21 +164,10 @@ export const sessionsService = {
 
   get: (sessionId: string) => api.get(`/sessions/${sessionId}`),
 
-  /**
-   * Raccourci utilisé par le DashboardPage : récupère la dernière session
-   * en démarrant une requête sessions/start n'est pas adapté, on utilise
-   * GET /sessions/{id} après avoir trouvé l'id.  Comme le backend ne fournit
-   * pas de route « latest », on simule via GET /seniors/{id} qui renvoie
-   * souvent last_session, ou on renvoie null.
-   */
   latest: (seniorId: string) =>
-    api.get(`/seniors/${seniorId}`).then((res) => {
-      // Le backend renvoie le détail du senior ; on extrait last_session
+    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => {
       const senior = res.data;
-      if (senior.last_session) {
-        return { data: senior.last_session };
-      }
-      // Pas de dernière session disponible
+      if (senior.last_session) return { data: senior.last_session };
       return { data: null };
     }),
 };
@@ -158,7 +189,6 @@ export const memoriesService = {
     if (filters?.theme) params.theme_id = filters.theme;
     if (filters?.period) params.period = filters.period;
     if (filters?.search) params.search = filters.search;
-    // Le backend utilise skip/limit
     const page = filters?.page ?? 1;
     const perPage = filters?.per_page ?? 20;
     params.skip = (page - 1) * perPage;
@@ -184,12 +214,9 @@ export const alertsService = {
   markRead: (_seniorId: string, alertId: string) =>
     api.put(`/alerts/${alertId}/read`),
 
-  /** Compteur d'alertes non lues (récupère la liste et compte) */
   unreadCount: (seniorId: string) =>
     api
-      .get('/alerts/', {
-        params: { senior_id: seniorId, unread_only: true, limit: 100 },
-      })
+      .get('/alerts/', { params: { senior_id: seniorId, unread_only: true, limit: 100 } })
       .then((res) => {
         const items = Array.isArray(res.data) ? res.data : [];
         return { data: { count: items.length } };
@@ -212,13 +239,10 @@ export const metricsService = {
 // ---------------------------------------------------------------------------
 export const gazettesService = {
   list: (seniorId: string, skip = 0, limit = 20) =>
-    api.get('/gazettes/', {
-      params: { senior_id: seniorId, skip, limit },
-    }),
+    api.get('/gazettes/', { params: { senior_id: seniorId, skip, limit } }),
 
   get: (gazetteId: string) => api.get(`/gazettes/${gazetteId}`),
 
-  /** Télécharge le PDF — le backend redirige vers l'URL du fichier */
   download: (_seniorId: string, gazetteId: string) =>
     api.get(`/gazettes/${gazetteId}/pdf`, { responseType: 'blob' }),
 };
@@ -227,10 +251,8 @@ export const gazettesService = {
 // GDPR
 // ---------------------------------------------------------------------------
 export const gdprService = {
-  /** Exporte toutes les données de l'utilisateur (JSON) */
   exportData: () => api.get('/gdpr/export'),
 
-  /** Supprime le compte et toutes les données associées */
   deleteAccount: () => api.delete('/gdpr/delete-account'),
 };
 
@@ -255,7 +277,7 @@ export const settingsService = {
     api.put(`/seniors/${seniorId}`, data),
 
   getSchedule: (seniorId: string) =>
-    api.get(`/seniors/${seniorId}`).then((res) => ({
+    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => ({
       data: res.data.schedule ?? { days: [], time: '10:00', duration_minutes: 30 },
     })),
 
@@ -263,7 +285,7 @@ export const settingsService = {
     api.put(`/seniors/${seniorId}`, { schedule: data }),
 
   getNotificationPrefs: () =>
-    api.get('/auth/me').then((res) => ({
+    api.get<Record<string, unknown>>('/auth/me').then((res) => ({
       data: res.data.notification_preferences ?? {
         email_alerts: true,
         email_gazette: true,
@@ -272,19 +294,15 @@ export const settingsService = {
     })),
 
   updateNotificationPrefs: (data: Record<string, unknown>) =>
-    api.get('/auth/me').then((meRes) => {
-      const userId = meRes.data.id;
-      // On met à jour via le endpoint utilisateur si disponible,
-      // sinon on tente un PUT sur /auth/me
+    api.get<Record<string, unknown>>('/auth/me').then((meRes) => {
       return api.put('/auth/me', {
         ...meRes.data,
         notification_preferences: data,
-        id: userId,
       });
     }),
 
   getFamilyMembers: (seniorId: string) =>
-    api.get(`/seniors/${seniorId}`).then((res) => ({
+    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => ({
       data: res.data.family_members ?? [],
     })),
 };
