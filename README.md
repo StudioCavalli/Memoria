@@ -83,10 +83,10 @@ docs/          Documentation technique (architecture, setup, API)
 | `MemoryExtractionService` | Pipeline post-session : extraction souvenirs par LLM, classification thematique, deduplication, resume de session |
 | `QuestionBankService` | 100+ questions biographiques en 8 themes, selection intelligente (evite repetitions, varie les themes), relances contextuelles |
 | `GazetteGeneratorService` | Generation PDF hebdomadaire (ReportLab) : compilation narrative des souvenirs, mise en page, envoi email aux proches |
-| `StorageService` | Stockage S3-compatible pour audio et PDFs, presigned URLs, compression |
+| `StorageService` | Stockage S3-compatible pour audio et PDFs, presigned URLs. Fallback local (backend/uploads/) quand S3 non configure, servi via FastAPI StaticFiles |
 | `SessionScheduler` | Declenchement automatique de sessions a horaires configures |
 | `NotificationManager` | Notifications temps reel WebSocket (tablettes + dashboards) + email SendGrid |
-| `CronJobs` | Taches planifiees : alertes quotidiennes (8h), gazette hebdomadaire (dimanche 20h) |
+| `CronJobs` | APScheduler AsyncIO : alertes quotidiennes (CronTrigger 8h UTC), gazette hebdomadaire (dimanche 20h UTC). Execution unique garantie |
 
 ### 9 modeles de donnees (PostgreSQL)
 
@@ -152,6 +152,15 @@ frontend/src/
   constants/theme.ts        Palette WCAG AAA, polices 24-64pt, espacements
 ```
 
+**Pipeline vocal (WebSocket) :**
+- Appui sur le bouton → enregistrement audio (expo-av)
+- Relachement → lecture du fichier audio (expo-file-system) → envoi en ArrayBuffer via WebSocket `VoicePipeline`
+- Reception des events : `status` (listening/thinking/speaking), `response_text`, `silence_detected`
+- Reception audio binaire TTS → ecriture fichier temp → lecture via expo-av
+- Interruption : appuyer pendant que l'IA parle coupe la reponse
+- Appui long : fin de session
+- Reconnexion automatique en cas de perte WebSocket
+
 **Principes UX :**
 - **Zero friction** : un seul bouton, pas de menu, pas de navigation
 - **Accessibilite 80+** : police 28pt minimum, contraste 7:1 (WCAG AAA), zone tactile 64x64dp
@@ -175,8 +184,10 @@ dashboard/src/
   pages/SettingsPage.tsx     Profil senior, horaires sessions, notifications, famille
   components/Layout.tsx      Sidebar responsive, menu mobile hamburger
   components/ProtectedRoute.tsx  Guard JWT avec redirect
-  services/api.ts            Axios + intercepteur JWT auto-refresh sur 401
+  services/api.ts            Axios + intercepteur JWT auto-refresh sur 401 + 10 services API complets
 ```
+
+**Services API implementes :** authService, seniorsService, sessionsService, memoriesService, alertsService (avec unreadCount), metricsService, gazettesService, gdprService, questionsService, settingsService + helper `resolveSeniorId()`
 
 **Fonctionnalites :**
 - Graphiques d'evolution cognitive sur 30 jours (Recharts LineChart)
