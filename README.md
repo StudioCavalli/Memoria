@@ -189,12 +189,20 @@ dashboard/src/
 
 **Services API implementes :** authService, seniorsService, sessionsService, memoriesService, alertsService (avec unreadCount), metricsService, gazettesService, gdprService, questionsService, settingsService + helper `resolveSeniorId()`
 
-**Fonctionnalites :**
-- Graphiques d'evolution cognitive sur 30 jours (Recharts LineChart)
-- Jauge SVG du score de vitalite (0-100)
-- Indicateurs de tendance (stable / en hausse / en baisse)
-- Notifications par badge (alertes non lues)
-- Design warm : palette cream/brown/orange, polices Merriweather + Nunito
+**Pages detaillees :**
+
+| Page | Fonctionnalites |
+|------|-----------------|
+| **DashboardPage** | Recharts LineChart richesse semantique 7j, score vitalite colore (vert >70, orange 40-70, rouge <40), tendances, compteur alertes non lues, derniere session, derniere gazette, auto-refresh 60s |
+| **MemoriesPage** | Filtres theme (pills dynamiques depuis l'API), recherche texte client-side, pagination skip/limit, expand/collapse detail, tags themes colores, bouton "Reecouter" si audio dispo |
+| **AlertsPage** | Code couleur severite (vert/orange/rouge), "Marquer comme lu", filtre "Non lues uniquement", WebSocket temps reel (`ws://dashboard/{userId}`), toast notification "Nouvelle alerte recue" |
+| **GazettesPage** | Archive des Gazettes PDF, telechargement |
+| **MetricsPage** | Graphiques Recharts vocabulaire + latence 30j, jauge SVG vitalite |
+| **SettingsPage** | Profil senior CRUD, horaires sessions (jours + heure + duree), preferences notification (email alertes, email gazette, push), liste famille (lecture), export RGPD (JSON), suppression compte (confirmation 2 etapes) |
+
+**Notifications temps reel :** connexion WebSocket au backend, reception d'evenements `new_alert`, banniere de notification avec bouton refresh.
+
+**CORS :** origines configurables via variable d'environnement `CORS_ORIGINS` (separes par virgules).
 
 ---
 
@@ -347,8 +355,8 @@ python3 scripts/test_pipeline.py
 | Questions biographiques | 145 questions en 8 themes |
 | Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
 | Stockage | S3-compatible + fallback local (uploads/) |
-| Issues GitHub | 55 fermees sur 67 |
-| Milestones | 10 (P1 + P2 termines) |
+| Issues GitHub | 61 fermees sur 67 |
+| Milestones | 11 (P1 + P2 + P3 termines) |
 
 ---
 
