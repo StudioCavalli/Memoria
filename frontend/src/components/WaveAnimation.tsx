@@ -2,11 +2,12 @@
  * WaveAnimation
  *
  * Visual feedback for the current conversation state.
- * - listening: organic audio waveform
- * - thinking: pulsing dots
- * - speaking: rhythmic wave pattern
+ * - listening: organic audio waveform (orange-soft)
+ * - thinking: pulsing dots (brown)
+ * - speaking: rhythmic wave pattern (greenForest)
  *
  * Uses react-native-reanimated for 60fps performance.
+ * Colors matched to the Memoria website palette.
  */
 
 import React, { useEffect } from "react";
@@ -44,10 +45,10 @@ const DOT_SIZE = 16;
 const DOT_GAP = 20;
 
 const COLORS_BY_STATE: Record<AnimationState, string> = {
-  idle: Colors.accentCalm,
-  listening: Colors.buttonListening,
-  thinking: Colors.buttonThinking,
-  speaking: Colors.buttonSpeaking,
+  idle: Colors.roseDusty,
+  listening: Colors.orangeSoft,     // #E8A87C
+  thinking: Colors.brown,           // #7D6340
+  speaking: Colors.greenForest,     // #4A7A35
 };
 
 // ---------------------------------------------------------------------------

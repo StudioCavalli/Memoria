@@ -4,6 +4,8 @@
  * The single large central button for Memoria.
  * 160x160 round button with state-dependent colors and haptic feedback.
  * Touch target well above the 48dp accessibility minimum.
+ *
+ * Redesigned to match the Memoria website palette (brown/orange/green).
  */
 
 import React, { useEffect } from "react";
@@ -37,24 +39,24 @@ interface MainButtonProps {
 const BUTTON_SIZE = 160;
 
 const BG_COLORS: Record<ButtonState, string> = {
-  idle: Colors.buttonIdle,
-  listening: Colors.buttonListening,
-  thinking: Colors.buttonThinking,
-  speaking: Colors.buttonSpeaking,
+  idle: Colors.buttonIdle,       // brown #7D6340
+  listening: Colors.buttonListening, // orange-soft #E8A87C
+  thinking: Colors.buttonThinking,   // brownLight #8B6F47
+  speaking: Colors.buttonSpeaking,   // greenForest #4A7A35
 };
 
 const LABELS: Record<ButtonState, string> = {
   idle: "Parler",
-  listening: "J'ecoute...",
-  thinking: "Je reflechis...",
-  speaking: "Je parle...",
+  listening: "J'\u00e9coute\u2026",
+  thinking: "Je r\u00e9fl\u00e9chis\u2026",
+  speaking: "Je parle\u2026",
 };
 
 const ICONS: Record<ButtonState, string> = {
-  idle: "\uD83C\uDF99", // microphone emoji
+  idle: "\uD83C\uDF99",     // microphone emoji
   listening: "\uD83D\uDC42", // ear emoji
-  thinking: "\uD83D\uDCAD", // thought bubble
-  speaking: "\uD83D\uDCAC", // speech bubble
+  thinking: "\uD83D\uDCAD",  // thought bubble
+  speaking: "\uD83D\uDCAC",  // speech bubble
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -121,11 +123,11 @@ export default function MainButton({
 
   return (
     <View style={styles.wrapper}>
-      {/* Outer glow ring */}
+      {/* Outer glow ring — color matches current state */}
       <View
         style={[
           styles.glowRing,
-          { borderColor: backgroundColor, opacity: 0.2 },
+          { borderColor: backgroundColor, opacity: 0.15 },
         ]}
       />
 
@@ -143,8 +145,8 @@ export default function MainButton({
         disabled={disabled}
         style={[styles.button, { backgroundColor }, animatedStyle]}
         accessibilityRole="button"
-        accessibilityLabel={`Parler à Memoria. État actuel: ${label}`}
-        accessibilityHint="Appuyez pour commencer à parler. Appui long pour terminer la session."
+        accessibilityLabel={`Parler \u00e0 Memoria. \u00c9tat actuel: ${label}`}
+        accessibilityHint="Appuyez pour commencer \u00e0 parler. Appui long pour terminer la session."
       >
         <Text style={styles.icon}>{icon}</Text>
         <Text style={styles.label}>{label}</Text>

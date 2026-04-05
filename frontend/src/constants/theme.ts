@@ -2,42 +2,54 @@
  * Memoria Design Tokens
  *
  * Senior-friendly design system for 80+ year old users.
- * All colors meet WCAG AAA contrast requirements (7:1 ratio minimum).
- * All font sizes are minimum 24pt. Warm, calming palette.
+ * Palette matched to the Memoria website (warm cream/brown).
+ * All font sizes are minimum 24pt.
  */
 
 export const Colors = {
-  // Backgrounds -- warm, soft tones
-  backgroundPrimary: "#FFF8F0", // warm cream
-  backgroundSecondary: "#FFF0E0", // soft peach
+  // Backgrounds -- warm, soft tones (website match)
+  cream: "#FFF8F0",
+  backgroundPrimary: "#FFF8F0",
+  backgroundSecondary: "#FFF0E0",
   backgroundCard: "#FFFFFF",
+  white: "#FFFFFF",
+
+  // Website palette
+  brown: "#7D6340",
+  brownDark: "#6B5235",
+  brownLight: "#8B6F47",
+  orangeSoft: "#E8A87C",
+  orangeText: "#9A6429",
+  roseDusty: "#D4A5A5",
+  greenForest: "#4A7A35",
 
   // Text -- high contrast against warm backgrounds
-  textPrimary: "#1A1A2E", // near-black with warmth
-  textSecondary: "#3D3D5C", // dark slate
-  textMuted: "#5C5C7A", // medium contrast (still AAA on white)
+  textDark: "#3D2C1E",
+  textPrimary: "#3D2C1E",
+  textSecondary: "#5C4A3A",
+  textMuted: "#7A6555",
 
-  // Button states
-  buttonIdle: "#1B4F9E", // strong calm blue
-  buttonListening: "#1A7A3D", // confident green
-  buttonThinking: "#C66A00", // warm amber/orange
-  buttonSpeaking: "#6B3FA0", // gentle purple
+  // Button states (website palette)
+  buttonIdle: "#7D6340",
+  buttonListening: "#E8A87C",
+  buttonThinking: "#8B6F47",
+  buttonSpeaking: "#4A7A35",
 
-  // Button text (white on all button colors meets AAA)
+  // Button text
   buttonText: "#FFFFFF",
 
   // Accent and feedback
-  accentWarm: "#D4845A", // terracotta accent
-  accentCalm: "#5B9BD5", // soft sky blue
-  success: "#2E7D32",
+  accentWarm: "#E8A87C",
+  accentCalm: "#D4A5A5",
+  success: "#4A7A35",
   error: "#C62828",
 
   // Borders and dividers
-  border: "#D4C5B5", // warm grey
+  border: "#D4C5B5",
   divider: "#E8DDD0",
 
   // Overlay
-  overlay: "rgba(26, 26, 46, 0.4)",
+  overlay: "rgba(61, 44, 30, 0.4)",
 } as const;
 
 export const FontSizes = {
@@ -75,21 +87,21 @@ export const BorderRadius = {
 
 export const Shadows = {
   soft: {
-    shadowColor: "#1A1A2E",
+    shadowColor: "#7D6340",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
   medium: {
-    shadowColor: "#1A1A2E",
+    shadowColor: "#7D6340",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 5,
   },
   strong: {
-    shadowColor: "#1A1A2E",
+    shadowColor: "#7D6340",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
