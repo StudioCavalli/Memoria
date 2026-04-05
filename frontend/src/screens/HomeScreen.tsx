@@ -2,8 +2,10 @@
  * HomeScreen
  *
  * The one and only screen of Memoria.
- * Shows a greeting, a large clock, and the single "Parler a Memoria" button.
+ * Shows a greeting, a large clock, and the single "Parler à Memoria" button.
  * No menus, no navigation, zero friction.
+ *
+ * Uses the WebSocket VoicePipeline for real-time voice conversation.
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -15,11 +17,13 @@ import {
   StatusBar,
 } from "react-native";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
+import * as FileSystem from "expo-file-system";
 
 import MainButton from "../components/MainButton";
 import WaveAnimation from "../components/WaveAnimation";
 import AudioManager from "../services/audio";
-import ApiService from "../services/api";
+import { startSession, VoicePipeline } from "../services/api";
+import type { VoicePipelineEvent } from "../services/api";
 import { Colors, FontSizes, Spacing } from "../constants/theme";
 
 // ---------------------------------------------------------------------------
@@ -29,13 +33,23 @@ import { Colors, FontSizes, Spacing } from "../constants/theme";
 type AppState = "idle" | "listening" | "thinking" | "speaking";
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+/** Senior ID — en production, viendrait d'AsyncStorage ou de la configuration */
+const SENIOR_ID = 1;
+
+/** Délai avant de reconnecter le WebSocket en cas de coupure (ms) */
+const RECONNECT_DELAY_MS = 2000;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Bonjour";
-  if (hour < 18) return "Bon apres-midi";
+  if (hour < 18) return "Bon après-midi";
   return "Bonsoir";
 }
 
@@ -55,6 +69,31 @@ function formatDate(date: Date): string {
   });
 }
 
+/**
+ * Convertit une chaîne base64 en ArrayBuffer.
+ */
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+/**
+ * Convertit un ArrayBuffer en chaîne base64.
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -63,10 +102,12 @@ export default function HomeScreen() {
   const [appState, setAppState] = useState<AppState>("idle");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [responseText, setResponseText] = useState<string>("");
-  const sessionIdRef = useRef<string | null>(null);
 
-  // Senior ID -- in production this would come from configuration
-  const seniorId = "default-senior";
+  const sessionIdRef = useRef<number | null>(null);
+  const pipelineRef = useRef<VoicePipeline | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audioChunksRef = useRef<ArrayBuffer[]>([]);
+  const isMountedRef = useRef(true);
 
   // -------------------------------------------------------------------------
   // Clock tick
@@ -94,74 +135,326 @@ export default function HomeScreen() {
   }, []);
 
   // -------------------------------------------------------------------------
+  // Cleanup on unmount
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      cleanupPipeline();
+    };
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Pipeline event handlers
+  // -------------------------------------------------------------------------
+
+  const handlePipelineEvent = useCallback((event: VoicePipelineEvent) => {
+    if (!isMountedRef.current) return;
+
+    switch (event.type) {
+      case "status":
+        if (event.status) {
+          setAppState(event.status);
+        }
+        break;
+
+      case "transcription":
+        // Le texte transcrit de l'utilisateur — on pourrait l'afficher
+        // mais on préfère garder l'écran épuré pour les aînés.
+        break;
+
+      case "response_text":
+        if (event.text) {
+          setResponseText(event.text);
+        }
+        break;
+
+      case "silence_detected":
+        setResponseText("Je suis toujours là. Prenez votre temps.");
+        break;
+
+      case "latency":
+        // Métriques de latence — utile pour le debug, pas affiché
+        if (__DEV__) {
+          console.log(
+            `[Pipeline] Latence — STT: ${event.stt_ms}ms, LLM: ${event.llm_ms}ms, TTS: ${event.tts_ms}ms, Total: ${event.total_ms}ms`
+          );
+        }
+        break;
+
+      case "error":
+        console.error("[Pipeline] Erreur:", event.message);
+        setAppState("idle");
+        setResponseText("Je reviens dans un instant. Réessayez bientôt.");
+        // Tenter une reconnexion automatique
+        scheduleReconnect();
+        break;
+    }
+  }, []);
+
+  const handlePipelineAudio = useCallback(async (audioData: ArrayBuffer) => {
+    if (!isMountedRef.current) return;
+
+    // Accumuler les morceaux audio reçus du serveur
+    audioChunksRef.current.push(audioData);
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Audio playback — assembled from WS binary chunks
+  // -------------------------------------------------------------------------
+
+  /**
+   * Lorsque le serveur passe en état "speaking" puis revient à "idle",
+   * on sait que tous les morceaux audio ont été envoyés.
+   * On les concatène, on les écrit dans un fichier temporaire, et on les joue.
+   */
+  const playAccumulatedAudio = useCallback(async () => {
+    const chunks = audioChunksRef.current;
+    audioChunksRef.current = [];
+
+    if (chunks.length === 0) return;
+
+    try {
+      // Concaténer tous les morceaux
+      const totalLength = chunks.reduce((sum, c) => sum + c.byteLength, 0);
+      const combined = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        combined.set(new Uint8Array(chunk), offset);
+        offset += chunk.byteLength;
+      }
+
+      // Écrire dans un fichier temporaire
+      const tempPath = `${FileSystem.cacheDirectory}memoria_response_${Date.now()}.wav`;
+      const base64Audio = arrayBufferToBase64(combined.buffer);
+      await FileSystem.writeAsStringAsync(tempPath, base64Audio, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Jouer le fichier audio
+      if (isMountedRef.current) {
+        setAppState("speaking");
+        await AudioManager.playAudio(tempPath);
+
+        // Nettoyer le fichier temporaire
+        FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
+      }
+    } catch (error) {
+      console.error("[HomeScreen] Erreur de lecture audio:", error);
+    } finally {
+      if (isMountedRef.current) {
+        setAppState("idle");
+      }
+    }
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Pipeline lifecycle
+  // -------------------------------------------------------------------------
+
+  const connectPipeline = useCallback(
+    async (sessionId: number) => {
+      // Nettoyer l'ancien pipeline s'il existe
+      if (pipelineRef.current) {
+        pipelineRef.current.disconnect();
+      }
+
+      const pipeline = new VoicePipeline(
+        handlePipelineEvent,
+        handlePipelineAudio
+      );
+      pipeline.connect(sessionId);
+      pipelineRef.current = pipeline;
+    },
+    [handlePipelineEvent, handlePipelineAudio]
+  );
+
+  const cleanupPipeline = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+    if (pipelineRef.current) {
+      pipelineRef.current.disconnect();
+      pipelineRef.current = null;
+    }
+    sessionIdRef.current = null;
+    audioChunksRef.current = [];
+  }, []);
+
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectTimerRef.current) return; // Déjà planifié
+
+    reconnectTimerRef.current = setTimeout(async () => {
+      reconnectTimerRef.current = null;
+      if (!isMountedRef.current) return;
+
+      const sessionId = sessionIdRef.current;
+      if (sessionId) {
+        try {
+          await connectPipeline(sessionId);
+        } catch (error) {
+          console.error("[HomeScreen] Échec de la reconnexion:", error);
+        }
+      }
+    }, RECONNECT_DELAY_MS);
+  }, [connectPipeline]);
+
+  // -------------------------------------------------------------------------
+  // Ensure session + pipeline exist
+  // -------------------------------------------------------------------------
+
+  const ensureSession = useCallback(async (): Promise<number> => {
+    if (sessionIdRef.current && pipelineRef.current) {
+      return sessionIdRef.current;
+    }
+
+    // Créer une nouvelle session via REST
+    const session = await startSession(SENIOR_ID);
+    const sessionId = session.id;
+    sessionIdRef.current = sessionId;
+
+    // Connecter le pipeline WebSocket
+    await connectPipeline(sessionId);
+
+    return sessionId;
+  }, [connectPipeline]);
+
+  // -------------------------------------------------------------------------
   // Conversation flow
   // -------------------------------------------------------------------------
 
   const handleButtonPress = useCallback(async () => {
-    // If already listening, stop and process
+    // Si on écoute déjà, arrêter et envoyer
     if (appState === "listening") {
       await handleStopListening();
       return;
     }
 
-    // If speaking or thinking, do nothing
-    if (appState !== "idle") return;
+    // Si le système parle, interrompre
+    if (appState === "speaking") {
+      await AudioManager.stopPlayback();
+      pipelineRef.current?.interrupt();
+      setAppState("idle");
+      audioChunksRef.current = [];
+      return;
+    }
 
-    // Start listening
+    // Si le système réfléchit, ne rien faire
+    if (appState === "thinking") return;
+
+    // Démarrer l'écoute
     try {
-      setAppState("listening");
       setResponseText("");
+      audioChunksRef.current = [];
+
+      // S'assurer qu'on a une session et un pipeline
+      await ensureSession();
+
+      setAppState("listening");
       await AudioManager.startRecording();
     } catch (error) {
-      console.error("[HomeScreen] Failed to start recording:", error);
+      console.error("[HomeScreen] Échec du démarrage de l'enregistrement:", error);
       setAppState("idle");
-      setResponseText("Desolee, je n'ai pas pu activer le microphone.");
+      setResponseText("Désolée, je n'ai pas pu activer le microphone.");
     }
-  }, [appState]);
+  }, [appState, ensureSession]);
 
-  const handleStopListening = async () => {
+  const handleStopListening = useCallback(async () => {
     try {
-      // Stop recording
       setAppState("thinking");
+
+      // Arrêter l'enregistrement
       const audioUri = await AudioManager.stopRecording();
 
       if (!audioUri) {
         setAppState("idle");
-        setResponseText("Je n'ai rien entendu. Reessayez.");
+        setResponseText("Je n'ai rien entendu. Réessayez.");
         return;
       }
 
-      // Ensure we have a session
-      if (!sessionIdRef.current) {
-        const session = await ApiService.startSession(seniorId);
-        sessionIdRef.current = session.id;
+      // Lire le fichier audio enregistré en base64
+      const base64Audio = await FileSystem.readAsStringAsync(audioUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Convertir en ArrayBuffer et envoyer via WebSocket
+      const audioBuffer = base64ToArrayBuffer(base64Audio);
+
+      if (pipelineRef.current) {
+        pipelineRef.current.sendAudioChunk(audioBuffer);
+        pipelineRef.current.endTurn();
+      } else {
+        throw new Error("Pipeline non connecté");
       }
 
-      // For now, send a placeholder text.
-      // In production, the audio file would be sent to a speech-to-text
-      // service first, or the backend would accept audio directly.
-      const response = await ApiService.sendMessage(
-        sessionIdRef.current,
-        "[audio message]"
-      );
+      // Le reste est géré par les événements du pipeline :
+      // - status → thinking/speaking/idle
+      // - response_text → sous-titres
+      // - binary audio → playAccumulatedAudio()
 
-      setResponseText(response.text);
-
-      // Play audio response if available
-      if (response.audioUrl) {
-        setAppState("speaking");
-        await AudioManager.playAudio(response.audioUrl);
-      }
-
-      setAppState("idle");
+      // Nettoyer le fichier d'enregistrement
+      FileSystem.deleteAsync(audioUri, { idempotent: true }).catch(() => {});
     } catch (error) {
-      console.error("[HomeScreen] Conversation error:", error);
+      console.error("[HomeScreen] Erreur de conversation:", error);
       setAppState("idle");
       setResponseText(
-        "Desolee, il y a eu un petit probleme. Reessayez dans un moment."
+        "Désolée, il y a eu un petit problème. Réessayez dans un moment."
       );
     }
-  };
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Watch for state transitions to play accumulated audio
+  // -------------------------------------------------------------------------
+
+  const prevAppStateRef = useRef<AppState>("idle");
+
+  useEffect(() => {
+    const prev = prevAppStateRef.current;
+    prevAppStateRef.current = appState;
+
+    // Quand le serveur signale "speaking", on attend.
+    // Quand il revient à "idle" après "speaking", on joue l'audio accumulé.
+    if (prev === "speaking" && appState === "idle") {
+      // L'audio a déjà été joué par playAudio dans playAccumulatedAudio
+      // ou le serveur a terminé sans audio
+      return;
+    }
+
+    // Quand on passe à "speaking" via un événement status du serveur,
+    // on lance la lecture de l'audio accumulé
+    if (appState === "speaking" && prev === "thinking") {
+      // Petit délai pour laisser les derniers morceaux arriver
+      const timer = setTimeout(() => {
+        playAccumulatedAudio();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [appState, playAccumulatedAudio]);
+
+  // -------------------------------------------------------------------------
+  // End session (long press)
+  // -------------------------------------------------------------------------
+
+  const handleEndSession = useCallback(async () => {
+    // Arrêter tout enregistrement ou lecture en cours
+    if (AudioManager.isRecording()) {
+      await AudioManager.stopRecording();
+    }
+    await AudioManager.stopPlayback();
+
+    // Terminer la session via WebSocket
+    if (pipelineRef.current) {
+      pipelineRef.current.endSessionWs();
+    }
+
+    // Nettoyer
+    cleanupPipeline();
+    setAppState("idle");
+    setResponseText("À bientôt !");
+  }, [cleanupPipeline]);
 
   // -------------------------------------------------------------------------
   // Render
@@ -206,9 +499,10 @@ export default function HomeScreen() {
         <MainButton
           state={appState}
           onPress={handleButtonPress}
-          disabled={appState === "thinking" || appState === "speaking"}
+          onLongPress={handleEndSession}
+          disabled={appState === "thinking"}
         />
-        <Text style={styles.buttonLabel}>Parler a Memoria</Text>
+        <Text style={styles.buttonLabel}>Parler à Memoria</Text>
       </View>
     </SafeAreaView>
   );

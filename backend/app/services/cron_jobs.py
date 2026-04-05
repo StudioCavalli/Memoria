@@ -1,47 +1,66 @@
 """
-Cron-like background jobs for MEMORIA.
-Runs on app startup as async tasks.
+Scheduled background jobs for MEMORIA using APScheduler.
 """
 from __future__ import annotations
 
-import asyncio
-from datetime import datetime, timezone
+import logging
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 from app.core.database import SessionLocal
 
+logger = logging.getLogger(__name__)
 
-async def run_daily_alert_check():
-    """Daily job: check cognitive metrics and send alerts if needed."""
-    while True:
-        # Run at 8:00 UTC every day
-        now = datetime.now(timezone.utc)
-        if now.hour == 8 and now.minute == 0:
-            db = SessionLocal()
-            try:
-                from app.services.alert_service import AlertService
-                service = AlertService(db)
-                service.check_all_seniors()
-            except Exception:
-                pass
-            finally:
-                db.close()
-
-        await asyncio.sleep(60)  # Check every minute
+scheduler = AsyncIOScheduler()
 
 
-async def run_weekly_gazette():
-    """Weekly job: generate and send gazette PDFs every Sunday at 20:00 UTC."""
-    while True:
-        now = datetime.now(timezone.utc)
-        if now.weekday() == 6 and now.hour == 20 and now.minute == 0:
-            db = SessionLocal()
-            try:
-                from app.services.gazette_service import GazetteGeneratorService
-                service = GazetteGeneratorService(db)
-                service.generate_for_all_seniors()
-            except Exception:
-                pass
-            finally:
-                db.close()
+def _daily_alert_check():
+    """Daily 8:00 UTC — check cognitive metrics and send alerts."""
+    db = SessionLocal()
+    try:
+        from app.services.alert_service import AlertService
+        service = AlertService(db)
+        service.check_all_seniors()
+        logger.info("Daily alert check completed")
+    except Exception as e:
+        logger.error(f"Daily alert check failed: {e}")
+    finally:
+        db.close()
 
-        await asyncio.sleep(60)
+
+def _weekly_gazette():
+    """Sunday 20:00 UTC — generate and send gazette PDFs."""
+    db = SessionLocal()
+    try:
+        from app.services.gazette_service import GazetteGeneratorService
+        service = GazetteGeneratorService(db)
+        gazettes = service.generate_for_all_seniors()
+        logger.info(f"Weekly gazette: {len(gazettes)} generated")
+    except Exception as e:
+        logger.error(f"Weekly gazette failed: {e}")
+    finally:
+        db.close()
+
+
+def start_scheduler():
+    """Register all jobs and start the scheduler."""
+    scheduler.add_job(
+        _daily_alert_check,
+        CronTrigger(hour=8, minute=0),
+        id="daily_alert_check",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        _weekly_gazette,
+        CronTrigger(day_of_week="sun", hour=20, minute=0),
+        id="weekly_gazette",
+        replace_existing=True,
+    )
+    scheduler.start()
+    logger.info("Scheduler started: daily alerts 8:00 UTC, weekly gazette Sun 20:00 UTC")
+
+
+def stop_scheduler():
+    """Shutdown the scheduler gracefully."""
+    scheduler.shutdown(wait=False)

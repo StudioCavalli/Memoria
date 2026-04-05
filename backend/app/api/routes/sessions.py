@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -78,7 +78,11 @@ def send_message(
 
 
 @router.post("/{session_id}/end", response_model=SessionResponse)
-def end_session(session_id: int, db: Session = Depends(get_db)):
+def end_session(
+    session_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session introuvable")
@@ -93,9 +97,8 @@ def end_session(session_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(session)
 
-    # Trigger post-session pipeline in background
-    from fastapi import BackgroundTasks
-    _run_post_session_pipeline(session_id)
+    # Trigger post-session pipeline in background (non-blocking)
+    background_tasks.add_task(_run_post_session_pipeline, session_id)
 
     return session
 

@@ -47,10 +47,10 @@ const DashboardPage: React.FC = () => {
 
         setData({
           lastSession:
-            sessionRes.status === 'fulfilled'
+            sessionRes.status === 'fulfilled' && sessionRes.value.data
               ? {
-                  date: sessionRes.value.data.date,
-                  summary: sessionRes.value.data.summary,
+                  date: sessionRes.value.data.date ?? '',
+                  summary: sessionRes.value.data.summary ?? '',
                 }
               : null,
           memoriesCount:

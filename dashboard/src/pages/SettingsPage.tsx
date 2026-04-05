@@ -4,7 +4,8 @@ import { settingsService, seniorsService } from '../services/api';
 const SENIOR_ID = () => localStorage.getItem('memoria_senior_id') || 'default';
 
 interface Profile {
-  name: string;
+  first_name: string;
+  last_name: string;
   birth_date: string;
 }
 
@@ -30,7 +31,7 @@ interface FamilyMember {
 const DAYS_OF_WEEK = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
 const SettingsPage: React.FC = () => {
-  const [profile, setProfile] = useState<Profile>({ name: '', birth_date: '' });
+  const [profile, setProfile] = useState<Profile>({ first_name: '', last_name: '', birth_date: '' });
   const [schedule, setSchedule] = useState<Schedule>({
     days: [],
     time: '10:00',
@@ -57,7 +58,11 @@ const SettingsPage: React.FC = () => {
         ]);
         if (profRes.status === 'fulfilled') {
           const d = profRes.value.data;
-          setProfile({ name: d.name || '', birth_date: d.birth_date || '' });
+          setProfile({
+            first_name: d.first_name || '',
+            last_name: d.last_name || '',
+            birth_date: d.birth_date || '',
+          });
         }
         if (schedRes.status === 'fulfilled') {
           const d = schedRes.value.data;
@@ -144,11 +149,20 @@ const SettingsPage: React.FC = () => {
         <h3 style={styles.sectionTitle}>Profil du proche</h3>
         <div style={styles.formGrid}>
           <label style={styles.label}>
-            Nom complet
+            Prénom
             <input
               type="text"
-              value={profile.name}
-              onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+              value={profile.first_name}
+              onChange={(e) => setProfile((p) => ({ ...p, first_name: e.target.value }))}
+              style={styles.input}
+            />
+          </label>
+          <label style={styles.label}>
+            Nom de famille
+            <input
+              type="text"
+              value={profile.last_name}
+              onChange={(e) => setProfile((p) => ({ ...p, last_name: e.target.value }))}
               style={styles.input}
             />
           </label>

@@ -3,8 +3,11 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import (
     alerts,
@@ -28,15 +31,12 @@ from app.core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    from app.services.cron_jobs import run_daily_alert_check, run_weekly_gazette
-    from app.services.session_scheduler import scheduler
+    from app.services.cron_jobs import start_scheduler, stop_scheduler
+    from app.services.session_scheduler import scheduler as session_scheduler
     from app.services.tts_service import TTSService
 
-    await scheduler.start()
-
-    # Launch background cron jobs
-    alert_task = asyncio.create_task(run_daily_alert_check())
-    gazette_task = asyncio.create_task(run_weekly_gazette())
+    await session_scheduler.start()
+    start_scheduler()
 
     # Pre-cache common TTS phrases
     tts_service = TTSService()
@@ -48,9 +48,8 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    await scheduler.stop()
-    alert_task.cancel()
-    gazette_task.cancel()
+    await session_scheduler.stop()
+    stop_scheduler()
 
 
 app = FastAPI(
@@ -81,6 +80,11 @@ app.include_router(tts.router, prefix="/api")
 app.include_router(questions.router, prefix="/api")
 app.include_router(audio.router, prefix="/api")
 app.include_router(gdpr.router, prefix="/api")
+
+# Static files for local storage fallback
+_uploads = Path(__file__).parent.parent / "uploads"
+_uploads.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(_uploads)), name="uploads")
 
 # WebSocket routes
 app.include_router(voice_pipeline.router)

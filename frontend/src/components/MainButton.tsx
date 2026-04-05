@@ -26,6 +26,7 @@ type ButtonState = "idle" | "listening" | "thinking" | "speaking";
 interface MainButtonProps {
   state: ButtonState;
   onPress: () => void;
+  onLongPress?: () => void;
   disabled?: boolean;
 }
 
@@ -65,6 +66,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function MainButton({
   state,
   onPress,
+  onLongPress,
   disabled = false,
 }: MainButtonProps) {
   const scale = useSharedValue(1);
@@ -129,13 +131,20 @@ export default function MainButton({
 
       <AnimatedPressable
         onPress={handlePress}
+        onLongPress={() => {
+          if (!disabled && onLongPress) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            onLongPress();
+          }
+        }}
+        delayLongPress={800}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled}
         style={[styles.button, { backgroundColor }, animatedStyle]}
         accessibilityRole="button"
-        accessibilityLabel={`Parler a Memoria. Etat actuel: ${label}`}
-        accessibilityHint="Appuyez pour commencer a parler"
+        accessibilityLabel={`Parler à Memoria. État actuel: ${label}`}
+        accessibilityHint="Appuyez pour commencer à parler. Appui long pour terminer la session."
       >
         <Text style={styles.icon}>{icon}</Text>
         <Text style={styles.label}>{label}</Text>
