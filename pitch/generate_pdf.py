@@ -555,12 +555,12 @@ def build():
     story.append(Spacer(1, 20))
 
     weeks = [
-        ("S1-2", "Infrastructure\n& Moteur IA", "#7FB069"),
-        ("S3-4", "Logique Narrative\n& Sentinelle", "#7FB069"),
-        ("S5", "Interfaces\nSenior & Famille", "#E8A87C"),
-        ("S6", "Design\n& Bo\u00eetier", "#8B6F47"),
-        ("S7", "Tests\nSeniors Nice", "#8B6F47"),
-        ("S8", "D\u00e9mo\nSalon 2 juin", "#8B6F47"),
+        ("S1-2", "Infrastructure\n& Moteur IA", "#4A7A35"),
+        ("S3-4", "Logique Narrative\n& Sentinelle", "#4A7A35"),
+        ("S5", "Interfaces\nSenior & Famille", "#4A7A35"),
+        ("S6", "Tests &\nInt\u00e9gration", "#4A7A35"),
+        ("S7", "Dashboard\ncomplet", "#4A7A35"),
+        ("S8", "D\u00e9mo\nSalon 2 juin", "#E8A87C"),
     ]
     week_cells = []
     for label, desc, color in weeks:
@@ -582,9 +582,9 @@ def build():
     story.append(road)
     story.append(Spacer(1, 20))
     story.append(Paragraph(
-        "<font color='#7FB069'><b>4 milestones d\u00e9j\u00e0 livr\u00e9s</b></font> \u2014 "
-        "109 fichiers, 65 fichiers Python, 21 composants React, 43 issues ferm\u00e9es. "
-        "Le produit <b>existe d\u00e9j\u00e0</b>.",
+        "<font color='#7FB069'><b>D\u00e9veloppement termin\u00e9</b></font> \u2014 "
+        "67 issues livr\u00e9es, 120+ tests, 64 fichiers Python, 30 jours de donn\u00e9es de d\u00e9mo. "
+        "Le produit <b>est pr\u00eat</b>.",
         ST['bodyc']
     ))
     story.append(PageBreak())
