@@ -12,6 +12,7 @@ const navLinks = [
   { href: '#sentinelle', label: 'Sentinelle' },
   { href: '#tarifs', label: 'Tarifs' },
   { href: '#roadmap', label: 'Roadmap' },
+  { href: '/docs', label: 'API Docs' },
 ]
 
 export default function Navbar() {
