@@ -34,7 +34,14 @@ async function request<T = unknown>(
   params?: Record<string, unknown>,
   responseType?: 'blob',
 ): Promise<{ data: T }> {
-  const url = new URL(`${API_BASE}${path}`);
+  const baseUrl = `${API_BASE}${path}`;
+  let url: URL;
+  try {
+    url = new URL(baseUrl);
+  } catch {
+    // Fallback for environments where URL constructor fails
+    url = new URL(baseUrl, typeof window !== 'undefined' ? window.location.origin : 'https://memoria-production-aeec.up.railway.app');
+  }
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
