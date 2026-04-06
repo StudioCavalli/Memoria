@@ -260,6 +260,7 @@ export default function SetupScreen({ onSetupComplete }: SetupScreenProps) {
       const jwt = data.access_token;
       const seniorId = data.senior_id;
       const seniorName = data.senior_name;
+      const settingsPin = data.settings_pin || "1234";
 
       if (!jwt || !seniorId) {
         throw new Error(t('setup.pairing.error.server'));
@@ -269,12 +270,13 @@ export default function SetupScreen({ onSetupComplete }: SetupScreenProps) {
       setBaseURL(`${cleanUrl}/api`);
       setWsURL(cleanUrl.replace(/^http/, "ws"));
 
-      // Save pairing data
+      // Save pairing data (including settings PIN from server)
       await savePairing({
         senior_id: seniorId,
         senior_name: seniorName,
         api_token: jwt,
         api_url: cleanUrl,
+        settings_pin: settingsPin,
       });
 
       setSuccessName(seniorName);

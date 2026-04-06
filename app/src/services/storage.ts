@@ -16,6 +16,7 @@ export interface PairingData {
   senior_name: string;
   api_token: string;
   api_url: string;
+  settings_pin?: string;
 }
 
 // ---------------------------------------------------------------------------

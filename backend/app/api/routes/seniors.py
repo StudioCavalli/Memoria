@@ -114,7 +114,7 @@ def generate_pairing_code(
     if not link:
         raise HTTPException(status_code=403, detail="Acces non autorise")
 
-    # Generate a random 6-digit code
+    # Generate a random 6-digit pairing code + 4-digit settings PIN
     code = "".join(random.choices(string.digits, k=6))
     expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
 
@@ -129,7 +129,15 @@ def generate_pairing_code(
     prefs["pairing_code"] = code
     prefs["pairing_expires"] = expires_at.isoformat()
 
+    # Generate settings PIN if not already set
+    if not prefs.get("settings_pin"):
+        prefs["settings_pin"] = "".join(random.choices(string.digits, k=4))
+
     senior.preferences = json.dumps(prefs)
     db.commit()
 
-    return {"code": code, "expires_in": 86400}
+    return {
+        "code": code,
+        "settings_pin": prefs["settings_pin"],
+        "expires_in": 86400,
+    }

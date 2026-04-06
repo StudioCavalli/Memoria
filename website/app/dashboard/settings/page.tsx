@@ -89,6 +89,7 @@ export default function SettingsPage() {
 
   // Pairing
   const [pairingCode, setPairingCode] = useState<string | null>(null)
+  const [settingsPin, setSettingsPin] = useState<string | null>(null)
   const [pairingLoading, setPairingLoading] = useState(false)
 
   // Senior creation (when no senior exists)
@@ -247,6 +248,7 @@ export default function SettingsPage() {
       const res = await pairingService.generateCode(seniorId)
       const d = res.data as any
       setPairingCode(d.code)
+      setSettingsPin(d.settings_pin || null)
       addToast(t('settings.pairing.toast.ok'), 'success')
     } catch {
       addToast(t('settings.pairing.toast.err'), 'error')
@@ -594,9 +596,16 @@ export default function SettingsPage() {
               {pairingCode}
             </p>
             <p className="text-sm text-text-muted">{t('settings.pairing.expires')}</p>
+            {settingsPin && (
+              <div className="mt-3 rounded-lg bg-white border border-brown/10 px-4 py-2 text-center">
+                <p className="text-xs text-text-muted">{t('settings.pairing.pin_label')}</p>
+                <p className="font-mono text-2xl font-bold text-brown tracking-widest">{settingsPin}</p>
+                <p className="text-xs text-text-muted mt-1">{t('settings.pairing.pin_hint')}</p>
+              </div>
+            )}
             <button
               className="mt-2 rounded-[10px] border border-brown-light bg-white px-6 py-2.5 font-body text-sm font-bold text-brown-light cursor-pointer hover:bg-cream"
-              onClick={() => setPairingCode(null)}
+              onClick={() => { setPairingCode(null); setSettingsPin(null); }}
             >
               {t('settings.pairing.dismiss')}
             </button>

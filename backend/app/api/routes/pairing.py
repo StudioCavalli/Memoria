@@ -96,5 +96,6 @@ def validate_pairing_code(
         "access_token": access_token,
         "senior_id": matched_senior.id,
         "senior_name": senior_name,
+        "settings_pin": matched_prefs.get("settings_pin", "1234"),
         "api_url": "",
     }

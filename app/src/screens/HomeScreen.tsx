@@ -48,7 +48,7 @@ interface HomeScreenProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const SETTINGS_PIN = "1234";
+const FALLBACK_PIN = "1234";
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'it'];
 
 /** Delai avant de reconnecter le WebSocket en cas de coupure (ms) */
@@ -499,7 +499,8 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
   }, []);
 
   const handlePinSubmit = useCallback(() => {
-    if (pinInput === SETTINGS_PIN) {
+    const expectedPin = pairing?.settings_pin || FALLBACK_PIN;
+    if (pinInput === expectedPin) {
       setShowPinModal(false);
       setPinInput("");
       setPinError("");
@@ -508,7 +509,7 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
       setPinError(t('settings.pin.error'));
       setPinInput("");
     }
-  }, [pinInput, t]);
+  }, [pinInput, pairing, t]);
 
   const handleResetPairing = useCallback(async () => {
     setShowSettings(false);
