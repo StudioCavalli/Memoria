@@ -6,6 +6,7 @@ import {
   settingsService,
   seniorsService,
   gdprService,
+  pairingService,
 } from '@/lib/dashboard-api'
 import { useI18n } from '@/lib/i18n'
 
@@ -85,6 +86,20 @@ export default function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingSchedule, setSavingSchedule] = useState(false)
   const [savingNotifs, setSavingNotifs] = useState(false)
+
+  // Pairing
+  const [pairingCode, setPairingCode] = useState<string | null>(null)
+  const [pairingLoading, setPairingLoading] = useState(false)
+
+  // Senior creation (when no senior exists)
+  const [showCreateSenior, setShowCreateSenior] = useState(false)
+  const [newSenior, setNewSenior] = useState({
+    first_name: '',
+    last_name: '',
+    birth_date: '',
+    birth_place: '',
+  })
+  const [creatingSenior, setCreatingSenior] = useState(false)
 
   const addToast = (message: string, type: ToastType) => {
     const id = ++toastCounter
@@ -225,6 +240,56 @@ export default function SettingsPage() {
     }
   }
 
+  const handleGeneratePairingCode = async () => {
+    if (!seniorId) return
+    setPairingLoading(true)
+    try {
+      const res = await pairingService.generateCode(seniorId)
+      const d = res.data as any
+      setPairingCode(d.code)
+      addToast(t('settings.pairing.toast.ok'), 'success')
+    } catch {
+      addToast(t('settings.pairing.toast.err'), 'error')
+    } finally {
+      setPairingLoading(false)
+    }
+  }
+
+  const handleCreateSenior = async () => {
+    if (!newSenior.first_name.trim() || !newSenior.last_name.trim()) {
+      addToast(t('settings.createsenior.toast.empty'), 'error')
+      return
+    }
+    setCreatingSenior(true)
+    try {
+      const payload: Record<string, string> = {
+        first_name: newSenior.first_name.trim(),
+        last_name: newSenior.last_name.trim(),
+      }
+      if (newSenior.birth_date) payload.birth_date = newSenior.birth_date
+      if (newSenior.birth_place) payload.birth_place = newSenior.birth_place
+      const res = await seniorsService.create(payload as any)
+      const created = res.data as any
+      const id = String(created.id)
+      localStorage.setItem('memoria_senior_id', id)
+      setSeniorId(id)
+      setShowCreateSenior(false)
+      setNewSenior({ first_name: '', last_name: '', birth_date: '', birth_place: '' })
+      addToast(t('settings.createsenior.toast.ok'), 'success')
+      // Reload profile data
+      setProfile({
+        first_name: created.first_name || '',
+        last_name: created.last_name || '',
+        birth_date: created.birth_date || '',
+        birth_place: created.birth_place || '',
+      })
+    } catch {
+      addToast(t('settings.createsenior.toast.err'), 'error')
+    } finally {
+      setCreatingSenior(false)
+    }
+  }
+
   const toggleDay = (day: string) => {
     setSchedule((prev) => ({
       ...prev,
@@ -240,9 +305,60 @@ export default function SettingsPage() {
 
   if (error && !seniorId) {
     return (
-      <p className="p-8 text-red-500">
-        {t('settings.error')}
-      </p>
+      <div className="p-8">
+        <h2 className="mb-1 font-heading text-[28px] text-text-dark">{t('settings.title')}</h2>
+        <p className="mb-7 text-[15px] text-text-muted">{t('settings.subtitle')}</p>
+
+        <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.createsenior.title')}</h3>
+          <p className="mb-4 text-sm text-text-muted">{t('settings.createsenior.desc')}</p>
+          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
+              {t('settings.firstname')} *
+              <input
+                type="text"
+                value={newSenior.first_name}
+                onChange={(e) => setNewSenior((s) => ({ ...s, first_name: e.target.value }))}
+                className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
+              {t('settings.lastname')} *
+              <input
+                type="text"
+                value={newSenior.last_name}
+                onChange={(e) => setNewSenior((s) => ({ ...s, last_name: e.target.value }))}
+                className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
+              {t('settings.birthdate')}
+              <input
+                type="date"
+                value={newSenior.birth_date}
+                onChange={(e) => setNewSenior((s) => ({ ...s, birth_date: e.target.value }))}
+                className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-dark">
+              {t('settings.birthplace')}
+              <input
+                type="text"
+                value={newSenior.birth_place}
+                onChange={(e) => setNewSenior((s) => ({ ...s, birth_place: e.target.value }))}
+                className="rounded-[10px] border border-beige bg-cream px-3.5 py-2.5 font-body text-[15px] outline-none focus:border-orange-soft"
+              />
+            </label>
+          </div>
+          <button
+            className="rounded-[10px] border-none bg-brown-light px-6 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark disabled:opacity-60"
+            onClick={handleCreateSenior}
+            disabled={creatingSenior}
+          >
+            {creatingSenior ? t('settings.saving') : t('settings.createsenior.submit')}
+          </button>
+        </section>
+      </div>
     )
   }
 
@@ -463,6 +579,36 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* Tablet pairing */}
+      <section className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-bold text-text-dark">{t('settings.pairing.title')}</h3>
+        <p className="mb-4 text-sm text-text-muted">{t('settings.pairing.desc')}</p>
+
+        {pairingCode ? (
+          <div className="flex flex-col items-center gap-3 rounded-xl bg-cream p-6">
+            <p className="text-sm font-semibold text-text-muted">{t('settings.pairing.instruction')}</p>
+            <p className="font-mono text-[48px] font-bold tracking-[0.3em] text-brown-dark">
+              {pairingCode}
+            </p>
+            <p className="text-sm text-text-muted">{t('settings.pairing.expires')}</p>
+            <button
+              className="mt-2 rounded-[10px] border border-brown-light bg-white px-6 py-2.5 font-body text-sm font-bold text-brown-light cursor-pointer hover:bg-cream"
+              onClick={() => setPairingCode(null)}
+            >
+              {t('settings.pairing.dismiss')}
+            </button>
+          </div>
+        ) : (
+          <button
+            className="rounded-[10px] border-none bg-brown-light px-6 py-2.5 font-body text-sm font-bold text-white cursor-pointer transition-colors duration-200 hover:bg-brown-dark disabled:opacity-60"
+            onClick={handleGeneratePairingCode}
+            disabled={pairingLoading}
+          >
+            {pairingLoading ? t('settings.saving') : t('settings.pairing.generate')}
+          </button>
         )}
       </section>
 

@@ -19,6 +19,7 @@ from app.api.routes import (
     memories,
     metrics,
     notifications,
+    pairing,
     questions,
     seniors,
     sessions,
@@ -85,6 +86,7 @@ app.include_router(tts.router, prefix="/api")
 app.include_router(questions.router, prefix="/api")
 app.include_router(audio.router, prefix="/api")
 app.include_router(gdpr.router, prefix="/api")
+app.include_router(pairing.router, prefix="/api")
 
 # Static files for local storage fallback
 _uploads = Path(__file__).parent.parent / "uploads"

@@ -307,4 +307,19 @@ export const settingsService = {
     })),
 };
 
+// ---------------------------------------------------------------------------
+// Pairing
+// ---------------------------------------------------------------------------
+export const pairingService = {
+  generateCode: (seniorId: string) =>
+    api.post<{ code: string; expires_in: number }>(`/seniors/${seniorId}/pairing-code`),
+
+  validate: (code: string) =>
+    request<{ access_token: string; senior_id: number; senior_name: string; api_url: string }>(
+      'POST',
+      '/pairing/validate',
+      { code },
+    ),
+};
+
 export default api;

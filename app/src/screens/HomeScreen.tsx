@@ -510,13 +510,6 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
     }
   }, [pinInput, t]);
 
-  const handleChangeSenior = useCallback(async () => {
-    setShowSettings(false);
-    cleanupPipeline();
-    await clearPairing();
-    onRequestSetup();
-  }, [cleanupPipeline, onRequestSetup]);
-
   const handleResetPairing = useCallback(async () => {
     setShowSettings(false);
     cleanupPipeline();
@@ -672,21 +665,11 @@ export default function HomeScreen({ onRequestSetup }: HomeScreenProps) {
             )}
 
             <Pressable
-              className="bg-brown rounded-xl py-4 items-center mt-3"
-              style={{ shadowColor: '#7D6340', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}
-              onPress={handleChangeSenior}
-            >
-              <Text className="text-2xl font-bold text-white">
-                {t('settings.change.senior')}
-              </Text>
-            </Pressable>
-
-            <Pressable
               className="bg-cream rounded-xl py-4 items-center mt-3 border-2 border-red-700"
               onPress={handleResetPairing}
             >
               <Text className="text-2xl font-bold text-red-700">
-                {t('settings.reset')}
+                {t('settings.unlink')}
               </Text>
             </Pressable>
 

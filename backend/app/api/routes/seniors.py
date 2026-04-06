@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import json
+import random
+import string
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -89,3 +94,42 @@ def update_senior(
     db.commit()
     db.refresh(senior)
     return senior
+
+
+@router.post("/{senior_id}/pairing-code")
+def generate_pairing_code(
+    senior_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    senior = db.query(Senior).filter(Senior.id == senior_id).first()
+    if not senior:
+        raise HTTPException(status_code=404, detail="Senior introuvable")
+
+    link = (
+        db.query(FamilyMember)
+        .filter(FamilyMember.user_id == current_user.id, FamilyMember.senior_id == senior_id)
+        .first()
+    )
+    if not link:
+        raise HTTPException(status_code=403, detail="Acces non autorise")
+
+    # Generate a random 6-digit code
+    code = "".join(random.choices(string.digits, k=6))
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+
+    # Store in the senior's preferences JSON field
+    prefs: dict = {}
+    if senior.preferences:
+        try:
+            prefs = json.loads(senior.preferences)
+        except (json.JSONDecodeError, TypeError):
+            prefs = {}
+
+    prefs["pairing_code"] = code
+    prefs["pairing_expires"] = expires_at.isoformat()
+
+    senior.preferences = json.dumps(prefs)
+    db.commit()
+
+    return {"code": code, "expires_in": 86400}

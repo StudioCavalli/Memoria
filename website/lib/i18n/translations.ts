@@ -350,6 +350,24 @@ export const translations: Record<Locale, Record<string, string>> = {
     'settings.toast.delete.err': 'Erreur lors de la suppression du compte.',
     'settings.error': 'Erreur lors du chargement des paramètres.',
 
+    // Pairing
+    'settings.pairing.title': 'Associer une tablette',
+    'settings.pairing.desc': 'Générez un code pour associer la tablette Memoria à ce profil senior.',
+    'settings.pairing.generate': 'Générer un code de pairing',
+    'settings.pairing.instruction': 'Entrez ce code sur la tablette pour l\'associer',
+    'settings.pairing.expires': 'Ce code expire dans 24h',
+    'settings.pairing.dismiss': 'Fermer',
+    'settings.pairing.toast.ok': 'Code de pairing généré avec succès.',
+    'settings.pairing.toast.err': 'Erreur lors de la génération du code.',
+
+    // Senior creation
+    'settings.createsenior.title': 'Créer un profil senior',
+    'settings.createsenior.desc': 'Aucun profil senior trouvé. Créez un profil pour votre proche.',
+    'settings.createsenior.submit': 'Créer le profil',
+    'settings.createsenior.toast.ok': 'Profil senior créé avec succès.',
+    'settings.createsenior.toast.err': 'Erreur lors de la création du profil.',
+    'settings.createsenior.toast.empty': 'Veuillez renseigner le prénom et le nom.',
+
     // Login
     'login.title': 'Connexion',
     'login.dashboard': 'Tableau de bord familial',
@@ -693,6 +711,24 @@ export const translations: Record<Locale, Record<string, string>> = {
     'settings.toast.delete.err': 'Error deleting account.',
     'settings.error': 'Error loading settings.',
 
+    // Pairing
+    'settings.pairing.title': 'Link a tablet',
+    'settings.pairing.desc': 'Generate a code to link the Memoria tablet to this senior profile.',
+    'settings.pairing.generate': 'Generate pairing code',
+    'settings.pairing.instruction': 'Enter this code on the tablet to link it',
+    'settings.pairing.expires': 'This code expires in 24 hours',
+    'settings.pairing.dismiss': 'Close',
+    'settings.pairing.toast.ok': 'Pairing code generated successfully.',
+    'settings.pairing.toast.err': 'Error generating pairing code.',
+
+    // Senior creation
+    'settings.createsenior.title': 'Create a senior profile',
+    'settings.createsenior.desc': 'No senior profile found. Create a profile for your loved one.',
+    'settings.createsenior.submit': 'Create profile',
+    'settings.createsenior.toast.ok': 'Senior profile created successfully.',
+    'settings.createsenior.toast.err': 'Error creating profile.',
+    'settings.createsenior.toast.empty': 'Please fill in first name and last name.',
+
     'login.title': 'Sign in',
     'login.dashboard': 'Family dashboard',
     'login.email': 'Email address',
@@ -1035,6 +1071,24 @@ export const translations: Record<Locale, Record<string, string>> = {
     'settings.toast.delete.err': 'Error al eliminar la cuenta.',
     'settings.error': 'Error al cargar los ajustes.',
 
+    // Pairing
+    'settings.pairing.title': 'Asociar una tableta',
+    'settings.pairing.desc': 'Genere un código para asociar la tableta Memoria a este perfil.',
+    'settings.pairing.generate': 'Generar código de emparejamiento',
+    'settings.pairing.instruction': 'Introduzca este código en la tableta para asociarla',
+    'settings.pairing.expires': 'Este código caduca en 24 horas',
+    'settings.pairing.dismiss': 'Cerrar',
+    'settings.pairing.toast.ok': 'Código de emparejamiento generado con éxito.',
+    'settings.pairing.toast.err': 'Error al generar el código.',
+
+    // Senior creation
+    'settings.createsenior.title': 'Crear un perfil de mayor',
+    'settings.createsenior.desc': 'No se encontró ningún perfil. Cree un perfil para su ser querido.',
+    'settings.createsenior.submit': 'Crear perfil',
+    'settings.createsenior.toast.ok': 'Perfil de mayor creado con éxito.',
+    'settings.createsenior.toast.err': 'Error al crear el perfil.',
+    'settings.createsenior.toast.empty': 'Por favor, rellene el nombre y el apellido.',
+
     'login.title': 'Iniciar sesión',
     'login.dashboard': 'Panel de control familiar',
     'login.email': 'Correo electrónico',
@@ -1376,6 +1430,24 @@ export const translations: Record<Locale, Record<string, string>> = {
     'settings.toast.export.err': 'Errore durante l\'esportazione dei dati.',
     'settings.toast.delete.err': 'Errore durante l\'eliminazione dell\'account.',
     'settings.error': 'Errore durante il caricamento delle impostazioni.',
+
+    // Pairing
+    'settings.pairing.title': 'Associare un tablet',
+    'settings.pairing.desc': 'Genera un codice per associare il tablet Memoria a questo profilo.',
+    'settings.pairing.generate': 'Genera codice di associazione',
+    'settings.pairing.instruction': 'Inserisci questo codice sul tablet per associarlo',
+    'settings.pairing.expires': 'Questo codice scade tra 24 ore',
+    'settings.pairing.dismiss': 'Chiudi',
+    'settings.pairing.toast.ok': 'Codice di associazione generato con successo.',
+    'settings.pairing.toast.err': 'Errore durante la generazione del codice.',
+
+    // Senior creation
+    'settings.createsenior.title': 'Crea un profilo anziano',
+    'settings.createsenior.desc': 'Nessun profilo trovato. Crea un profilo per il tuo caro.',
+    'settings.createsenior.submit': 'Crea profilo',
+    'settings.createsenior.toast.ok': 'Profilo anziano creato con successo.',
+    'settings.createsenior.toast.err': 'Errore durante la creazione del profilo.',
+    'settings.createsenior.toast.empty': 'Compila nome e cognome.',
 
     'login.title': 'Accedi',
     'login.dashboard': 'Dashboard familiare',
