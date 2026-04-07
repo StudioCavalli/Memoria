@@ -4,6 +4,8 @@
 
 Memoria est un compagnon vocal bienveillant qui recueille les souvenirs de vie des aînés, les transmet aux proches sous forme de Gazette hebdomadaire, et surveille les premiers signes de déclin cognitif grâce à l'analyse du langage naturel.
 
+> 📩 **Candidature soumise à l'AMI de la CCI Nice Côte d'Azur** dans le cadre du Salon Silver Économie (démo prévue le 2 juin 2026). Le pitch complet est disponible dans `pitch/MEMORIA_Pitch.pdf`.
+
 ---
 
 ## Architecture
