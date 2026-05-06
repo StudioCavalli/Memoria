@@ -79,14 +79,14 @@ function ListeningBar({ index, color }: { index: number; color: string }) {
   }, [height, index]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: height.value,
+    transform: [{ scaleY: height.value / MAX_BAR_HEIGHT }],
   }));
 
   return (
     <Animated.View
       className="rounded-full"
       style={[
-        { backgroundColor: color, width: BAR_WIDTH, borderRadius: BAR_WIDTH / 2 },
+        { backgroundColor: color, width: BAR_WIDTH, height: MAX_BAR_HEIGHT, borderRadius: BAR_WIDTH / 2 },
         animatedStyle,
       ]}
     />
@@ -203,7 +203,7 @@ function SpeakingBar({ index, color }: { index: number; color: string }) {
   }, [height, index]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: height.value,
+    transform: [{ scaleY: height.value / MAX_BAR_HEIGHT }],
   }));
 
   return (
@@ -213,6 +213,7 @@ function SpeakingBar({ index, color }: { index: number; color: string }) {
         {
           backgroundColor: color,
           width: BAR_WIDTH + 2,
+          height: MAX_BAR_HEIGHT,
           borderRadius: (BAR_WIDTH + 2) / 2,
         },
         animatedStyle,

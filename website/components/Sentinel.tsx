@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
 import { Activity, Clock, Bell } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
@@ -175,11 +176,11 @@ export default function Sentinel() {
               transition={{ duration: 0.7, delay: 0.6 }}
               className="relative rounded-2xl overflow-hidden h-[140px] sm:h-[180px] mt-4"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/images/caring-hands.jpg"
                 alt="Mains se tenant avec tendresse — accompagnement bienveillant des aînés"
-                className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                fill
+                className="object-cover rounded-2xl"
               />
               <div className="absolute inset-0 bg-brown-dark/20 rounded-2xl" />
             </motion.div>

@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
 import { Mic, BookOpen, Shield } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
@@ -85,11 +86,11 @@ export default function Solution() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="relative rounded-2xl overflow-hidden h-[200px] sm:h-[260px] mb-12 sm:mb-16"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/images/grandparent-child.jpg"
             alt="Grand-parent et petit-enfant partageant un moment chaleureux"
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-brown-dark/50 via-brown-dark/20 to-transparent" />
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8">
