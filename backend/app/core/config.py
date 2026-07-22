@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # Rate limiting (disabled in the test suite)
     rate_limit_enabled: bool = True
 
+    # Celery — run tasks synchronously in-process (tests) instead of via a broker
+    celery_task_always_eager: bool = False
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
     @property

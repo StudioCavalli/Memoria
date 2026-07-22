@@ -67,5 +67,23 @@ services:
     depends_on:
       - backend
 
+  # Celery worker — runs the durable post-session + gazette jobs.
+  celery-worker:
+    build: ./backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-memoria}:${POSTGRES_PASSWORD:-memoria_dev_password}@postgres:5432/${POSTGRES_DB:-memoria}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/.venv
+    command: celery -A app.core.celery_app worker --loglevel=info
+
 volumes:
   postgres_data:

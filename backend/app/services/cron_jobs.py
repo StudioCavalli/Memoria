@@ -30,17 +30,28 @@ def _daily_alert_check():
 
 
 def _weekly_gazette():
-    """Sunday 20:00 UTC — generate and send gazette PDFs."""
+    """Sunday 20:00 UTC — enqueue one durable gazette job per senior.
+
+    Each senior's gazette is an independent Celery task with retries, so one
+    senior's LLM/email failure no longer aborts everyone else's gazette.
+    """
     db = SessionLocal()
     try:
-        from app.services.gazette_service import GazetteGeneratorService
-        service = GazetteGeneratorService(db)
-        gazettes = service.generate_for_all_seniors()
-        logger.info(f"Weekly gazette: {len(gazettes)} generated")
-    except Exception as e:
-        logger.error(f"Weekly gazette failed: {e}")
+        from app.models.senior import Senior
+        senior_ids = [s.id for s in db.query(Senior).all()]
     finally:
         db.close()
+
+    from app.tasks import generate_gazette_task
+
+    enqueued = 0
+    for sid in senior_ids:
+        try:
+            generate_gazette_task.delay(sid)
+            enqueued += 1
+        except Exception as e:
+            logger.error(f"Failed to enqueue gazette for senior {sid}: {e}")
+    logger.info(f"Weekly gazette: enqueued {enqueued}/{len(senior_ids)} jobs")
 
 
 def start_scheduler():

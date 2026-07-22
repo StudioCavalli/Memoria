@@ -2,9 +2,11 @@
 
 import os
 
-# Must be set before importing the app so Settings picks it up: the in-memory
-# rate-limit counters are process-global and would otherwise trip across tests.
+# Must be set before importing the app so Settings picks them up.
+# Rate-limit counters are process-global and would otherwise trip across tests;
+# Celery runs eagerly (in-process, no broker) so post-session tasks execute inline.
 os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "true")
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch

@@ -16,14 +16,15 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-# 2) App source + install the project itself
+# 2) French spaCy model — depends only on spaCy (installed above), so it stays
+#    cached across app-source changes.
+RUN python -m spacy download fr_core_news_sm
+
+# 3) App source + install the project itself
 COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
 RUN uv sync --frozen --no-dev
-
-# 3) French spaCy model powering the Sentinelle cognitive analysis
-RUN python -m spacy download fr_core_news_sm
 
 # Run as an unprivileged user
 RUN useradd -m -u 10001 appuser && chown -R appuser:appuser /app

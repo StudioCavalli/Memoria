@@ -115,8 +115,15 @@ def end_session(
     db.commit()
     db.refresh(session)
 
-    # Trigger post-session pipeline in background (non-blocking)
-    background_tasks.add_task(_run_post_session_pipeline, session_id)
+    # Durable post-session pipeline (Celery, with retries). Falls back to a
+    # best-effort inline run if the broker is unreachable, so ending a session
+    # never fails on account of the pipeline.
+    from app.tasks import process_session_task
+
+    try:
+        process_session_task.delay(session_id)
+    except Exception:
+        background_tasks.add_task(_run_post_session_pipeline, session_id)
 
     return session
 
