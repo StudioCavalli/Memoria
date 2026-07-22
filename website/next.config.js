@@ -2,12 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['three'],
-  typescript: {
-    // TypeScript 7 is the native (Go) compiler and no longer exposes the JS
-    // compiler API that Next's built-in type check relies on. Type safety is
-    // enforced by a dedicated `tsc --noEmit` step (npm run typecheck / CI)
-    // instead of during `next build`.
-    ignoreBuildErrors: true,
+  experimental: {
+    // TypeScript 7 (native compiler) dropped the JS compiler API, so `next build`
+    // must invoke the `tsc` CLI directly instead of the removed JS API.
+    // Requires Next.js 16.3+. Fixes the CI build (issue vercel/next.js#95490).
+    useTypeScriptCli: true,
   },
 }
 
