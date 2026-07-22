@@ -96,8 +96,11 @@ class AIConversationService:
 
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=settings.anthropic_model,
             max_tokens=300,
+            # Sonnet 5 runs adaptive thinking by default; disable it to keep the
+            # real-time voice pipeline low-latency and the token budget intact.
+            thinking={"type": "disabled"},
             system=SYSTEM_PROMPT,
             messages=messages,
         )
@@ -126,8 +129,9 @@ class AIConversationService:
 
         client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         async with client.messages.stream(
-            model="claude-sonnet-4-20250514",
+            model=settings.anthropic_model,
             max_tokens=300,
+            thinking={"type": "disabled"},  # low-latency voice pipeline
             system=SYSTEM_PROMPT,
             messages=messages,
         ) as stream:

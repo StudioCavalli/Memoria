@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FFF8F0"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -39,6 +34,16 @@
         "expo-audio",
         {
           "microphonePermission": "Memoria a besoin du microphone pour vous ecouter."
+        }
+      ],
+      "expo-status-bar",
+      "expo-asset",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#FFF8F0"
         }
       ]
     ]

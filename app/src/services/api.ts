@@ -9,6 +9,7 @@ const DEFAULT_WS_URL = "wss://memoria-production-aeec.up.railway.app";
 
 let baseURL = DEFAULT_BASE_URL;
 let wsURL = DEFAULT_WS_URL;
+let authToken: string | null = null;
 
 export function setBaseURL(url: string): void {
   baseURL = url.replace(/\/+$/, "");
@@ -16,6 +17,11 @@ export function setBaseURL(url: string): void {
 
 export function setWsURL(url: string): void {
   wsURL = url.replace(/\/+$/, "");
+}
+
+/** Set the JWT obtained via pairing; sent on every REST + WebSocket call. */
+export function setAuthToken(token: string | null): void {
+  authToken = token;
 }
 
 export function getBaseURL(): string {
@@ -65,6 +71,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${baseURL}${path}`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     ...(options.headers as Record<string, string> | undefined),
   };
 
@@ -117,7 +124,8 @@ export class VoicePipeline {
   }
 
   connect(sessionId: number): void {
-    this.ws = new WebSocket(`${wsURL}/ws/voice/${sessionId}`);
+    const query = authToken ? `?token=${encodeURIComponent(authToken)}` : "";
+    this.ws = new WebSocket(`${wsURL}/ws/voice/${sessionId}${query}`);
     this.ws.binaryType = "arraybuffer";
 
     this.ws.onmessage = (event) => {
@@ -184,6 +192,7 @@ export class VoicePipeline {
 const ApiService = {
   setBaseURL,
   setWsURL,
+  setAuthToken,
   getBaseURL,
   startSession,
   sendMessage,

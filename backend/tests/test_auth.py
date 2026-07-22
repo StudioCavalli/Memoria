@@ -81,7 +81,8 @@ def test_me_endpoint(client, auth_headers):
 
 def test_me_without_auth(client):
     response = client.get("/api/auth/me")
-    assert response.status_code == 403
+    # FastAPI's HTTPBearer returns 401 for a missing/invalid bearer credential.
+    assert response.status_code == 401
 
 
 def test_refresh_token(client):

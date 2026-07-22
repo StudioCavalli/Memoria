@@ -1,5 +1,11 @@
 """Test configuration and fixtures."""
 
+import os
+
+# Must be set before importing the app so Settings picks it up: the in-memory
+# rate-limit counters are process-global and would otherwise trip across tests.
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+
 import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
@@ -79,13 +85,18 @@ def auth_headers(client):
 
 @pytest.fixture
 def senior_id(client, auth_headers):
-    """Create a senior and return their ID."""
+    """Create a senior and return their ID.
+
+    Also sets the auth header as the client default so subsequent calls to
+    ownership-protected routes are authenticated as this senior's family member.
+    """
     response = client.post("/api/seniors/", json={
         "first_name": "Jeanne",
         "last_name": "Martin",
         "birth_date": "1940-03-15",
         "birth_place": "Nice",
     }, headers=auth_headers)
+    client.headers.update(auth_headers)
     return response.json()["id"]
 
 

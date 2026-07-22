@@ -136,8 +136,9 @@ Souvenirs de la semaine :
 
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=settings.anthropic_model,
             max_tokens=800,
+            thinking={"type": "disabled"},
             messages=[{"role": "user", "content": prompt}],
         )
         return response.content[0].text

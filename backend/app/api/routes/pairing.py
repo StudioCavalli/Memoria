@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.core.security import create_access_token
 from app.models.senior import Senior
 from app.models.user import FamilyMember, User
@@ -20,7 +22,9 @@ class PairingValidateRequest(BaseModel):
 
 
 @router.post("/validate")
+@limiter.limit("10/minute")
 def validate_pairing_code(
+    request: Request,
     body: PairingValidateRequest,
     db: Session = Depends(get_db),
 ):
@@ -81,8 +85,11 @@ def validate_pairing_code(
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
 
-    # Create a JWT access token for the tablet
-    access_token = create_access_token({"sub": str(user.id)})
+    # Create a long-lived JWT for the tablet (kiosk device, re-pairs rarely)
+    access_token = create_access_token(
+        {"sub": str(user.id)},
+        expires_delta=timedelta(days=settings.tablet_token_expire_days),
+    )
 
     # Delete the pairing code (one-time use)
     matched_prefs.pop("pairing_code", None)

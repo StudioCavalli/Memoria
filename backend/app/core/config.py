@@ -17,9 +17,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 15
     jwt_refresh_token_expire_days: int = 7
+    # Long-lived token issued to a paired tablet (kiosk device, re-pairs rarely)
+    tablet_token_expire_days: int = 90
 
     # AI
     anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-5"
     openai_api_key: str = ""
 
     # Speech
@@ -42,6 +45,9 @@ class Settings(BaseSettings):
 
     # Redis
     redis_url: str = "redis://redis:6379/0"
+
+    # Rate limiting (disabled in the test suite)
+    rate_limit_enabled: bool = True
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

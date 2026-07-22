@@ -138,17 +138,17 @@ def test_get_single_memory(client, senior_id, db):
     assert "Famille" in data["themes"]
 
 
-def test_get_memory_not_found(client):
+def test_get_memory_not_found(client, auth_headers):
     """Requesting a non-existent memory returns 404."""
-    response = client.get("/api/memories/99999")
+    response = client.get("/api/memories/99999", headers=auth_headers)
     assert response.status_code == 404
 
 
-def test_list_themes(client, db):
+def test_list_themes(client, db, auth_headers):
     """Themes endpoint returns all registered themes."""
     _create_themes(db)
 
-    response = client.get("/api/memories/themes/")
+    response = client.get("/api/memories/themes/", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 5
@@ -157,9 +157,9 @@ def test_list_themes(client, db):
     assert "Cuisine" in names
 
 
-def test_list_themes_empty(client):
+def test_list_themes_empty(client, auth_headers):
     """Themes endpoint returns empty list when no themes exist."""
-    response = client.get("/api/memories/themes/")
+    response = client.get("/api/memories/themes/", headers=auth_headers)
     assert response.status_code == 200
     assert response.json() == []
 

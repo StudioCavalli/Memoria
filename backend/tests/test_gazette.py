@@ -236,9 +236,9 @@ def test_get_gazette_by_id(client, senior_id, db):
     assert response.json()["title"] == "Gazette Test"
 
 
-def test_get_gazette_not_found(client):
+def test_get_gazette_not_found(client, auth_headers):
     """Requesting a non-existent gazette returns 404."""
-    response = client.get("/api/gazettes/99999")
+    response = client.get("/api/gazettes/99999", headers=auth_headers)
     assert response.status_code == 404
 
 

@@ -145,8 +145,9 @@ class MemoryExtractionService:
         import anthropic
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=settings.anthropic_model,
             max_tokens=500,
+            thinking={"type": "disabled"},
             system=SUMMARY_PROMPT,
             messages=[{"role": "user", "content": conversation}],
         )
@@ -186,8 +187,9 @@ class MemoryExtractionService:
         import anthropic
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=settings.anthropic_model,
             max_tokens=2000,
+            thinking={"type": "disabled"},
             system=EXTRACTION_PROMPT,
             messages=[{"role": "user", "content": conversation}],
         )

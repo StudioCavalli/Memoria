@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, verify_senior_access
 from app.core.encryption import encrypt_text
 from app.models.session import Session as ConvSession
 from app.models.transcription import Transcription
@@ -18,8 +18,22 @@ from app.services.ai_conversation import AIConversationService
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
+def _get_owned_session(session_id: int, current_user: User, db: Session) -> ConvSession:
+    """Load a session and verify the current user is linked to its senior."""
+    session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session introuvable")
+    verify_senior_access(session.senior_id, current_user, db)
+    return session
+
+
 @router.post("/start", response_model=SessionResponse, status_code=201)
-def start_session(data: SessionCreate, db: Session = Depends(get_db)):
+def start_session(
+    data: SessionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    verify_senior_access(data.senior_id, current_user, db)
     session = ConvSession(senior_id=data.senior_id, status="active")
     db.add(session)
     db.commit()
@@ -32,9 +46,10 @@ def send_message(
     session_id: int,
     data: MessageRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
-    if not session or session.status != "active":
+    session = _get_owned_session(session_id, current_user, db)
+    if session.status != "active":
         raise HTTPException(status_code=404, detail="Session introuvable ou terminee")
 
     last_order = (
@@ -82,17 +97,20 @@ def end_session(
     session_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=404, detail="Session introuvable")
+    session = _get_owned_session(session_id, current_user, db)
 
     session.status = "completed"
     session.ended_at = datetime.now(timezone.utc)
 
     if session.started_at:
-        delta = session.ended_at - session.started_at
-        session.duration_seconds = int(delta.total_seconds())
+        # started_at may come back tz-naive (SQLite) or tz-aware (Postgres);
+        # normalize to UTC before subtracting to avoid naive/aware TypeError.
+        started = session.started_at
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+        session.duration_seconds = int((session.ended_at - started).total_seconds())
 
     db.commit()
     db.refresh(session)
@@ -119,8 +137,9 @@ def _run_post_session_pipeline(session_id: int):
 
 
 @router.get("/{session_id}", response_model=SessionResponse)
-def get_session(session_id: int, db: Session = Depends(get_db)):
-    session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=404, detail="Session introuvable")
-    return session
+def get_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return _get_owned_session(session_id, current_user, db)

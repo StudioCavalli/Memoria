@@ -265,4 +265,4 @@ def test_gdpr_delete_preserves_shared_senior(client, auth_headers, senior_id, db
 def test_gdpr_delete_requires_auth(client):
     """Delete endpoint rejects unauthenticated requests."""
     response = client.delete("/api/gdpr/delete-account")
-    assert response.status_code == 403
+    assert response.status_code == 401

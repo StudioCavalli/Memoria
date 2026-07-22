@@ -16,7 +16,7 @@ import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-c
 import HomeScreen from "./src/screens/HomeScreen";
 import SetupScreen from "./src/screens/SetupScreen";
 import { getPairing } from "./src/services/storage";
-import { setBaseURL, setWsURL } from "./src/services/api";
+import { setBaseURL, setWsURL, setAuthToken } from "./src/services/api";
 import { Colors } from "./src/constants/theme";
 import { I18nProvider } from "./src/i18n";
 
@@ -33,6 +33,7 @@ export default function App() {
         const cleanUrl = pairing.api_url.replace(/\/+$/, "");
         setBaseURL(`${cleanUrl}/api`);
         setWsURL(cleanUrl.replace(/^http/, "ws"));
+        setAuthToken(pairing.api_token);
         setIsPaired(true);
       } else {
         setIsPaired(false);

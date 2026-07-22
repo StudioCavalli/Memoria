@@ -264,7 +264,7 @@ export default function DashboardPage() {
                     boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
                     fontFamily: "'Nunito', sans-serif",
                   }}
-                  formatter={(value: number) => [`${value}`, t('dash.unique.words')]}
+                  formatter={(value) => [`${value}`, t('dash.unique.words')]}
                 />
                 <Line
                   type="monotone"

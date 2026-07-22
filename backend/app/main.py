@@ -9,6 +9,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.api.routes import (
     alerts,
@@ -28,11 +30,34 @@ from app.api.routes import (
     voice_pipeline,
 )
 from app.core.config import settings
+from app.core.rate_limit import limiter
+
+
+# Insecure defaults that must never reach production
+_INSECURE_DEFAULTS = {
+    "jwt_secret_key": "change-me-in-production",
+    "aes_encryption_key": "change-me-32-bytes-key-here!!!!",
+    "s3_secret_key": "minioadmin",
+}
+
+
+def _check_production_secrets() -> None:
+    """Fail fast if production is running with placeholder secrets."""
+    if settings.environment != "production":
+        return
+    leaked = [name for name, default in _INSECURE_DEFAULTS.items() if getattr(settings, name) == default]
+    if leaked:
+        raise RuntimeError(
+            "Refus de démarrer en production avec des secrets par défaut : "
+            + ", ".join(leaked)
+            + ". Définissez-les via les variables d'environnement."
+        )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    _check_production_secrets()
     from app.services.cron_jobs import start_scheduler, stop_scheduler
     from app.services.session_scheduler import scheduler as session_scheduler
     from app.services.tts_service import TTSService
@@ -60,6 +85,10 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Rate limiting (slowapi)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 cors_origins = os.environ.get(
     "CORS_ORIGINS",

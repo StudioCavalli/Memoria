@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, verify_senior_access
 from app.models.alert import Alert
-from app.models.user import FamilyMember, User
+from app.models.user import User
 from app.schemas.alert import AlertResponse
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -21,13 +21,7 @@ def list_alerts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    link = (
-        db.query(FamilyMember)
-        .filter(FamilyMember.user_id == current_user.id, FamilyMember.senior_id == senior_id)
-        .first()
-    )
-    if not link:
-        raise HTTPException(status_code=403, detail="Acces non autorise")
+    verify_senior_access(senior_id, current_user, db)
 
     query = db.query(Alert).filter(Alert.senior_id == senior_id)
     if unread_only:
@@ -45,6 +39,8 @@ def mark_alert_read(
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alerte introuvable")
+
+    verify_senior_access(alert.senior_id, current_user, db)
 
     alert.is_read = True
     db.commit()

@@ -12,6 +12,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session as DBSession
 
 from app.core.database import SessionLocal
+from app.core.deps import get_user_from_token, user_has_senior_access
 from app.core.encryption import encrypt_text
 from app.models.session import Session as ConvSession
 from app.models.transcription import Transcription
@@ -23,7 +24,7 @@ router = APIRouter(tags=["voice"])
 
 
 @router.websocket("/ws/voice/{session_id}")
-async def voice_pipeline(websocket: WebSocket, session_id: int):
+async def voice_pipeline(websocket: WebSocket, session_id: int, token: str | None = None):
     """
     Bidirectional WebSocket voice pipeline.
 
@@ -56,6 +57,13 @@ async def voice_pipeline(websocket: WebSocket, session_id: int):
         if not session or session.status != "active":
             await websocket.send_json({"type": "error", "message": "Session invalide"})
             await websocket.close()
+            return
+
+        # Authenticate: the token must belong to a user linked to this senior
+        user = get_user_from_token(token, db)
+        if user is None or not user_has_senior_access(user, session.senior_id, db):
+            await websocket.send_json({"type": "error", "message": "Non autorise"})
+            await websocket.close(code=1008)
             return
 
         await websocket.send_json({"type": "status", "status": "idle"})

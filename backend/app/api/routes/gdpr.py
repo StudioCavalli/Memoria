@@ -129,12 +129,18 @@ def delete_account(
         )
 
         if other_links == 0:
-            # Last family member — delete the senior and all their data (CASCADE)
+            # Last family member — delete the senior and all their data.
+            # The link is removed via Senior.family_members cascade.
             senior = db.query(Senior).filter(Senior.id == link.senior_id).first()
             if senior:
                 db.delete(senior)
+        else:
+            # Senior is shared with other users — keep it, drop only this link.
+            # (Deleting the user directly would try to NULL family_members.user_id,
+            #  which violates the NOT NULL constraint on both SQLite and Postgres.)
+            db.delete(link)
 
-    # Delete the user (CASCADE deletes family_members links)
+    # All of the user's links are now removed; delete the user itself.
     db.delete(current_user)
     db.commit()
 

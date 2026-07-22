@@ -25,7 +25,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
 import { savePairing } from "../services/storage";
-import { setBaseURL, setWsURL } from "../services/api";
+import { setBaseURL, setWsURL, setAuthToken } from "../services/api";
 import { useI18n, LOCALE_LABELS } from "../i18n";
 import type { Locale } from "../i18n";
 
@@ -266,9 +266,10 @@ export default function SetupScreen({ onSetupComplete }: SetupScreenProps) {
         throw new Error(t('setup.pairing.error.server'));
       }
 
-      // Configure API URLs
+      // Configure API URLs + auth token (obtained via pairing)
       setBaseURL(`${cleanUrl}/api`);
       setWsURL(cleanUrl.replace(/^http/, "ws"));
+      setAuthToken(jwt);
 
       // Save pairing data (including settings PIN from server)
       await savePairing({

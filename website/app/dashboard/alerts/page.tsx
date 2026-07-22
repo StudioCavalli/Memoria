@@ -87,7 +87,13 @@ export default function AlertsPage() {
         const userId = (meRes.data as any).id
         if (!userId) return
 
-        const wsUrl = `ws://localhost:8000/ws/dashboard/${userId}`
+        const token = localStorage.getItem('memoria_token')
+        if (!token) return
+
+        // Derive the WS base from the REST API URL (strip trailing /api, http->ws)
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://memoria-production-aeec.up.railway.app/api'
+        const wsBase = apiBase.replace(/\/api\/?$/, '').replace(/^http/, 'ws')
+        const wsUrl = `${wsBase}/ws/dashboard/${userId}?token=${encodeURIComponent(token)}`
         ws = new WebSocket(wsUrl)
         wsRef.current = ws
 
