@@ -1,3 +1,7 @@
+# Local development compose. It builds the production Dockerfiles but overrides
+# the run command + mounts source for hot-reload. Anonymous volumes preserve the
+# image-built dependencies (.venv / node_modules) so the host mount doesn't shadow
+# them. For a production run, use the images directly (no command override / mounts).
 services:
   postgres:
     image: postgres:15-alpine
@@ -41,18 +45,25 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - /app/.venv  # keep the image-built venv, don't shadow it with the host mount
+    # Dev override: hot-reload. The prod image default runs uvicorn without --reload.
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   website:
-    build: ./website
+    build:
+      context: ./website
+      target: deps  # dev only needs node_modules; skip the prod build stage
     ports:
       - "3000:3000"
+    working_dir: /app
     volumes:
       - ./website:/app
-      - /app/node_modules
+      - /app/node_modules  # preserve the image-installed deps
       - /app/.next
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    # Dev override: Next dev server. The prod image runs `node server.js` (standalone).
+    command: npm run dev
     depends_on:
       - backend
 

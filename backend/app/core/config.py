@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://redis:6379/0"
 
+    # CORS — comma-separated allowed origins. Dev defaults to localhost;
+    # set CORS_ORIGINS in prod (e.g. the deployed dashboard + tablet URLs).
+    cors_origins: str = "http://localhost:3000,http://localhost:19006"
+
     # Rate limiting (disabled in the test suite)
     rate_limit_enabled: bool = True
 

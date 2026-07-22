@@ -4,11 +4,14 @@
  * REST + WebSocket communication with the Memoria backend.
  */
 
-const DEFAULT_BASE_URL = "https://memoria-production-aeec.up.railway.app/api";
-const DEFAULT_WS_URL = "wss://memoria-production-aeec.up.railway.app";
+// Host is configurable at build time via EXPO_PUBLIC_API_URL; the pairing flow
+// overrides both URLs at runtime with the value returned by the backend.
+const DEFAULT_HOST = (
+  process.env.EXPO_PUBLIC_API_URL ?? "https://memoria-production-aeec.up.railway.app"
+).replace(/\/+$/, "");
 
-let baseURL = DEFAULT_BASE_URL;
-let wsURL = DEFAULT_WS_URL;
+let baseURL = `${DEFAULT_HOST}/api`;
+let wsURL = DEFAULT_HOST.replace(/^http/, "ws");
 let authToken: string | null = null;
 
 export function setBaseURL(url: string): void {

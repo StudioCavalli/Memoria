@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['three'],
+  // Lean, self-contained production server for Docker (.next/standalone/server.js)
+  output: 'standalone',
   experimental: {
     // TypeScript 7 (native compiler) dropped the JS compiler API, so `next build`
     // must invoke the `tsc` CLI directly instead of the removed JS API.

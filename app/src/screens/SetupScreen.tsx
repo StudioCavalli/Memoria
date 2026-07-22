@@ -41,7 +41,9 @@ interface SetupScreenProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEFAULT_API_URL = "https://memoria-production-aeec.up.railway.app";
+const DEFAULT_API_URL = (
+  process.env.EXPO_PUBLIC_API_URL ?? "https://memoria-production-aeec.up.railway.app"
+).replace(/\/+$/, "");
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'it'];
 const CODE_LENGTH = 6;
 
