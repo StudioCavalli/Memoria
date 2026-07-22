@@ -25,7 +25,7 @@ def list_alerts(
 
     query = db.query(Alert).filter(Alert.senior_id == senior_id)
     if unread_only:
-        query = query.filter(Alert.is_read == False)
+        query = query.filter(Alert.is_read.is_(False))
 
     return query.order_by(Alert.created_at.desc()).offset(skip).limit(limit).all()
 

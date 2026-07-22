@@ -1,4 +1,4 @@
-.PHONY: dev stop logs backend dashboard db-seed db-migrate test
+.PHONY: dev stop logs backend website db-seed db-migrate test
 
 # Lancer l'environnement de dev complet
 dev:
@@ -19,9 +19,9 @@ logs:
 backend:
 	docker compose logs -f backend
 
-# Logs dashboard uniquement
-dashboard:
-	docker compose logs -f dashboard
+# Logs du site + dashboard (service website) uniquement
+website:
+	docker compose logs -f website
 
 # Lancer les migrations Alembic
 db-migrate:

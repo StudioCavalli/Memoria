@@ -242,7 +242,7 @@ def test_gdpr_delete_preserves_shared_senior(client, auth_headers, senior_id, db
     _populate_full_data(db, senior_id)
 
     # Create another user linked to the same senior
-    other_reg = client.post("/api/auth/register", json={
+    client.post("/api/auth/register", json={
         "email": "famille@memoria.fr", "password": "password123",
         "first_name": "Pierre", "last_name": "Martin", "gdpr_consent": True,
     })

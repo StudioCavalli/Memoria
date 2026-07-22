@@ -1,13 +1,11 @@
 """Tests for semantic analysis service: NLP metrics, evasive detection, regex fallback."""
 
-from unittest.mock import patch
 
 from app.core.encryption import encrypt_text
 from app.models.session import Session as ConvSession
 from app.models.transcription import Transcription
 from app.services.semantic_analysis import (
     EVASIVE_PATTERNS,
-    FRENCH_STOP_WORDS,
     SemanticAnalysisService,
 )
 

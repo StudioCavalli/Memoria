@@ -4,7 +4,6 @@ Uses in-memory WebSocket connections + optional email via SendGrid.
 """
 from __future__ import annotations
 
-import asyncio
 from collections import defaultdict
 
 from fastapi import WebSocket
@@ -75,7 +74,7 @@ class NotificationManager:
         try:
             links = (
                 db.query(FamilyMember)
-                .filter(FamilyMember.senior_id == senior_id, FamilyMember.notify_email == True)
+                .filter(FamilyMember.senior_id == senior_id, FamilyMember.notify_email.is_(True))
                 .all()
             )
 

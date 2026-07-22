@@ -11,12 +11,9 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import (
-    Flowable,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
-    Table,
-    TableStyle,
 )
 
 from sqlalchemy.orm import Session

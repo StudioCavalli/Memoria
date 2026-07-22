@@ -2,18 +2,15 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.encryption import decrypt_text
-from app.models.alert import Alert
 from app.models.cognitive_metric import CognitiveMetric
-from app.models.gazette import Gazette
 from app.models.memory import Memory
 from app.models.senior import Senior
 from app.models.session import Session as ConvSession

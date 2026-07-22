@@ -6,7 +6,6 @@ import os
 # rate-limit counters are process-global and would otherwise trip across tests.
 os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 
-import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
@@ -20,9 +19,7 @@ from app.core.database import Base, get_db
 from app.core.encryption import encrypt_text
 from app.main import app
 from app.models.cognitive_metric import CognitiveMetric
-from app.models.memory import Memory
 from app.models.session import Session as ConvSession
-from app.models.theme import Theme
 from app.models.transcription import Transcription
 
 # In-memory SQLite for tests

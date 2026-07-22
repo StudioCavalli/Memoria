@@ -1,7 +1,6 @@
 """Tests for memory endpoints: creation, retrieval, filtering, themes."""
 
 import json
-from datetime import datetime, timezone
 
 from app.core.encryption import encrypt_text
 from app.models.memory import Memory
@@ -166,10 +165,9 @@ def test_list_themes_empty(client, auth_headers):
 
 def test_memories_ordered_by_created_at(client, senior_id, db):
     """Memories are returned in reverse chronological order."""
-    import time
-    m1 = _create_memory(db, senior_id, "Premier souvenir", "Le plus ancien.")
+    _create_memory(db, senior_id, "Premier souvenir", "Le plus ancien.")
     # Force a slight time gap by adjusting created_at
-    m2 = _create_memory(db, senior_id, "Deuxieme souvenir", "Le plus recent.")
+    _create_memory(db, senior_id, "Deuxieme souvenir", "Le plus recent.")
 
     response = client.get(f"/api/memories/?senior_id={senior_id}")
     assert response.status_code == 200

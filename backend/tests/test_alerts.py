@@ -1,6 +1,5 @@
 """Tests for alert service: cognitive decline detection, inactivity, deduplication."""
 
-import json
 from datetime import datetime, timedelta, timezone
 
 from app.models.alert import Alert
