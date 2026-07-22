@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "gen:api-types": "npx -y -p openapi-typescript@7 -p typescript@5.9.3 openapi-typescript openapi.json -o lib/api-types.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

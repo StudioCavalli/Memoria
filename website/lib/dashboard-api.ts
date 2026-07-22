@@ -1,3 +1,9 @@
+import type { components } from './api-types';
+
+// Response/request shapes generated from the backend's OpenAPI spec — single
+// source of truth. Regenerate with `npm run gen:api-types`.
+type Schemas = components['schemas'];
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://memoria-production-aeec.up.railway.app/api';
 
 // ---------------------------------------------------------------------------
@@ -107,10 +113,9 @@ export async function resolveSeniorId(): Promise<string> {
   const stored = localStorage.getItem('memoria_senior_id');
   if (stored) return stored;
 
-  const { data } = await api.get<unknown[]>('/seniors/');
-  const list = Array.isArray(data) ? data : (data as Record<string, unknown[]>).items ?? (data as Record<string, unknown[]>).results ?? [];
-  if (list.length > 0) {
-    const id = (list[0] as Record<string, unknown>).id as string;
+  const { data } = await api.get<Schemas['SeniorResponse'][]>('/seniors/');
+  if (data.length > 0) {
+    const id = data[0].id;
     localStorage.setItem('memoria_senior_id', String(id));
     return String(id);
   }
@@ -122,39 +127,30 @@ export async function resolveSeniorId(): Promise<string> {
 // ---------------------------------------------------------------------------
 export const authService = {
   login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
+    api.post<Schemas['TokenResponse']>('/auth/login', { email, password }),
 
-  register: (payload: {
-    email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
-    gdpr_consent: boolean;
-  }) => api.post('/auth/register', payload),
+  register: (payload: Schemas['RegisterRequest']) =>
+    api.post<Schemas['TokenResponse']>('/auth/register', payload),
 
   refresh: (refreshToken: string) =>
-    api.post('/auth/refresh', { refresh_token: refreshToken }),
+    api.post<Schemas['TokenResponse']>('/auth/refresh', { refresh_token: refreshToken }),
 
-  me: () => api.get('/auth/me'),
+  me: () => api.get<Schemas['UserResponse']>('/auth/me'),
 };
 
 // ---------------------------------------------------------------------------
 // Seniors
 // ---------------------------------------------------------------------------
 export const seniorsService = {
-  list: () => api.get('/seniors/'),
+  list: () => api.get<Schemas['SeniorResponse'][]>('/seniors/'),
 
-  get: (id: string) => api.get(`/seniors/${id}`),
+  get: (id: string) => api.get<Schemas['SeniorResponse']>(`/seniors/${id}`),
 
-  create: (data: {
-    first_name: string;
-    last_name: string;
-    birth_date: string;
-    birth_place?: string;
-  }) => api.post('/seniors/', data),
+  create: (data: Schemas['SeniorCreate']) =>
+    api.post<Schemas['SeniorResponse']>('/seniors/', data),
 
-  update: (id: string, data: Record<string, unknown>) =>
-    api.put(`/seniors/${id}`, data),
+  update: (id: string, data: Schemas['SeniorUpdate']) =>
+    api.put<Schemas['SeniorResponse']>(`/seniors/${id}`, data),
 };
 
 // ---------------------------------------------------------------------------
@@ -200,12 +196,12 @@ export const memoriesService = {
     const perPage = filters?.per_page ?? 20;
     params.skip = (page - 1) * perPage;
     params.limit = perPage;
-    return api.get('/memories/', { params });
+    return api.get<Schemas['MemoryResponse'][]>('/memories/', { params });
   },
 
-  get: (memoryId: string) => api.get(`/memories/${memoryId}`),
+  get: (memoryId: string) => api.get<Schemas['MemoryResponse']>(`/memories/${memoryId}`),
 
-  themes: () => api.get('/memories/themes/'),
+  themes: () => api.get<Schemas['ThemeResponse'][]>('/memories/themes/'),
 };
 
 // ---------------------------------------------------------------------------
@@ -215,11 +211,11 @@ export const alertsService = {
   list: (seniorId: string, unreadOnly?: boolean) => {
     const params: Record<string, unknown> = { senior_id: seniorId };
     if (unreadOnly) params.unread_only = true;
-    return api.get('/alerts/', { params });
+    return api.get<Schemas['AlertResponse'][]>('/alerts/', { params });
   },
 
   markRead: (_seniorId: string, alertId: string) =>
-    api.put(`/alerts/${alertId}/read`),
+    api.put<Schemas['AlertResponse']>(`/alerts/${alertId}/read`),
 
   unreadCount: (seniorId: string) =>
     api
@@ -235,10 +231,10 @@ export const alertsService = {
 // ---------------------------------------------------------------------------
 export const metricsService = {
   history: (seniorId: string, days: number = 30) =>
-    api.get(`/seniors/${seniorId}/metrics/history`, { params: { days } }),
+    api.get<Schemas['CognitiveMetricResponse'][]>(`/seniors/${seniorId}/metrics/history`, { params: { days } }),
 
   summary: (seniorId: string) =>
-    api.get(`/seniors/${seniorId}/metrics/summary`),
+    api.get<Schemas['MetricsSummary']>(`/seniors/${seniorId}/metrics/summary`),
 };
 
 // ---------------------------------------------------------------------------
@@ -246,9 +242,9 @@ export const metricsService = {
 // ---------------------------------------------------------------------------
 export const gazettesService = {
   list: (seniorId: string, skip = 0, limit = 20) =>
-    api.get('/gazettes/', { params: { senior_id: seniorId, skip, limit } }),
+    api.get<Schemas['GazetteResponse'][]>('/gazettes/', { params: { senior_id: seniorId, skip, limit } }),
 
-  get: (gazetteId: string) => api.get(`/gazettes/${gazetteId}`),
+  get: (gazetteId: string) => api.get<Schemas['GazetteResponse']>(`/gazettes/${gazetteId}`),
 
   download: (_seniorId: string, gazetteId: string) =>
     api.get(`/gazettes/${gazetteId}/pdf`, { responseType: 'blob' }),
