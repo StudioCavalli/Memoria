@@ -46,3 +46,51 @@ def generate_gazette_task(self, senior_id: int) -> int | None:
         return gazette.id if gazette else None
     finally:
         db.close()
+
+
+@celery_app.task(bind=True, **_RETRY)
+def send_alert_email_task(self, senior_id: int, subject: str, body_html: str) -> int:
+    """Email a Sentinelle alert to a senior's family members (durable, with retries).
+
+    Runs in a plain sync worker — no event loop — which is exactly why the alert
+    service enqueues this instead of firing an async coroutine that never ran.
+    Returns the number of emails sent."""
+    import httpx
+
+    from app.core.config import settings
+    from app.models.user import FamilyMember, User
+
+    if not settings.sendgrid_api_key:
+        return 0
+
+    db = SessionLocal()
+    try:
+        links = (
+            db.query(FamilyMember)
+            .filter(FamilyMember.senior_id == senior_id, FamilyMember.notify_email.is_(True))
+            .all()
+        )
+        sent = 0
+        for link in links:
+            user = db.query(User).filter(User.id == link.user_id).first()
+            if not user:
+                continue
+            resp = httpx.post(
+                "https://api.sendgrid.com/v3/mail/send",
+                headers={
+                    "Authorization": f"Bearer {settings.sendgrid_api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "personalizations": [{"to": [{"email": user.email}]}],
+                    "from": {"email": settings.gazette_sender_email, "name": "Memoria"},
+                    "subject": subject,
+                    "content": [{"type": "text/html", "value": body_html}],
+                },
+                timeout=10.0,
+            )
+            resp.raise_for_status()
+            sent += 1
+        return sent
+    finally:
+        db.close()

@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     # Celery — run tasks synchronously in-process (tests) instead of via a broker
     celery_task_always_eager: bool = False
 
+    # Sessions — auto-close an `active` session after this many minutes without
+    # activity (the senior won't press the hidden "end" gesture). Safety net that
+    # triggers the post-session pipeline (memories, cognitive metrics, gazette matter).
+    session_inactivity_timeout_minutes: int = 15
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
     @property

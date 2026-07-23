@@ -45,3 +45,15 @@ def decrypt_text(encrypted: str) -> str:
     ciphertext = raw[12:]
     plaintext = aesgcm.decrypt(nonce, ciphertext, None)
     return plaintext.decode("utf-8")
+
+
+def encrypt_bytes(data: bytes) -> bytes:
+    """Encrypt binary data at rest (e.g. audio recordings). Returns nonce + ciphertext."""
+    aesgcm = AESGCM(_get_key())
+    nonce = os.urandom(12)
+    return nonce + aesgcm.encrypt(nonce, data, None)
+
+
+def decrypt_bytes(blob: bytes) -> bytes:
+    aesgcm = AESGCM(_get_key())
+    return aesgcm.decrypt(blob[:12], blob[12:], None)

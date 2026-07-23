@@ -128,6 +128,23 @@ def test_evasive_response_detection(client, senior_id, db):
     assert metric.evasive_responses >= 3
 
 
+def test_evasive_detection_with_accents(client, senior_id, db):
+    """Accented STT output ('peut-être', 'je ne sais pas') must still match the
+    accent-free evasive patterns (real STT returns accents; the old code missed them)."""
+    texts = [
+        "Je ne sais pas vraiment, c'était il y a si longtemps.",
+        "Peut-être, mais je ne me rappelle pas très bien.",
+    ]
+    session = _create_session_with_transcriptions(db, senior_id, texts)
+
+    service = SemanticAnalysisService()
+    service._nlp = False
+
+    metric = service.analyze_session(session.id, senior_id, db)
+
+    assert metric.evasive_responses >= 2
+
+
 def test_no_evasive_responses(client, senior_id, db):
     """Non-evasive text produces zero evasive count."""
     texts = [

@@ -7,12 +7,29 @@ import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 from app.core.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
 scheduler = AsyncIOScheduler()
+
+
+def _close_stale_sessions():
+    """Every few minutes — close `active` sessions that went idle (the senior put
+    the tablet down) and kick off the post-session pipeline. Without this, sessions
+    never end and nothing downstream (memories/metrics/alerts/gazette) ever runs."""
+    db = SessionLocal()
+    try:
+        from app.services.session_lifecycle import close_stale_sessions
+        n = close_stale_sessions(db)
+        if n:
+            logger.info(f"Auto-closed {n} stale session(s)")
+    except Exception as e:
+        logger.error(f"Stale session cleanup failed: {e}")
+    finally:
+        db.close()
 
 
 def _daily_alert_check():
@@ -68,8 +85,17 @@ def start_scheduler():
         id="weekly_gazette",
         replace_existing=True,
     )
+    scheduler.add_job(
+        _close_stale_sessions,
+        IntervalTrigger(minutes=5),
+        id="close_stale_sessions",
+        replace_existing=True,
+    )
     scheduler.start()
-    logger.info("Scheduler started: daily alerts 8:00 UTC, weekly gazette Sun 20:00 UTC")
+    logger.info(
+        "Scheduler started: daily alerts 8:00 UTC, weekly gazette Sun 20:00 UTC, "
+        "stale-session cleanup every 5 min"
+    )
 
 
 def stop_scheduler():

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -14,6 +13,7 @@ from app.models.transcription import Transcription
 from app.models.user import User
 from app.schemas.session import MessageRequest, MessageResponse, SessionCreate, SessionResponse
 from app.services.ai_conversation import AIConversationService
+from app.services.session_lifecycle import close_session
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -95,52 +95,15 @@ def send_message(
 @router.post("/{session_id}/end", response_model=SessionResponse)
 def end_session(
     session_id: int,
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     session = _get_owned_session(session_id, current_user, db)
-
-    session.status = "completed"
-    session.ended_at = datetime.now(timezone.utc)
-
-    if session.started_at:
-        # started_at may come back tz-naive (SQLite) or tz-aware (Postgres);
-        # normalize to UTC before subtracting to avoid naive/aware TypeError.
-        started = session.started_at
-        if started.tzinfo is None:
-            started = started.replace(tzinfo=timezone.utc)
-        session.duration_seconds = int((session.ended_at - started).total_seconds())
-
-    db.commit()
+    # Marks completed, computes duration, and enqueues the durable post-session
+    # pipeline. Same path used by the server-side stale-session safety net.
+    close_session(db, session)
     db.refresh(session)
-
-    # Durable post-session pipeline (Celery, with retries). Falls back to a
-    # best-effort inline run if the broker is unreachable, so ending a session
-    # never fails on account of the pipeline.
-    from app.tasks import process_session_task
-
-    try:
-        process_session_task.delay(session_id)
-    except Exception:
-        background_tasks.add_task(_run_post_session_pipeline, session_id)
-
     return session
-
-
-def _run_post_session_pipeline(session_id: int):
-    """Post-session processing: extract memories, analyze cognitive metrics, generate summary."""
-    from app.core.database import SessionLocal
-    from app.services.memory_extraction import MemoryExtractionService
-
-    db = SessionLocal()
-    try:
-        service = MemoryExtractionService(db)
-        service.process_session(session_id)
-    except Exception:
-        pass  # Don't fail the response if post-processing fails
-    finally:
-        db.close()
 
 
 @router.get("/{session_id}", response_model=SessionResponse)

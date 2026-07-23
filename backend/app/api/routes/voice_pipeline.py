@@ -50,6 +50,11 @@ async def voice_pipeline(websocket: WebSocket, session_id: int, token: str | Non
     audio_buffer = bytearray()
     is_interrupted = False
     last_audio_time = time.time()
+    # Senior *response latency* = time between the AI becoming ready and the senior
+    # starting to speak. This is the cognitive signal the Sentinelle reads (stored on
+    # the senior transcription), distinct from the AI/system response time.
+    ai_ready_at = time.time()
+    senior_response_ms: float | None = None
 
     try:
         # Validate session
@@ -72,6 +77,7 @@ async def voice_pipeline(websocket: WebSocket, session_id: int, token: str | Non
         count = db.query(Transcription).filter(Transcription.session_id == session_id).count()
         if count == 0:
             await _send_greeting(websocket, session, tts, db)
+        ai_ready_at = time.time()
 
         # Silence detection task
         silence_task = asyncio.create_task(_silence_detector(websocket, lambda: last_audio_time))
@@ -80,7 +86,9 @@ async def voice_pipeline(websocket: WebSocket, session_id: int, token: str | Non
             message = await websocket.receive()
 
             if "bytes" in message and message["bytes"]:
-                # Audio chunk received
+                # First chunk of a new turn → the senior just started responding
+                if not audio_buffer:
+                    senior_response_ms = max(0.0, (time.time() - ai_ready_at) * 1000)
                 audio_buffer.extend(message["bytes"])
                 last_audio_time = time.time()
 
@@ -96,8 +104,12 @@ async def voice_pipeline(websocket: WebSocket, session_id: int, token: str | Non
                             websocket, bytes(audio_buffer), session_id,
                             session.senior_id, stt, ai, tts, db,
                             lambda: is_interrupted,
+                            response_latency_ms=senior_response_ms,
                         )
                         audio_buffer.clear()
+                        # AI turn done → restart the clock for the next senior response
+                        ai_ready_at = time.time()
+                        senior_response_ms = None
 
                 elif action == "interrupt":
                     is_interrupted = True
@@ -124,6 +136,7 @@ async def _process_turn(
     tts: TTSService,
     db: DBSession,
     is_interrupted: callable,
+    response_latency_ms: float | None = None,
 ):
     """Process one full turn: STT → LLM → TTS."""
     total_start = time.time()
@@ -147,6 +160,7 @@ async def _process_turn(
         speaker="senior",
         content_encrypted=encrypt_text(user_text),
         sequence_order=last_order + 1,
+        latency_ms=response_latency_ms,  # senior's cognitive response latency (Sentinelle signal)
     )
     db.add(user_trans)
     db.flush()

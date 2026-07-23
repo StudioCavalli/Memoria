@@ -6,6 +6,7 @@ Uses spaCy for NLP when available, falls back to regex-based analysis.
 from __future__ import annotations
 
 import re
+import unicodedata
 
 from sqlalchemy.orm import Session
 
@@ -29,6 +30,13 @@ EVASIVE_PATTERNS = [
     "je ne me souviens pas", "je me rappelle pas", "je ne me rappelle pas",
     "je ne sais plus", "bof", "peut-etre", "je sais plus",
 ]
+
+
+def _strip_accents(text: str) -> str:
+    """Remove accents so STT output ('peut-être') matches accent-free patterns."""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
+    )
 
 
 class SemanticAnalysisService:
@@ -77,7 +85,7 @@ class SemanticAnalysisService:
         # --- Evasive Responses ---
         evasive_count = sum(
             1 for text in texts
-            if any(p in text.lower() for p in EVASIVE_PATTERNS)
+            if any(p in _strip_accents(text.lower()) for p in EVASIVE_PATTERNS)
         )
 
         metric = CognitiveMetric(

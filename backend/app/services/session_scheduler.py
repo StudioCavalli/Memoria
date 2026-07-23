@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -61,12 +61,16 @@ class SessionScheduler:
                 for time_str in times:
                     hour, minute = map(int, time_str.split(":"))
                     if hour == current_hour and minute == current_minute:
-                        # Check if a session isn't already active
+                        # Only a *recent* active session should block a new one.
+                        # An abandoned `active` session (senior never ended it) must
+                        # not block scheduling forever — the stale-session cleanup
+                        # closes it separately.
                         active = (
                             db.query(ConvSession)
                             .filter(
                                 ConvSession.senior_id == senior.id,
                                 ConvSession.status == "active",
+                                ConvSession.started_at >= now - timedelta(hours=1),
                             )
                             .first()
                         )

@@ -1,8 +1,13 @@
-"""Audio file upload and streaming endpoints for sessions."""
+"""Audio file upload and streaming endpoints for sessions.
+
+Audio is biometric data: it is encrypted at rest and only served back through this
+authenticated + ownership-checked endpoint (never a public/static URL)."""
 from __future__ import annotations
 
+import io
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -36,12 +41,13 @@ async def upload_session_audio(
     format = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "webm"
 
     storage = StorageService()
-    url = storage.upload_audio(session_id, audio_data, format)
+    # Returns an opaque storage key (encrypted at rest), not a public URL.
+    key = storage.upload_audio(session_id, audio_data, format)
 
-    session.audio_url = url
+    session.audio_url = key
     db.commit()
 
-    return {"audio_url": url}
+    return {"stored": True}
 
 
 @router.get("/{session_id}/audio")
@@ -50,9 +56,18 @@ def get_session_audio(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get/stream the audio recording of a session."""
+    """Stream the session's audio recording (decrypted on the fly, after ownership check)."""
     session = _get_owned_session(session_id, current_user, db)
     if not session.audio_url:
         raise HTTPException(status_code=404, detail="Audio introuvable")
 
-    return RedirectResponse(url=session.audio_url)
+    storage = StorageService()
+    try:
+        data = storage.download_decrypted(session.audio_url)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Audio introuvable") from None
+
+    return StreamingResponse(
+        io.BytesIO(data),
+        media_type=StorageService.audio_media_type(session.audio_url),
+    )

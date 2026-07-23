@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -120,10 +117,10 @@ app.include_router(audio.router, prefix="/api")
 app.include_router(gdpr.router, prefix="/api")
 app.include_router(pairing.router, prefix="/api")
 
-# Static files for local storage fallback
-_uploads = Path(__file__).parent.parent / "uploads"
-_uploads.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(_uploads)), name="uploads")
+# NB: the local uploads/ directory is intentionally NOT served as public static
+# files. Audio (biometric) and gazette PDFs are sensitive and are only served via
+# their authenticated, ownership-checked routes (`/sessions/{id}/audio`,
+# `/gazettes/{id}/pdf`). Audio is additionally encrypted at rest.
 
 # WebSocket routes
 app.include_router(voice_pipeline.router)

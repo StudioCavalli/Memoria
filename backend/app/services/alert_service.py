@@ -4,8 +4,8 @@ Runs daily to analyze trends and create alerts for family members.
 """
 from __future__ import annotations
 
-import asyncio
 import json
+import logging
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
@@ -14,6 +14,8 @@ from app.models.alert import Alert
 from app.models.cognitive_metric import CognitiveMetric
 from app.models.senior import Senior
 from app.models.session import Session as ConvSession
+
+logger = logging.getLogger(__name__)
 
 
 class AlertService:
@@ -207,30 +209,25 @@ class AlertService:
         )
         self.db.add(alert)
         self.db.commit()
+        self.db.refresh(alert)
 
-        # Send real-time notification to family dashboards
-        try:
-            from app.services.notification_service import notification_manager
-            asyncio.get_event_loop().create_task(
-                notification_manager.notify_family(
-                    senior_id,
-                    "new_alert",
-                    {"alert_id": alert.id, "type": alert_type, "severity": severity, "message": message},
-                )
-            )
-        except RuntimeError:
-            pass  # No event loop — skip real-time notification
-
-        # Send email for high severity
+        # Email the family for actionable alerts. This is the reliable channel:
+        # it reaches them whether or not the dashboard is open, and runs as a
+        # durable Celery task (the previous `create_task` fired a coroutine with
+        # no running event loop from the cron thread → the family was NEVER emailed).
         if severity in ("medium", "high"):
+            from app.tasks import send_alert_email_task
+
             try:
-                from app.services.notification_service import notification_manager
-                asyncio.get_event_loop().create_task(
-                    notification_manager.send_email_alert(
-                        senior_id,
-                        f"Memoria — Alerte {severity.upper()} pour votre proche",
-                        f"<h3>{message}</h3><p>Connectez-vous au dashboard Memoria pour plus de details.</p>",
-                    )
+                send_alert_email_task.delay(
+                    senior_id,
+                    f"Memoria — Alerte {severity.upper()} pour votre proche",
+                    f"<h3>{message}</h3><p>Connectez-vous au dashboard Memoria pour plus de details.</p>",
                 )
-            except RuntimeError:
-                pass
+            except Exception:
+                logger.warning("Could not enqueue alert email for senior %s", senior_id, exc_info=True)
+
+        # NB: real-time WebSocket push to open dashboards is intentionally not done
+        # here — the in-memory connection registry lives in the web process, not the
+        # Celery/cron context, so cross-process delivery needs Redis pub/sub
+        # (see ARCHITECTURE_REVIEW §4.1). The dashboard loads alerts on open.

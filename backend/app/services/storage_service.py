@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.core.config import settings
+from app.core.encryption import decrypt_bytes, encrypt_bytes
 
 try:
     import boto3
@@ -53,17 +54,29 @@ class StorageService:
         return f"{settings.s3_endpoint}/{self.bucket}/{key}"
 
     def upload_audio(self, session_id: int, audio_data: bytes, format: str = "webm") -> str:
-        """Upload a session audio recording."""
+        """Encrypt and store a session audio recording. Returns an opaque storage
+        key (NOT a public URL) — the voice of a senior is biometric data and must
+        only be served back through the authenticated `download_audio` path."""
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        key = f"audio/sessions/{session_id}/{timestamp}.{format}"
-        content_type_map = {
+        key = f"audio/sessions/{session_id}/{timestamp}.{format}.enc"
+        self.upload(key, encrypt_bytes(audio_data), content_type="application/octet-stream")
+        return key
+
+    def download_decrypted(self, key: str) -> bytes:
+        """Fetch and decrypt an at-rest-encrypted object (e.g. audio)."""
+        return decrypt_bytes(self.download(key))
+
+    @staticmethod
+    def audio_media_type(key: str) -> str:
+        """Original media type of an encrypted audio key (…/x.webm.enc → audio/webm)."""
+        ext = key[:-4].rsplit(".", 1)[-1] if key.endswith(".enc") else key.rsplit(".", 1)[-1]
+        return {
             "webm": "audio/webm",
             "mp3": "audio/mpeg",
             "wav": "audio/wav",
             "ogg": "audio/ogg",
             "opus": "audio/opus",
-        }
-        return self.upload(key, audio_data, content_type_map.get(format, "audio/webm"))
+        }.get(ext, "application/octet-stream")
 
     def download(self, key: str) -> bytes:
         """Download a file."""

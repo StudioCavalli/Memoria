@@ -1,6 +1,7 @@
 """Tests for alert service: cognitive decline detection, inactivity, deduplication."""
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 from app.models.alert import Alert
 from app.models.cognitive_metric import CognitiveMetric
@@ -78,6 +79,32 @@ def test_cognitive_decline_high_alert(db):
     assert len(alerts) == 1
     assert alerts[0].severity == "high"
     assert "baisse" in alerts[0].message.lower()
+
+
+def test_high_alert_enqueues_family_email(db):
+    """A high-severity alert must actually notify the family via email.
+    (Previously it fired an async coroutine with no running loop → never sent.)"""
+    senior = _create_senior_directly(db)
+    _create_metrics_pair(db, senior.id, prev_words=100, recent_words=60,
+                         prev_latency=2000, recent_latency=3000)  # 40% drop + 50% latency
+
+    with patch("app.tasks.send_alert_email_task.delay") as mock_delay:
+        AlertService(db).check_all_seniors()
+
+    assert mock_delay.called, "the family email task was never enqueued"
+    call_args = mock_delay.call_args.args
+    assert call_args[0] == senior.id
+    assert "HIGH" in call_args[1] or "Alerte" in call_args[1]
+
+
+def test_low_alert_does_not_email(db):
+    """Low-severity alerts (e.g. inactivity) do not email the family."""
+    _create_senior_directly(db)  # no sessions → inactivity (low)
+
+    with patch("app.tasks.send_alert_email_task.delay") as mock_delay:
+        AlertService(db).check_all_seniors()
+
+    assert not mock_delay.called
 
 
 def test_cognitive_decline_semantic_only(db):
