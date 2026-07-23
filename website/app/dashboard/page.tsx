@@ -96,57 +96,48 @@ export default function DashboardPage() {
 
       let history: MetricPoint[] = []
       if (historyRes.status === 'fulfilled') {
-        const raw = historyRes.value.data as any
-        const items: any[] = Array.isArray(raw) ? raw : raw.history ?? raw.items ?? []
-        history = items.map((m: any) => ({
-          date: m.date ?? '',
-          unique_words: m.unique_words ?? m.semantic_richness ?? m.score ?? 0,
-        }))
+        history = historyRes.value.data.map((m) => {
+          const d = new Date(m.recorded_at)
+          return {
+            // was `m.date` (absent from the API → always empty); the field is `recorded_at`
+            date: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+            unique_words: m.unique_words,
+          }
+        })
       }
 
       let summary: MetricsSummary = { ...EMPTY_SUMMARY }
       if (summaryRes.status === 'fulfilled') {
-        const s = summaryRes.value.data as any
+        const s = summaryRes.value.data
         summary = {
-          vitality_score: s.vitality_score ?? 0,
-          semantic_richness_trend: s.semantic_richness_trend ?? null,
-          latency_trend: s.latency_trend ?? null,
-          session_count_7d: s.session_count_7d ?? s.session_count ?? 0,
+          vitality_score: s.vitality_score,
+          semantic_richness_trend: s.semantic_richness_trend,
+          latency_trend: s.latency_trend,
+          session_count_7d: 0, // not exposed by the metrics/summary endpoint
         }
       }
 
       let latestGazette: DashboardData['latestGazette'] = null
-      if (gazettesRes.status === 'fulfilled') {
-        const gd = gazettesRes.value.data as any
-        const list = Array.isArray(gd) ? gd : gd.items ?? gd.results ?? []
-        if (list.length > 0) {
-          latestGazette = {
-            id: list[0].id,
-            title: list[0].title ?? 'Gazette',
-            date: list[0].created_at ?? list[0].date ?? '',
-          }
-        }
+      if (gazettesRes.status === 'fulfilled' && gazettesRes.value.data.length > 0) {
+        const g = gazettesRes.value.data[0]
+        latestGazette = { id: String(g.id), title: g.title, date: g.created_at }
       }
 
+      // last_session is now typed (SeniorDetailResponse.last_session)
+      const lastSessionRaw =
+        sessionRes.status === 'fulfilled' ? sessionRes.value.data : null
+
       setData({
-        lastSession:
-          sessionRes.status === 'fulfilled' && (sessionRes.value.data as any)
-            ? {
-                date: (sessionRes.value.data as any).created_at ?? (sessionRes.value.data as any).date ?? '',
-                summary: (sessionRes.value.data as any).summary ?? '',
-              }
-            : null,
+        lastSession: lastSessionRaw
+          ? {
+              date: lastSessionRaw.date ?? '',
+              summary: lastSessionRaw.summary ?? '',
+            }
+          : null,
         memoriesCount:
-          memoriesRes.status === 'fulfilled'
-            ? (() => {
-                const d = memoriesRes.value.data as any
-                return d.total ?? (Array.isArray(d) ? d : d.items ?? []).length ?? 0
-              })()
-            : 0,
+          memoriesRes.status === 'fulfilled' ? memoriesRes.value.data.length : 0,
         unreadAlerts:
-          alertsRes.status === 'fulfilled'
-            ? (alertsRes.value.data as any).count ?? 0
-            : 0,
+          alertsRes.status === 'fulfilled' ? alertsRes.value.data.count : 0,
         metricsHistory: history,
         summary,
         latestGazette,

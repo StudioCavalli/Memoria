@@ -18,14 +18,9 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await authService.login(email, password) as { data: Record<string, string> }
+      const { data } = await authService.login(email, password)
       localStorage.setItem('memoria_token', data.access_token)
-      if (data.refresh_token) {
-        localStorage.setItem('memoria_refresh', data.refresh_token)
-      }
-      if (data.senior_id) {
-        localStorage.setItem('memoria_senior_id', data.senior_id)
-      }
+      localStorage.setItem('memoria_refresh', data.refresh_token)
       router.push('/dashboard')
     } catch {
       setError(t('login.error'))

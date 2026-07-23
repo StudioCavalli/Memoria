@@ -8,7 +8,10 @@ import {
   gdprService,
   pairingService,
 } from '@/lib/dashboard-api'
+import type { components } from '@/lib/api-types'
 import { useI18n } from '@/lib/i18n'
+
+type SeniorCreate = components['schemas']['SeniorCreate']
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -131,7 +134,7 @@ export default function SettingsPage() {
           settingsService.getFamilyMembers(seniorId),
         ])
         if (profRes.status === 'fulfilled') {
-          const d = profRes.value.data as any
+          const d = profRes.value.data // SeniorResponse (typed)
           setProfile({
             first_name: d.first_name || '',
             last_name: d.last_name || '',
@@ -139,16 +142,15 @@ export default function SettingsPage() {
             birth_place: d.birth_place || '',
           })
         }
+        // schedule + family_members are typed (SeniorDetailResponse).
         if (schedRes.status === 'fulfilled') {
-          const d = schedRes.value.data as any
-          setSchedule({
-            days: d.days || [],
-            time: d.time || '10:00',
-            duration_minutes: d.duration_minutes ?? 30,
-          })
+          const d = schedRes.value.data
+          setSchedule({ days: d.days, time: d.time, duration_minutes: d.duration_minutes })
         }
+        // notification prefs are the one still-loose feature: there's no backend
+        // model for them yet (they always fall back to defaults) → narrow cast.
         if (notifRes.status === 'fulfilled') {
-          const d = notifRes.value.data as any
+          const d = notifRes.value.data as { email_alerts?: boolean; email_gazette?: boolean; push_enabled?: boolean }
           setNotifs({
             email_alerts: d.email_alerts ?? true,
             email_gazette: d.email_gazette ?? true,
@@ -156,8 +158,7 @@ export default function SettingsPage() {
           })
         }
         if (famRes.status === 'fulfilled') {
-          const d = famRes.value.data as any
-          setFamily(Array.isArray(d) ? d : d.items ?? [])
+          setFamily(famRes.value.data.map((m) => ({ ...m, id: String(m.id) })))
         }
       } catch {
         setError(true)
@@ -246,7 +247,7 @@ export default function SettingsPage() {
     setPairingLoading(true)
     try {
       const res = await pairingService.generateCode(seniorId)
-      const d = res.data as any
+      const d = res.data
       setPairingCode(d.code)
       setSettingsPin(d.settings_pin || null)
       addToast(t('settings.pairing.toast.ok'), 'success')
@@ -264,15 +265,14 @@ export default function SettingsPage() {
     }
     setCreatingSenior(true)
     try {
-      const payload: Record<string, string> = {
+      const payload: SeniorCreate = {
         first_name: newSenior.first_name.trim(),
         last_name: newSenior.last_name.trim(),
       }
       if (newSenior.birth_date) payload.birth_date = newSenior.birth_date
       if (newSenior.birth_place) payload.birth_place = newSenior.birth_place
-      const res = await seniorsService.create(payload as any)
-      const created = res.data as any
-      const id = String(created.id)
+      const res = await seniorsService.create(payload)
+      const id = String(res.data.id)
       localStorage.setItem('memoria_senior_id', id)
       setSeniorId(id)
       setShowCreateSenior(false)
@@ -280,10 +280,10 @@ export default function SettingsPage() {
       addToast(t('settings.createsenior.toast.ok'), 'success')
       // Reload profile data
       setProfile({
-        first_name: created.first_name || '',
-        last_name: created.last_name || '',
-        birth_date: created.birth_date || '',
-        birth_place: created.birth_place || '',
+        first_name: res.data.first_name || '',
+        last_name: res.data.last_name || '',
+        birth_date: res.data.birth_date || '',
+        birth_place: res.data.birth_place || '',
       })
     } catch {
       addToast(t('settings.createsenior.toast.err'), 'error')

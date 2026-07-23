@@ -34,8 +34,40 @@ jobs:
       - name: Tests (pytest)
         run: uv run pytest -q
 
+  api-contract:
+    name: API contract (OpenAPI ↔ TS types fresh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Export OpenAPI from FastAPI
+        working-directory: backend
+        run: uv run python scripts/export_openapi.py
+
+      - name: Regenerate TS types
+        working-directory: website
+        run: npm run gen:api-types
+
+      - name: Fail if the committed contract is stale
+        run: |
+          if ! git diff --quiet website/openapi.json website/lib/api-types.ts; then
+            echo "::error::OpenAPI contract is out of date. Run 'cd backend && uv run python scripts/export_openapi.py' then 'cd website && npm run gen:api-types', and commit the result."
+            git --no-pager diff --stat website/openapi.json website/lib/api-types.ts
+            exit 1
+          fi
+          echo "OpenAPI contract is up to date ✓"
+
   web:
-    name: Web (typecheck + build)
+    name: Web (typecheck + test + build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,6 +88,9 @@ jobs:
 
       - name: Typecheck (tsc)
         run: npm run typecheck
+
+      - name: Unit tests (vitest)
+        run: npm run test
 
       - name: Build (next build)
         run: npm run build

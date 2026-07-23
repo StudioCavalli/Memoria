@@ -24,8 +24,7 @@ export default function GazettesPage() {
     const load = async () => {
       try {
         const { data } = await gazettesService.list(SENIOR_ID())
-        const d = data as any
-        setGazettes(d.items || d || [])
+        setGazettes(data.map((g) => ({ id: String(g.id), title: g.title, date: g.created_at })))
       } catch {
         setGazettes([])
       } finally {

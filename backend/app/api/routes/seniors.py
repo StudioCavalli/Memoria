@@ -11,8 +11,17 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.senior import Senior
+from app.models.session import Session as ConvSession
 from app.models.user import FamilyMember, User
-from app.schemas.senior import SeniorCreate, SeniorResponse, SeniorUpdate
+from app.schemas.senior import (
+    FamilyMemberInfo,
+    LastSessionInfo,
+    ScheduleInfo,
+    SeniorCreate,
+    SeniorDetailResponse,
+    SeniorResponse,
+    SeniorUpdate,
+)
 
 router = APIRouter(prefix="/seniors", tags=["seniors"])
 
@@ -48,7 +57,7 @@ def list_seniors(
     return seniors
 
 
-@router.get("/{senior_id}", response_model=SeniorResponse)
+@router.get("/{senior_id}", response_model=SeniorDetailResponse)
 def get_senior(
     senior_id: int,
     db: Session = Depends(get_db),
@@ -66,7 +75,48 @@ def get_senior(
     if not link:
         raise HTTPException(status_code=403, detail="Acces non autorise")
 
-    return senior
+    # Session schedule (stored as JSON on the senior)
+    schedule = None
+    if senior.session_schedule:
+        try:
+            raw = json.loads(senior.session_schedule)
+            schedule = ScheduleInfo(
+                days=raw.get("days", []),
+                time=raw.get("time", "10:00"),
+                duration_minutes=raw.get("duration_minutes", 30),
+            )
+        except (json.JSONDecodeError, TypeError, AttributeError):
+            schedule = None
+
+    # Family members, resolved to the linked user's name/email
+    members = [
+        FamilyMemberInfo(
+            id=fm.id,
+            name=f"{fm.user.first_name} {fm.user.last_name}".strip() if fm.user else "",
+            email=fm.user.email if fm.user else "",
+            role=fm.role,
+        )
+        for fm in senior.family_members
+    ]
+
+    # Most recent session for the dashboard's "last session" card
+    last = (
+        db.query(ConvSession)
+        .filter(ConvSession.senior_id == senior_id)
+        .order_by(ConvSession.started_at.desc())
+        .first()
+    )
+    last_session = (
+        LastSessionInfo(id=last.id, date=last.started_at, summary=last.summary) if last else None
+    )
+
+    base = SeniorResponse.model_validate(senior)
+    return SeniorDetailResponse(
+        **base.model_dump(),
+        schedule=schedule,
+        family_members=members,
+        last_session=last_session,
+    )
 
 
 @router.put("/{senior_id}", response_model=SeniorResponse)

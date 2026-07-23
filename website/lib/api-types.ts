@@ -645,6 +645,17 @@ export interface components {
              */
             recorded_at: string;
         };
+        /** FamilyMemberInfo */
+        FamilyMemberInfo: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Role */
+            role: string;
+        };
         /** FollowupRequest */
         FollowupRequest: {
             /** Text */
@@ -682,6 +693,15 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** LastSessionInfo */
+        LastSessionInfo: {
+            /** Id */
+            id: number;
+            /** Date */
+            date: string | null;
+            /** Summary */
+            summary: string | null;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -786,6 +806,24 @@ export interface components {
             /** Gdpr Consent */
             gdpr_consent: boolean;
         };
+        /** ScheduleInfo */
+        ScheduleInfo: {
+            /**
+             * Days
+             * @default []
+             */
+            days: string[];
+            /**
+             * Time
+             * @default 10:00
+             */
+            time: string;
+            /**
+             * Duration Minutes
+             * @default 30
+             */
+            duration_minutes: number;
+        };
         /** SeniorCreate */
         SeniorCreate: {
             /** First Name */
@@ -796,6 +834,37 @@ export interface components {
             birth_date?: string | null;
             /** Birth Place */
             birth_place?: string | null;
+        };
+        /**
+         * SeniorDetailResponse
+         * @description Single-senior view: base fields + the schedule, family and last-session
+         *     data the dashboard needs (kept off the list response to avoid N+1 queries).
+         */
+        SeniorDetailResponse: {
+            /** Id */
+            id: number;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Birth Date */
+            birth_date: string | null;
+            /** Birth Place */
+            birth_place: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            schedule?: components["schemas"]["ScheduleInfo"] | null;
+            /**
+             * Family Members
+             * @default []
+             */
+            family_members: components["schemas"]["FamilyMemberInfo"][];
+            last_session?: components["schemas"]["LastSessionInfo"] | null;
         };
         /** SeniorResponse */
         SeniorResponse: {
@@ -1111,7 +1180,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SeniorResponse"];
+                    "application/json": components["schemas"]["SeniorDetailResponse"];
                 };
             };
             /** @description Validation Error */

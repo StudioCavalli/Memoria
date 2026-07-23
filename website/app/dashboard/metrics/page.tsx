@@ -70,9 +70,7 @@ export default function MetricsPage() {
           metricsService.summary(sid),
         ])
         if (histRes.status === 'fulfilled') {
-          const rawData = histRes.value.data as any
-          const raw: ApiMetricPoint[] = rawData.history || rawData || []
-          const mapped: MetricPoint[] = raw.map((p) => {
+          const mapped: MetricPoint[] = histRes.value.data.map((p) => {
             const d = new Date(p.recorded_at)
             return {
               date: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
@@ -83,11 +81,14 @@ export default function MetricsPage() {
           setHistory(mapped)
         }
         if (sumRes.status === 'fulfilled') {
-          const s = sumRes.value.data as any
+          const s = sumRes.value.data
           setSummary({
-            vitality_score: s.vitality_score ?? 0,
-            semantic_trend: s.semantic_trend ?? 'stable',
-            latency_trend: s.latency_trend ?? 'stable',
+            vitality_score: s.vitality_score,
+            // backend field is `semantic_richness_trend` (the old `semantic_trend`
+            // access was silently undefined → always fell back to 'stable').
+            // Backend sends a free string; the UI has a fallback for unknown values.
+            semantic_trend: s.semantic_richness_trend as MetricsSummary['semantic_trend'],
+            latency_trend: s.latency_trend as MetricsSummary['latency_trend'],
           })
         }
       } catch {

@@ -168,11 +168,9 @@ export const sessionsService = {
   get: (sessionId: string) => api.get(`/sessions/${sessionId}`),
 
   latest: (seniorId: string) =>
-    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => {
-      const senior = res.data;
-      if (senior.last_session) return { data: senior.last_session };
-      return { data: null };
-    }),
+    api.get<Schemas['SeniorDetailResponse']>(`/seniors/${seniorId}`).then((res) => ({
+      data: res.data.last_session ?? null,
+    })),
 };
 
 // ---------------------------------------------------------------------------
@@ -274,13 +272,13 @@ export const questionsService = {
 // Settings / profile helpers
 // ---------------------------------------------------------------------------
 export const settingsService = {
-  getProfile: (seniorId: string) => api.get(`/seniors/${seniorId}`),
+  getProfile: (seniorId: string) => api.get<Schemas['SeniorDetailResponse']>(`/seniors/${seniorId}`),
 
   updateProfile: (seniorId: string, data: Record<string, unknown>) =>
     api.put(`/seniors/${seniorId}`, data),
 
   getSchedule: (seniorId: string) =>
-    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => ({
+    api.get<Schemas['SeniorDetailResponse']>(`/seniors/${seniorId}`).then((res) => ({
       data: res.data.schedule ?? { days: [], time: '10:00', duration_minutes: 30 },
     })),
 
@@ -305,8 +303,8 @@ export const settingsService = {
     }),
 
   getFamilyMembers: (seniorId: string) =>
-    api.get<Record<string, unknown>>(`/seniors/${seniorId}`).then((res) => ({
-      data: res.data.family_members ?? [],
+    api.get<Schemas['SeniorDetailResponse']>(`/seniors/${seniorId}`).then((res) => ({
+      data: res.data.family_members,
     })),
 };
 
@@ -315,7 +313,7 @@ export const settingsService = {
 // ---------------------------------------------------------------------------
 export const pairingService = {
   generateCode: (seniorId: string) =>
-    api.post<{ code: string; expires_in: number }>(`/seniors/${seniorId}/pairing-code`),
+    api.post<{ code: string; settings_pin: string; expires_in: number }>(`/seniors/${seniorId}/pairing-code`),
 
   validate: (code: string) =>
     request<{ access_token: string; senior_id: number; senior_name: string; api_url: string }>(

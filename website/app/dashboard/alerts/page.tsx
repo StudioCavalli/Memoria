@@ -63,8 +63,17 @@ export default function AlertsPage() {
     setError(false)
     try {
       const { data } = await alertsService.list(seniorId, showUnreadOnly)
-      const d = data as any
-      const items: Alert[] = Array.isArray(d) ? d : d.items ?? d.results ?? []
+      // Map the backend AlertResponse to the local shape. Previously done via
+      // `as any`, which silently left `read` (API sends `is_read`) and `title`
+      // (API has no title, it has `type`) undefined.
+      const items: Alert[] = data.map((a) => ({
+        id: String(a.id),
+        title: a.type,
+        message: a.message,
+        severity: a.severity as Alert['severity'],
+        created_at: a.created_at,
+        read: a.is_read,
+      }))
       setAlerts(items)
     } catch {
       setAlerts([])
@@ -84,7 +93,7 @@ export default function AlertsPage() {
     const connect = async () => {
       try {
         const meRes = await authService.me()
-        const userId = (meRes.data as any).id
+        const userId = meRes.data.id
         if (!userId) return
 
         const token = localStorage.getItem('memoria_token')

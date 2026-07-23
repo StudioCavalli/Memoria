@@ -26,21 +26,23 @@
 - **Communication** : WebSocket pour le flux audio, REST pour les sessions
 
 ### 2. Backend API
-- **Stack** : Python 3.11 / FastAPI / SQLAlchemy / Alembic
+- **Stack** : Python 3.11 / FastAPI / SQLAlchemy / Alembic (packaging & lockfile via uv)
 - **Services** :
-  - `AIConversationService` — Gestion des dialogues via LLM
+  - `AIConversationService` — Gestion des dialogues via LLM (prompt enrichi des souvenirs déjà collectés)
   - `SemanticAnalysisService` — Analyse de la richesse semantique
   - `AlertService` — Detection de declin cognitif et alertes
   - `MemoryExtractionService` — Extraction des souvenirs depuis les transcriptions
   - `GazetteGeneratorService` — Generation PDF hebdomadaire
+- **Worker Celery** — tâches durables avec retries (pipeline post-session, gazette)
 
 ### 3. Dashboard Famille
-- **Stack** : React + Vite + TypeScript + Recharts
+- **Stack** : Next.js 16.3 + React 19 + TypeScript + Recharts (dans `website/`)
+- **Types** : générés depuis l'OpenAPI FastAPI (source de vérité unique)
 - **Pages** : Dashboard, Souvenirs, Alertes, Gazettes, Metriques, Parametres
 
 ### 4. Base de donnees
-- **PostgreSQL 15** avec chiffrement AES-256 sur les colonnes sensibles
-- **Redis** pour le cache et les files d'attente
+- **PostgreSQL 15** avec chiffrement AES-256-GCM (clé dérivée via HKDF) sur les colonnes sensibles
+- **Redis** — broker/back-end des tâches Celery + cache
 
 ## Flux de donnees
 
@@ -58,7 +60,7 @@
 4. Evaluation des alertes Sentinelle
 
 ### Gazette hebdomadaire
-1. Job cron dimanche soir
+1. Job cron dimanche soir → enqueue une tâche Celery durable **par senior**
 2. Compilation des souvenirs de la semaine
 3. Generation PDF
 4. Envoi par email aux proches

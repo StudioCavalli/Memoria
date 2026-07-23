@@ -63,9 +63,7 @@ export default function MemoriesPage() {
 
   useEffect(() => {
     memoriesService.themes().then((res) => {
-      const data = res.data as any
-      const list: Theme[] = Array.isArray(data) ? data : data.items ?? data.results ?? []
-      setThemes(list)
+      setThemes(res.data.map((t) => ({ id: String(t.id), name: t.name })))
     }).catch(() => {})
   }, [])
 
@@ -83,10 +81,16 @@ export default function MemoriesPage() {
         page,
         per_page: PER_PAGE,
       })
-      const d = data as any
-      const items: Memory[] = Array.isArray(d) ? d : d.items ?? d.results ?? []
+      const items: Memory[] = data.map((m) => ({
+        id: String(m.id),
+        title: m.title,
+        summary: m.summary,
+        period: m.period ?? '',
+        themes: m.themes,
+        created_at: m.created_at,
+      }))
       setMemories(items)
-      setTotal(d.total ?? items.length)
+      setTotal(items.length) // list endpoint returns an array without a total count
     } catch {
       setMemories([])
       setTotal(0)

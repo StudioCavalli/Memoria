@@ -40,14 +40,23 @@ _INSECURE_DEFAULTS = {
 
 
 def _check_production_secrets() -> None:
-    """Fail fast if production is running with placeholder secrets."""
+    """Fail fast if production is running with placeholder or weak secrets."""
     if settings.environment != "production":
         return
-    leaked = [name for name, default in _INSECURE_DEFAULTS.items() if getattr(settings, name) == default]
-    if leaked:
+    problems = [
+        f"{name} = valeur par défaut"
+        for name, default in _INSECURE_DEFAULTS.items()
+        if getattr(settings, name) == default
+    ]
+    # Reject weak crypto secrets (need real entropy — e.g. `openssl rand -base64 48`).
+    if len(settings.jwt_secret_key) < 32:
+        problems.append("jwt_secret_key trop court (>= 32 caractères requis)")
+    if len(settings.aes_encryption_key) < 32:
+        problems.append("aes_encryption_key trop court (>= 32 caractères requis)")
+    if problems:
         raise RuntimeError(
-            "Refus de démarrer en production avec des secrets par défaut : "
-            + ", ".join(leaked)
+            "Refus de démarrer en production — secrets non sûrs : "
+            + " ; ".join(problems)
             + ". Définissez-les via les variables d'environnement."
         )
 

@@ -22,7 +22,7 @@ Memoria est un compagnon vocal bienveillant qui recueille les souvenirs de vie d
 ```
 backend/       API Python/FastAPI — moteur IA, STT/TTS, analyse cognitive, alertes
 app/           App tablette senior — React Native (Expo) + NativeWind (Tailwind)
-website/       Site vitrine + Dashboard famille — Next.js 15 + Tailwind v4
+website/       Site vitrine + Dashboard famille — Next.js 16.3 + Tailwind v4
 database/      Scripts SQL, seed des thèmes
 docs/          Documentation technique (architecture, setup, API, scénario démo)
 ```
@@ -33,8 +33,9 @@ docs/          Documentation technique (architecture, setup, API, scénario dém
 
 | Composant | Technologie |
 |-----------|-------------|
-| **Backend API** | Python 3.9+ / FastAPI / Uvicorn |
+| **Backend API** | Python 3.11+ / FastAPI / Uvicorn (packaging & lockfile via uv) |
 | **ORM & Migrations** | SQLAlchemy 2.0 / Alembic |
+| **Jobs durables** | Celery + Redis (pipeline post-session, gazette hebdomadaire) |
 | **Base de données** | PostgreSQL 15+ (Prisma Postgres hébergé) |
 | **Chiffrement** | AES-256-GCM sur toutes les transcriptions |
 | **Auth** | JWT (access + refresh tokens) / bcrypt |
@@ -43,10 +44,12 @@ docs/          Documentation technique (architecture, setup, API, scénario dém
 | **Text-to-Speech** | ElevenLabs / Azure Neural TTS |
 | **Analyse NLP** | spaCy (fr_core_news_sm) + regex fallback |
 | **App Senior** | React Native (Expo) / TypeScript |
-| **Dashboard Famille** | Next.js 15 + React 19 + Tailwind v4 + Recharts (dans website/) |
+| **Dashboard Famille** | Next.js 16.3 + React 19 + Tailwind v4 + Recharts (dans website/) |
 | **Stockage fichiers** | S3-compatible (MinIO / AWS S3) |
 | **Notifications** | WebSocket temps réel + SendGrid email |
-| **Infra** | Docker Compose / Makefile |
+| **Type-safety** | Types front générés depuis l'OpenAPI FastAPI (`npm run gen:api-types`) |
+| **CI** | GitHub Actions : ruff + pytest (back), tsc + vitest + build (web), tsc + expo-doctor (mobile), fraîcheur du contrat OpenAPI |
+| **Infra** | Dockerfiles prod multi-stage (non-root) / Docker Compose / Makefile |
 
 ---
 
@@ -88,7 +91,8 @@ docs/          Documentation technique (architecture, setup, API, scénario dém
 | `StorageService` | Stockage S3-compatible pour audio et PDFs, presigned URLs. Fallback local (backend/uploads/) quand S3 non configuré, servi via FastAPI StaticFiles |
 | `SessionScheduler` | Déclenchement automatique de sessions à horaires configurés |
 | `NotificationManager` | Notifications temps réel WebSocket (tablettes + dashboards) + email SendGrid |
-| `CronJobs` | APScheduler AsyncIO : alertes quotidiennes (CronTrigger 8h UTC), gazette hebdomadaire (dimanche 20h UTC). Exécution unique garantie |
+| `CronJobs` | APScheduler AsyncIO : alertes quotidiennes (8h UTC), gazette hebdomadaire (dimanche 20h UTC). La gazette **enqueue une tâche Celery durable par senior** (retries) au lieu d'un traitement inline |
+| `tasks.py` (Celery) | Tâches durables avec retries/backoff : pipeline post-session (extraction souvenirs) + génération de gazette. Remplace l'ancien fire-and-forget |
 
 ### 9 modèles de données (PostgreSQL)
 
@@ -192,7 +196,7 @@ TABLETTE   DASHBOARD
 
 ---
 
-## Dashboard — Interface famille (intégré dans website/ — Next.js 15)
+## Dashboard — Interface famille (intégré dans website/ — Next.js 16.3)
 
 ```
 website/app/
@@ -340,7 +344,9 @@ Voir `.env.example` pour la liste complète. Les principales :
 | `ELEVENLABS_API_KEY` | Clé API ElevenLabs (TTS) |
 | `AZURE_SPEECH_KEY` | Clé Azure Speech (STT/TTS alternatif) |
 | `SENDGRID_API_KEY` | Clé SendGrid (envoi emails Gazette + alertes) |
-| `AES_ENCRYPTION_KEY` | Clé de chiffrement AES-256 (32 bytes) |
+| `AES_ENCRYPTION_KEY` | Secret de chiffrement, dérivé en clé AES-256 via HKDF (≥ 32 caractères ; ex. `openssl rand -base64 48`) |
+| `ANTHROPIC_MODEL` | Modèle Claude (défaut `claude-sonnet-5`) |
+| `CORS_ORIGINS` | Origines autorisées (CSV) — défaut localhost, à définir en prod |
 | `CORS_ORIGINS` | Origines CORS autorisées (séparées par virgules) |
 | `S3_ENDPOINT` `S3_ACCESS_KEY` `S3_SECRET_KEY` | Stockage S3-compatible |
 
@@ -379,7 +385,7 @@ tests/
   test_ai_conversation.py    11 tests  : fallback, mock Anthropic, contexte mémoire
 ```
 
-**Total : 15 fichiers, 120+ tests, 2035 lignes**
+**Total backend : 126 tests (pytest).** Front : 10 tests (Vitest). Tout tourne en CI (GitHub Actions).
 
 Tous les services externes (Anthropic, OpenAI, ElevenLabs) sont mockés dans les tests — les tests tournent sans clé API.
 
@@ -404,12 +410,12 @@ python3 scripts/test_pipeline.py
 | Fichiers source backend | 64 fichiers Python |
 | Fichiers source app tablette | 10 fichiers TypeScript (NativeWind) |
 | Fichiers source website + dashboard | 30+ fichiers TypeScript (Next.js) |
-| Tests | 15 fichiers, 120+ tests, 2035 lignes |
+| Tests | Backend : 126 tests (pytest) · Front : 10 tests (Vitest + Testing Library) |
 | Modèles BDD | 9 tables + 1 table de liaison + migration Alembic |
 | Routes API | 14 groupes, ~30 endpoints |
 | Services métier | 13 services |
 | Questions biographiques | 145 questions en 8 thèmes |
-| Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) |
+| Cron jobs | APScheduler (alertes 8h UTC, gazette dim 20h UTC) → tâches Celery durables |
 | Stockage | S3-compatible + fallback local (uploads/) |
 | Données de démo | 18 sessions, 30 souvenirs, 3 alertes, 3 gazettes (30 jours) |
 | Langues supportées | 4 (FR, EN, ES, IT) — 240+ clés de traduction |

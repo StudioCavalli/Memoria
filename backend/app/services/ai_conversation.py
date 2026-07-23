@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.encryption import decrypt_text
 from app.models.memory import Memory
+from app.models.session import Session as ConvSession
 from app.models.transcription import Transcription
 
 SYSTEM_PROMPT = """Tu es Memoria, un biographe bienveillant et chaleureux.
@@ -28,26 +29,35 @@ Regles :
 class AIConversationService:
     def get_response(self, session_id: int, user_text: str, db: Session) -> str:
         messages = self._build_messages(session_id, user_text, db)
+        system_prompt = self._system_prompt_for_session(session_id, db)
 
         if settings.anthropic_api_key:
-            return self._call_anthropic(messages)
+            return self._call_anthropic(messages, system_prompt)
         elif settings.openai_api_key:
-            return self._call_openai(messages)
+            return self._call_openai(messages, system_prompt)
         else:
             return self._fallback_response()
 
     async def get_response_stream(self, session_id: int, user_text: str, db: Session) -> AsyncIterator[str]:
         """Stream the LLM response token by token for low-latency TTS pipeline."""
         messages = self._build_messages(session_id, user_text, db)
+        system_prompt = self._system_prompt_for_session(session_id, db)
 
         if settings.anthropic_api_key:
-            async for chunk in self._stream_anthropic(messages):
+            async for chunk in self._stream_anthropic(messages, system_prompt):
                 yield chunk
         elif settings.openai_api_key:
-            async for chunk in self._stream_openai(messages):
+            async for chunk in self._stream_openai(messages, system_prompt):
                 yield chunk
         else:
             yield self._fallback_response()
+
+    def _system_prompt_for_session(self, session_id: int, db: Session) -> str:
+        """System prompt enriched with the senior's already-collected memories,
+        so the biographer avoids repeating topics and deepens them instead."""
+        session = db.query(ConvSession).filter(ConvSession.id == session_id).first()
+        senior_id = session.senior_id if session else None
+        return self._get_system_prompt(senior_id, db)
 
     def _build_messages(self, session_id: int, user_text: str, db: Session) -> list[dict]:
         # Get conversation history
@@ -91,7 +101,7 @@ class AIConversationService:
 
     # --- Synchronous calls ---
 
-    def _call_anthropic(self, messages: list[dict]) -> str:
+    def _call_anthropic(self, messages: list[dict], system: str = SYSTEM_PROMPT) -> str:
         import anthropic
 
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
@@ -101,12 +111,12 @@ class AIConversationService:
             # Sonnet 5 runs adaptive thinking by default; disable it to keep the
             # real-time voice pipeline low-latency and the token budget intact.
             thinking={"type": "disabled"},
-            system=SYSTEM_PROMPT,
+            system=system,
             messages=messages,
         )
         return response.content[0].text
 
-    def _call_openai(self, messages: list[dict]) -> str:
+    def _call_openai(self, messages: list[dict], system: str = SYSTEM_PROMPT) -> str:
         import httpx
 
         response = httpx.post(
@@ -114,7 +124,7 @@ class AIConversationService:
             headers={"Authorization": f"Bearer {settings.openai_api_key}"},
             json={
                 "model": "gpt-4o",
-                "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+                "messages": [{"role": "system", "content": system}] + messages,
                 "max_tokens": 300,
                 "temperature": 0.8,
             },
@@ -124,7 +134,7 @@ class AIConversationService:
 
     # --- Streaming calls (for low-latency pipeline) ---
 
-    async def _stream_anthropic(self, messages: list[dict]) -> AsyncIterator[str]:
+    async def _stream_anthropic(self, messages: list[dict], system: str = SYSTEM_PROMPT) -> AsyncIterator[str]:
         import anthropic
 
         client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
@@ -132,13 +142,13 @@ class AIConversationService:
             model=settings.anthropic_model,
             max_tokens=300,
             thinking={"type": "disabled"},  # low-latency voice pipeline
-            system=SYSTEM_PROMPT,
+            system=system,
             messages=messages,
         ) as stream:
             async for text in stream.text_stream:
                 yield text
 
-    async def _stream_openai(self, messages: list[dict]) -> AsyncIterator[str]:
+    async def _stream_openai(self, messages: list[dict], system: str = SYSTEM_PROMPT) -> AsyncIterator[str]:
         import httpx
 
         async with httpx.AsyncClient() as client:
@@ -148,7 +158,7 @@ class AIConversationService:
                 headers={"Authorization": f"Bearer {settings.openai_api_key}"},
                 json={
                     "model": "gpt-4o",
-                    "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+                    "messages": [{"role": "system", "content": system}] + messages,
                     "max_tokens": 300,
                     "temperature": 0.8,
                     "stream": True,

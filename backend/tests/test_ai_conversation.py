@@ -106,6 +106,41 @@ def test_call_anthropic_includes_system_prompt(client, senior_id, db):
     assert call_kwargs.kwargs["system"] == SYSTEM_PROMPT
 
 
+def test_get_response_injects_memory_context(client, senior_id, db):
+    """End-to-end: with existing memories, get_response sends the memory-enriched
+    system prompt to the LLM (this whole path was dead code before it was wired)."""
+    session = ConvSession(senior_id=senior_id, status="active")
+    db.add(session)
+    db.add(Memory(
+        senior_id=senior_id,
+        title="Le mariage a Nice en 1962",
+        summary_encrypted=encrypt_text("Resume"),
+        period="Annees 60",
+    ))
+    db.commit()
+
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text="Reponse test")]
+
+    with patch("app.services.ai_conversation.settings") as mock_settings:
+        mock_settings.anthropic_api_key = "fake-key"
+        mock_settings.openai_api_key = ""
+        mock_settings.anthropic_model = "claude-sonnet-5"
+
+        with patch("anthropic.Anthropic") as mock_anthropic_cls:
+            mock_client = MagicMock()
+            mock_client.messages.create.return_value = mock_response
+            mock_anthropic_cls.return_value = mock_client
+
+            service = AIConversationService()
+            service.get_response(session.id, "Test", db)
+
+    system_sent = mock_client.messages.create.call_args.kwargs["system"]
+    assert "Memoria" in system_sent                      # base prompt still present
+    assert "Souvenirs deja collectes" in system_sent     # memory context injected
+    assert "Le mariage a Nice en 1962" in system_sent    # the actual collected memory
+
+
 def test_call_openai_when_no_anthropic(client, senior_id, db):
     """OpenAI is used as fallback when Anthropic key is empty."""
     session = ConvSession(senior_id=senior_id, status="active")

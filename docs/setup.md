@@ -31,10 +31,9 @@ chmod +x start.sh
 ### Backend
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-uvicorn app.main:app --reload
+uv sync --extra dev          # installe depuis uv.lock (reproductible)
+uv run uvicorn app.main:app --reload
+uv run pytest                # tests
 ```
 
 ### Site + Dashboard (Next.js)
@@ -54,9 +53,16 @@ npx expo start
 ## Structure du repo
 
 ```
-backend/       API Python/FastAPI
+backend/       API Python/FastAPI (+ worker Celery, uv.lock)
 app/           App tablette senior — React Native (Expo) + NativeWind
-website/       Site vitrine + Dashboard famille — Next.js 15 + Tailwind v4
+website/       Site vitrine + Dashboard famille — Next.js 16.3 + Tailwind v4
 database/      Scripts SQL, seed des thèmes
 docs/          Documentation technique
+```
+
+## Régénérer les types front depuis l'API
+
+```bash
+cd backend && uv run python scripts/export_openapi.py   # dump website/openapi.json
+cd website && npm run gen:api-types                      # → lib/api-types.ts
 ```
