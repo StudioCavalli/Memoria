@@ -492,7 +492,7 @@ export interface paths {
         };
         /**
          * Get Session Audio
-         * @description Get/stream the audio recording of a session.
+         * @description Stream the session's audio recording (decrypted on the fly, after ownership check).
          */
         get: operations["get_session_audio_api_sessions__session_id__audio_get"];
         put?: never;
